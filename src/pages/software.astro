@@ -3,8 +3,11 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import ProjectSection from '../components/ProjectSection.astro';
 import { visibleSorted } from '../lib/projects';
-import { slugify } from '../lib/taxonomy';
+import { slugify, LANGUAGES } from '../lib/taxonomy';
+import FilterBar from '../components/FilterBar.astro';
+import { deriveOptions } from '../lib/filters';
 const projects = visibleSorted(await getCollection('software'));
+const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LANGUAGES);
 ---
 <Layout title="Software Development" description="Software projects by Muhammad Zarif Nurhan: AI systems, full-stack web apps and desktop software." page="software">
   <div class="container">
@@ -12,7 +15,7 @@ const projects = visibleSorted(await getCollection('software'));
       <h1><span class="sym" style="color:var(--sw)" aria-hidden="true">&lt;/&gt; </span>Software Development</h1>
       <p>AI systems, full-stack web applications and desktop software, built during my Computer Science degree.</p>
     </header>
-    <!-- FilterBar inserted in Task 5 -->
+    <FilterBar param="lang" options={languageOptions} label="Filter by language" />
     {projects.map((p, i) => (
       <ProjectSection
         id={p.id.split('/')[0]!}

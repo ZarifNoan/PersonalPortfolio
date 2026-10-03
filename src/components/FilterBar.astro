@@ -1,0 +1,20 @@
+---
+import { slugify } from '../lib/taxonomy';
+interface Props { param: 'lang' | 'type'; options: string[]; label: string }
+const { param, options, label } = Astro.props;
+---
+<div class="filters" role="group" aria-label={label} data-filter-group data-param={param} data-options={options.map(slugify).join(' ')} hidden>
+  <button type="button" class="glass" data-filter-option="all" aria-pressed="true">All</button>
+  {options.map((o) => <button type="button" class="glass" data-filter-option={slugify(o)} aria-pressed="false">{o}</button>)}
+</div>
+<style>
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .filters[hidden] { display: none; }
+  button { color: var(--muted); padding: 8px 16px; font: 600 .9rem var(--font-body); cursor: pointer; transition: background .2s, color .2s; }
+  button:hover { color: var(--text); }
+  button[aria-pressed='true'] { color: #0b0b14; background: var(--text); border-color: var(--text); }
+</style>
+<script>
+  import { initFilter } from '../scripts/filter';
+  document.querySelectorAll<HTMLElement>('[data-filter-group]').forEach(initFilter);
+</script>
