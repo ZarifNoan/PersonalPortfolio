@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { site } from '../data/site';
 interface Props { title: string; description: string; page: 'home' | 'software' | 'viz' }
 const { title, description, page } = Astro.props;
@@ -31,5 +32,6 @@ const og = new URL('/og.png', Astro.site).toString();
     <Nav page={page} />
     <main id="main"><slot /></main>
     <Footer />
+    <Lightbox />
   </body>
 </html>
