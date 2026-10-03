@@ -31,3 +31,26 @@ test('backdrop click closes', async ({ page }) => {
   await page.mouse.click(5, 5);
   await expect(dlg).toBeHidden();
 });
+
+test('broken image falls back to alt text and recovers on next', async ({ page }) => {
+  await page.goto('/software');
+  const section = page.locator('section[data-filter-item]').first();
+  const gallery: { src: string; alt: string }[] = JSON.parse(
+    (await section.locator('[data-gallery]').getAttribute('data-gallery'))!
+  );
+  const broken = gallery[0]!;
+  await page.route(
+    (url) => url.pathname === broken.src,
+    (route) => route.fulfill({ status: 404, body: 'not found' })
+  );
+  await section.locator('[data-slide]:visible').first().click();
+  const dlg = page.getByRole('dialog', { name: 'Image viewer' });
+  await expect(dlg).toBeVisible();
+  const img = dlg.locator('img');
+  await expect(img).toBeHidden();
+  await expect(dlg.getByText(broken.alt)).toBeVisible();
+  if (gallery.length > 1) {
+    await page.keyboard.press('ArrowRight');
+    await expect(img).toBeVisible();
+  }
+});
