@@ -1,0 +1,20 @@
+title: SLICE 2025 – School Leavers Inspiration & Success Initiatives
+client: true
+category: Architectural Visualization
+order: 2
+description: >-
+  Event venue visualization for SLICE 2025, powered by DASEM: an education expo where universities and
+  institutions meet school leavers to share their programmes. The scene lays out the venue at Rumah
+  Komuniti Parlimen Sembrong, with a main tent, exhibition booths for each institution, canopies, entrance
+  and exit gates, and perimeter fencing.
+images:
+  - src: ./images/01-overview.png
+    alt: Night exterior of the community hall with a white event tent, booths, canopies and gated entrance
+  - src: ./images/02-booths.png
+    alt: Exhibition booth walkway under the tent with banners for participating universities
+  - src: ./images/03-auditorium.png
+    alt: Main tent interior set up for a talk, with rows of chairs facing a SLICE title screen
+  - src: ./images/04-canopy-dining.png
+    alt: Outdoor canopy area with dining tables and chairs set up beside the venue
+  - src: ./images/05-exit-gate.png
+    alt: Close-up of the SLICE-branded exit gate with sponsor and institution logos

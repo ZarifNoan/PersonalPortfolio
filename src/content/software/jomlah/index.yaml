@@ -1,0 +1,25 @@
+title: JomLah – Centralized Event Management Platform
+course: Web Programming
+team: Team of 3
+order: 2
+stack: [PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3]
+languages: [PHP, JavaScript, SQL]
+description: >-
+  Developed a web platform where people can find and book events, organisers can host them, and admins
+  approve and manage everything in one place. Each user role has its own area: attendees book tickets and
+  leave reviews, organisers create and manage events, and admins approve events and manage users. Behind it
+  is a 10-table MySQL database covering one-to-one, one-to-many and many-to-many relationships. Logins are
+  secure with role-based access, prepared statements block SQL injection, and input is checked on both the
+  browser and the server. jQuery/AJAX lets users search and book without reloading the page, and every main
+  feature was checked against a written set of test cases.
+images:
+  - src: ./images/01-home.png
+    alt: JomLah home page listing upcoming events and a featured ticket card
+  - src: ./images/02-browse.png
+    alt: Browse events page with category filters and a grid of event cards
+  - src: ./images/03-checkout.png
+    alt: Checkout screen for confirming attendee details and paying for a ticket
+  - src: ./images/04-organiser-dashboard.png
+    alt: Organiser dashboard showing live events, tickets sold, revenue and recent bookings
+  - src: ./images/05-check-in.png
+    alt: Door check-in screen for scanning or typing a ticket reference code

@@ -1,0 +1,19 @@
+title: Gobami Product Visualization
+client: false
+category: Product Visualization
+order: 3
+description: >-
+  Product visualization of Gobami, a thermos-style container that keeps both food and drinks warm,
+  created for a friend's university assignment. The product is shown in six patterned designs: Chinese New
+  Year, Hari Raya, Deepavali, Earth Day, Breast Cancer Awareness and Autism Awareness.
+images:
+  - src: ./images/01-collection.png
+    alt: Six Gobami food containers in different festive patterns arranged on two shelves
+  - src: ./images/02-chinese-new-year.png
+    alt: Gobami container in a red and gold Chinese New Year dragon pattern
+  - src: ./images/03-deepavali.png
+    alt: Gobami container in a purple Deepavali pattern with floral and diya motifs
+  - src: ./images/04-breast-cancer-awareness.png
+    alt: Gobami container in a pink pattern with Breast Cancer Awareness ribbons
+  - src: ./images/05-autism-awareness.png
+    alt: Gobami container in a teal pattern with colourful Autism Awareness puzzle pieces

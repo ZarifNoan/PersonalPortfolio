@@ -1,0 +1,23 @@
+title: StockSense – AI Inventory Prediction System
+course: Final Year Project (Project Design and Implementation)
+team: Individual
+order: 1
+stack: [Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL]
+languages: [Python, JavaScript, SQL]
+description: >-
+  Developed a desktop inventory management app that helps small and medium businesses (SMEs) restock
+  before they run out. It uses an LSTM model built in TensorFlow/Keras to predict demand for each product
+  from 5 years of sales data, and an NLP chatbot that answers stock questions typed in plain language.
+  The app also handles stock management, low-stock alerts and a timestamped change history, with
+  interactive Chart.js charts comparing past sales against predicted demand.
+images:
+  - src: ./images/01-dashboard.png
+    alt: StockSense dashboard showing inventory levels, stock alerts and a demand forecast chart
+  - src: ./images/02-inventory.png
+    alt: Inventory management table listing products, stock levels and status badges
+  - src: ./images/03-ml-forecasting.png
+    alt: ML forecasting screen with a line chart comparing actual sales to predicted demand
+  - src: ./images/04-ai-chatbot.png
+    alt: AI chatbot panel answering a natural-language question about low-stock items
+  - src: ./images/05-reports.png
+    alt: Reports and analytics screen with revenue, units sold and a monthly revenue chart

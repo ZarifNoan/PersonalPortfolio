@@ -1,0 +1,24 @@
+title: Fixer – On-Demand Home Repair Service App
+course: Business Case Project
+team: Team of 3
+order: 4
+stack: [Java, JavaFX, Maven, PostgreSQL]
+languages: [Java, SQL]
+description: >-
+  Designed a Grab-style app that connects customers with nearby repair workers to book home repair
+  services. The work covered the requirements document and the system design, including use case,
+  sequence, class and activity diagrams. It also included an 8-table PostgreSQL database for users, repair
+  workers, service listings, bookings and in-app chat. The result is a clickable JavaFX prototype with 13
+  screens, including sign-up and login, browsing services, booking, wallet top-up, ratings and activity
+  history.
+images:
+  - src: ./images/01-home.png
+    alt: Fixer prototype home screen with a promo banner and service category icons
+  - src: ./images/02-services.png
+    alt: Services screen listing repair categories including cleaning, plumbing and air-con
+  - src: ./images/03-tracking.png
+    alt: Order tracking screen with a map showing the fixer's route to the customer
+  - src: ./images/04-booking-confirmed.png
+    alt: Booking confirmation popup showing a success message and booking ID
+  - src: ./images/05-rating.png
+    alt: Rating screen for leaving a star rating and comment for a completed job
