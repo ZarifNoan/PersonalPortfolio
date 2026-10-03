@@ -20,3 +20,21 @@ test('pick-a-side stacks below 900px', async ({ page }) => {
   const [a, b] = [await halves.nth(0).boundingBox(), await halves.nth(1).boundingBox()];
   expect(b!.y).toBeGreaterThan(a!.y + a!.height - 1);
 });
+
+test('the 3D half points its arrow the way the layout goes', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  const go = page.locator('[data-split] a[href="/3d"] .go');
+  expect((await go.innerText()).trim()).toBe('← View renders');
+  await page.setViewportSize({ width: 800, height: 900 });
+  expect((await go.innerText()).trim()).toBe('View renders →');
+});
+
+test('project media lifts on hover', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/software');
+  const main = page.locator('section#stocksense [data-main-image]');
+  await main.hover();
+  await expect.poll(() => main.evaluate((el) => getComputedStyle(el).translate)).not.toMatch(/^(none|0px)$/);
+});

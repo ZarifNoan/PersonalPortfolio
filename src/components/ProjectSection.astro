@@ -44,6 +44,11 @@ const sizes = '(max-width: 899px) 100vw, 640px';
      force this column wider than the viewport instead of scrolling within .thumbs. */
   .media { min-width: 0; }
   .main { aspect-ratio: 16 / 10; border-radius: var(--radius); overflow: hidden; background: #05050b; border: 1px solid var(--border); }
+  /* Hover lift on the image box. It uses translate on .main, not the section, which the scroll reveal translates. */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .main { transition: translate .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .project:hover .main { translate: 0 -4px; box-shadow: 0 14px 32px rgba(0,0,0,.45); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+  }
   .main a { display: block; width: 100%; height: 100%; cursor: zoom-in; }
   .main a[hidden] { display: none; }
   .main :global(img) { width: 100%; height: 100%; object-fit: contain; }
