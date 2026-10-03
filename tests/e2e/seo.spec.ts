@@ -5,8 +5,10 @@ for (const [path, title] of [['/', 'Muhammad Zarif Nurhan Bin Mohd Arifin | Port
     await expect(page).toHaveTitle(title);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /.{40,}/);
     const og = await page.locator('meta[property="og:image"]').getAttribute('content');
-    expect(og).toMatch(/\/og\.png$/);
-    expect((await request.get('/og.png')).status()).toBe(200);
+    expect(og).toMatch(/\/og\.jpg$/);
+    const img = await request.get('/og.jpg');
+    expect(img.status()).toBe(200);
+    expect((await img.body()).length).toBeLessThanOrEqual(300 * 1024);
   });
 }
 test('sitemap exists', async ({ request }) => {

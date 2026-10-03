@@ -1,5 +1,7 @@
+// Regenerates the 1200×630 link-preview image: node scripts/make-og.mjs
+// Written as JPEG (~100 KB); a PNG screenshot of the render is ~450 KB, too heavy for link previews.
 import { chromium } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 
 const img = readFileSync('src/content/visualization/moltech-johor-warehouse/images/01-iso-tank-forklifts.png').toString('base64');
 const html = `<!doctype html><html><body style="margin:0;width:1200px;height:630px;background:radial-gradient(circle at 85% 0%,#3b2a7a 0,transparent 45%),radial-gradient(circle at 0% 100%,#0e4a5a 0,transparent 45%),#0b0b14;color:#f5f5ff;font-family:Arial,sans-serif;display:flex;align-items:center;gap:40px;padding:0 60px;box-sizing:border-box">
@@ -10,6 +12,6 @@ const html = `<!doctype html><html><body style="margin:0;width:1200px;height:630
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.setContent(html);
-await page.screenshot({ path: 'public/og.png' });
+await page.screenshot({ path: 'public/og.jpg', type: 'jpeg', quality: 85 });
 await browser.close();
-console.log('public/og.png written');
+console.log(`public/og.jpg written (${Math.round(statSync('public/og.jpg').size / 1024)} KB)`);

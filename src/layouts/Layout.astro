@@ -8,7 +8,7 @@ interface Props { title: string; description: string; page: 'home' | 'software' 
 const { title, description, page } = Astro.props;
 const fullTitle = page === 'home' ? `${site.name} | Portfolio` : `${title} | ${site.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
-const og = new URL('/og.png', Astro.site).toString();
+const og = new URL('/og.jpg', Astro.site).toString();
 ---
 <!doctype html>
 <html lang="en">
@@ -24,6 +24,8 @@ const og = new URL('/og.png', Astro.site).toString();
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#0b0b14" />
     <!-- Runs before first paint so JS-only styles (e.g. the collapsed mobile menu) never flash; without JS nothing is hidden. -->
