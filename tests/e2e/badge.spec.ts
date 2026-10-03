@@ -88,3 +88,36 @@ test('the card captures pointer events but the pick-a-side halves around it stay
   await page.mouse.click(Math.max(40, at.divX - 500), at.splitTop + at.splitH / 2);
   await expect(page).toHaveURL(/\/software$/);
 });
+
+test('scrolling the card away from a stationary pointer releases the canvas capture', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
+  await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+  // Scroll to the bottom: the card has travelled onto the divider.
+  await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await page.waitForTimeout(2500);
+  const at = await page.evaluate(() => {
+    const divider = document.querySelector('[data-badge-anchor="split"]')!.getBoundingClientRect();
+    const split = document.querySelector('[data-split]')!.getBoundingClientRect();
+    return { divX: divider.left, splitTop: split.top, splitH: split.height, vh: innerHeight };
+  });
+  const { badgeAnchor, hangPx } = await import('../../src/components/badge/anchor');
+  const hang = hangPx(at.vh);
+  const a = badgeAnchor({ heroX: at.divX, splitX: at.divX, splitTop: at.splitTop, splitHeight: at.splitH, viewportH: at.vh, hang });
+  const pt = { x: at.divX + 40, y: a.y + hang };
+  const canvasAt = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName, pt);
+
+  await page.mouse.move(pt.x - 5, pt.y - 5);
+  await page.mouse.move(pt.x, pt.y);
+  await expect.poll(canvasAt).toBe('CANVAS'); // hovering the card: the canvas captures
+
+  // Scroll up 150px without moving the mouse: the split section moves back into the travel window, so the card
+  // slides ~190px right off the pointer, which is now over the /3d half.
+  await page.evaluate(() => scrollBy({ top: -150, behavior: 'instant' }));
+  await page.waitForTimeout(1500);
+  expect(await canvasAt()).not.toBe('CANVAS');
+  expect(await page.evaluate(() => document.body.style.cursor)).toBe('');
+  await page.mouse.click(pt.x, pt.y);
+  await expect(page).toHaveURL(/\/3d$/);
+});

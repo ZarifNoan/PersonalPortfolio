@@ -43,7 +43,7 @@ export default function Lanyard({ active, fov = FOV, ...p }: LanyardProps) {
       <ambientLight intensity={1.2} />
       <directionalLight position={[3, 5, 6]} intensity={1.6} />
       <Physics gravity={[0, -40, 0]} timeStep={1 / 60}>
-        <Band {...p} />
+        <Band {...p} active={active} />
       </Physics>
     </Canvas>
   );
@@ -53,7 +53,7 @@ type Seg = RapierRigidBody & { lerped?: THREE.Vector3 };
 type V3 = { x: number; y: number; z: number };
 const v = (t: V3) => new THREE.Vector3(t.x, t.y, t.z);
 
-function Band({ name, role, photo, getAnchorPx, onReady }: Omit<LanyardProps, 'active' | 'fov'>) {
+function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardProps, 'fov'>) {
   const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null!);
   const fixed = useRef<Seg>(null!), j1 = useRef<Seg>(null!), j2 = useRef<Seg>(null!), j3 = useRef<Seg>(null!), card = useRef<Seg>(null!);
   const [vec] = useState(() => new THREE.Vector3());
@@ -95,6 +95,8 @@ function Band({ name, role, photo, getAnchorPx, onReady }: Omit<LanyardProps, 'a
     document.body.style.cursor = dragging.current ? 'grabbing' : hovered.current ? 'grab' : '';
   };
   useEffect(() => () => { hovered.current = dragging.current = false; syncCapture(); }, []);
+  // Frames stop when paused (off-screen / hidden tab), so the hover re-check below can't run: drop capture.
+  useEffect(() => { if (!active) { hovered.current = dragging.current = false; drag(false); syncCapture(); } }, [active]);
 
   useEffect(() => {
     if (!dragged) return;
@@ -140,6 +142,9 @@ function Band({ name, role, photo, getAnchorPx, onReady }: Omit<LanyardProps, 'a
       [card, j1, j2, j3, fixed].forEach((r) => r.current?.wakeUp());
       card.current.setNextKinematicTranslation({ x: vec.x - dragged.x, y: vec.y - dragged.y, z: vec.z - dragged.z });
     }
+    // R3F only re-raycasts hover on real DOM pointer events. When scroll moves the card away from a stationary
+    // pointer, replay the last pointer event so onPointerOut fires and the canvas stops capturing.
+    if (hovered.current && !dragging.current) state.events.update?.();
     const dt = Math.min(delta, 0.1);
     [j1, j2].forEach((ref) => {
       const r = ref.current!;
