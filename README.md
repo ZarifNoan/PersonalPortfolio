@@ -37,6 +37,15 @@ Both the 3D card and the static fallback badge use it.
 changing the name, headline or featured render in that script. It shows a warehouse render, not the badge photo; to
 put your photo in it after adding one, edit the image path in the script and rerun it.
 
+## Photo credits
+The home page's pick-a-side backgrounds are free photos from [Unsplash](https://unsplash.com) (Unsplash License:
+free to use, no attribution required; credited here anyway). They are stock photos, not Zarif's projects. Files live
+in `src/assets/home/` and are resized to WebP by `astro:assets`.
+- Software Development: "turned-on MacBook Pro with programming codes display" by Arnold Francisca,
+  https://unsplash.com/photos/f77Bh3inUpE (`software-desk.jpg`)
+- 3D Visualization: "low angle photography of high-rise building" by Marc-Olivier Jodoin,
+  https://unsplash.com/photos/-HIiNFXcbtQ (`skyscrapers.jpg`)
+
 ## Deploy
 The site URL is set in one place: `site` in `astro.config.mjs` (canonical links, the sitemap and `robots.txt` all
 use it). Once the GitHub repo is connected to Vercel, pushing to `main` deploys automatically.

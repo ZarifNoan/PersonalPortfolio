@@ -1,5 +1,13 @@
+---
+import { Image } from 'astro:assets';
+// Unsplash License photos (free use, no attribution required; credited in the README). Not Zarif's own work.
+import softwarePhoto from '../../assets/home/software-desk.jpg';
+import vizPhoto from '../../assets/home/skyscrapers.jpg';
+const photo = { widths: [480, 800, 1200, 1600], sizes: '(min-width: 900px) 50vw, 100vw', loading: 'lazy' as const, decoding: 'async' as const };
+---
 <section class="split" data-split aria-label="Choose a side">
   <a class="half sw" href="/software">
+    <Image class="bg" data-side-photo src={softwarePhoto} alt="" {...photo} />
     <span class="sym" aria-hidden="true">&lt;/&gt;</span>
     <span class="t">Software Development</span>
     <span class="s">AI systems, full-stack web apps and desktop software</span>
@@ -7,6 +15,7 @@
   </a>
   <div class="divider" aria-hidden="true"></div>
   <a class="half viz" href="/3d">
+    <Image class="bg" data-side-photo src={vizPhoto} alt="" {...photo} />
     <span class="sym" aria-hidden="true">◇</span>
     <span class="t">3D Visualization</span>
     <span class="s">Warehouses, event venues and products, made in Blender</span>
@@ -15,13 +24,34 @@
 </section>
 <style>
   .split { position: relative; display: grid; grid-template-columns: 1fr 1fr; min-height: 70vh; margin-top: 48px; border-block: 1px solid var(--border); }
-  .divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--border); }
-  .half { display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: clamp(28px, 5vw, 64px); text-decoration: none; transition: background .3s; }
-  .sw { background: radial-gradient(circle at 20% 20%, rgba(96,165,250,.22), transparent 60%); }
-  .viz { background: radial-gradient(circle at 80% 20%, rgba(245,158,11,.22), transparent 60%); text-align: right; align-items: flex-end; }
-  .sw:hover { background-color: rgba(96,165,250,.06); } .viz:hover { background-color: rgba(245,158,11,.06); }
+  .divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--border); z-index: 1; }
+  /* Layers, back to front: photo (.bg), colour wash + dark fade (::before), hover tint (::after), text. */
+  .half { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: clamp(28px, 5vw, 64px); text-decoration: none; background: var(--bg); }
+  .bg { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; opacity: .62; filter: saturate(.75); transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .4s; }
+  .half::before, .half::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+  .half::before { z-index: -2; }
+  .half::after { z-index: -1; opacity: 0; transition: opacity .4s; }
+  /* The dark fade sits under the text (bottom), so the text keeps AA contrast whatever the photo does above it. */
+  .sw::before {
+    background:
+      linear-gradient(to top, rgba(11,11,20,.94) 0%, rgba(11,11,20,.82) 38%, rgba(11,11,20,.35) 75%, rgba(11,11,20,.2) 100%),
+      radial-gradient(circle at 20% 20%, rgba(96,165,250,.38), transparent 62%),
+      linear-gradient(rgba(29,59,122,.35), rgba(29,59,122,.35));
+  }
+  .viz::before {
+    background:
+      linear-gradient(to top, rgba(11,11,20,.94) 0%, rgba(11,11,20,.82) 38%, rgba(11,11,20,.35) 75%, rgba(11,11,20,.2) 100%),
+      radial-gradient(circle at 80% 20%, rgba(245,158,11,.36), transparent 62%),
+      linear-gradient(rgba(107,58,14,.35), rgba(107,58,14,.35));
+  }
+  .sw::after { background: radial-gradient(circle at 20% 20%, rgba(96,165,250,.16), transparent 70%); }
+  .viz::after { background: radial-gradient(circle at 80% 20%, rgba(245,158,11,.16), transparent 70%); }
+  .half:hover::after, .half:focus-visible::after { opacity: 1; }
+  .half:hover .bg, .half:focus-visible .bg { opacity: .78; }
+  @media (prefers-reduced-motion: no-preference) { .half:hover .bg, .half:focus-visible .bg { transform: scale(1.04); } }
+  .viz { text-align: right; align-items: flex-end; }
   .sym { font-size: 2.4rem; } .sw .sym, .sw .go { color: var(--sw); } .viz .sym, .viz .go { color: var(--viz); }
-  .t { font: 800 clamp(1.6rem, 3vw, 2.4rem) var(--font-head); }
+  .t { font: 800 clamp(1.6rem, 3vw, 2.4rem) var(--font-head); text-shadow: 0 2px 18px rgba(0,0,0,.45); }
   .s { color: var(--muted); max-width: 34ch; }
   .go { font-weight: 700; margin-top: 8px; }
   .arr-r { display: none; }
@@ -29,6 +59,7 @@
     .split { grid-template-columns: 1fr; min-height: auto; }
     .divider { display: none; }
     .half { min-height: 40vh; }
+    .sw { border-bottom: 1px solid var(--border); }
     .viz { text-align: left; align-items: flex-start; }
     /* Stacked and left-aligned: the arrow points forward like the software half's. */
     .arr-l { display: none; } .arr-r { display: inline; }

@@ -72,3 +72,18 @@ test('About Me has a compact top and justified paragraphs on wide screens', asyn
   expect(await p.evaluate((el) => getComputedStyle(el).textAlign)).toBe('justify');
   expect(await p.evaluate((el) => getComputedStyle(el).hyphens)).toBe('auto');
 });
+
+test('each pick-a-side half has an optimised, lazy, decorative background photo', async ({ page }) => {
+  await page.goto('/');
+  for (const href of ['/software', '/3d']) {
+    const img = page.locator(`[data-split] a[href="${href}"] img[data-side-photo]`);
+    await expect(img).toHaveCount(1);
+    await expect(img).toHaveAttribute('alt', '');
+    await expect(img).toHaveAttribute('loading', 'lazy');
+    expect(await img.getAttribute('srcset')).toMatch(/\.webp \d+w/);
+    expect(await img.getAttribute('sizes')).toBeTruthy();
+  }
+  // The photo is decoration: the links keep their text names.
+  await expect(page.locator('[data-split] a[href="/software"]')).toHaveAccessibleName(/Software Development/);
+  await expect(page.locator('[data-split] a[href="/3d"]')).toHaveAccessibleName(/3D Visualization/);
+});
