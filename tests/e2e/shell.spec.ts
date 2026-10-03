@@ -59,3 +59,27 @@ test('404 page renders with links home and to both sides', async ({ page }) => {
   await expect(main.getByRole('link', { name: /Software Development/ })).toHaveAttribute('href', '/software');
   await expect(main.getByRole('link', { name: /3D Visualization/ })).toHaveAttribute('href', '/3d');
 });
+
+test('the nav brand reads NURHAN ARIFIN, links home and fits beside the menu button', async ({ page }) => {
+  await page.goto('/');
+  const brand = page.locator('header .brand');
+  await expect(brand).toHaveText('NURHAN ARIFIN');
+  await expect(brand).toHaveAttribute('href', '/');
+  const b = (await brand.boundingBox())!;
+  expect(b.height).toBeLessThan(40); // one line
+  const toggle = page.getByRole('button', { name: 'Menu' });
+  if (await toggle.isVisible()) {
+    const m = (await toggle.boundingBox())!;
+    expect(b.x + b.width).toBeLessThan(m.x - 12);
+  }
+});
+
+test('the brand fits at 390px wide', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const b = (await page.locator('header .brand').boundingBox())!;
+  const m = (await page.getByRole('button', { name: 'Menu' }).boundingBox())!;
+  expect(b.height).toBeLessThan(40);
+  expect(b.x + b.width).toBeLessThan(m.x - 12);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
