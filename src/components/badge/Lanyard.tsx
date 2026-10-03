@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Canvas, extend, useFrame, useThree, type ThreeElement } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
-import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint, type RapierRigidBody } from '@react-three/rapier';
+import { BallCollider, CuboidCollider, Physics, RigidBody, interactionGroups, useRopeJoint, useSphericalJoint, type RapierRigidBody } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { cardFaceTexture, sheenTexture, strapTexture, STRAP_TILE_ASPECT } from './textures';
@@ -134,6 +134,9 @@ function Band({ name, role, photo, label, fov, getAnchorPx, onReady, active, gra
   useEffect(() => { if (face) onReady?.(); }, [face, onReady]);
 
   const seg = { type: 'dynamic' as const, canSleep: true, colliders: false as const, angularDamping: 2, linearDamping: 2 };
+  // The colliders only give the bodies mass: they collide with nothing. When the anchor jumped (an instant scroll) the
+  // card could land on a rope bead and stay wedged there, hanging ~150px short.
+  const ghost = interactionGroups(0, []);
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], SEG]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], SEG]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], SEG]);
@@ -270,11 +273,11 @@ function Band({ name, role, photo, label, fov, getAnchorPx, onReady, active, gra
   return (
     <>
       <RigidBody ref={fixed} type="kinematicPosition" colliders={false} position={[sx, sy, 0]} />
-      <RigidBody position={[sx, sy - SEG, 0]} ref={j1} {...seg}><BallCollider args={[0.1]} /></RigidBody>
-      <RigidBody position={[sx, sy - 2 * SEG, 0]} ref={j2} {...seg}><BallCollider args={[0.1]} /></RigidBody>
-      <RigidBody position={[sx, sy - 3 * SEG, 0]} ref={j3} {...seg}><BallCollider args={[0.1]} /></RigidBody>
+      <RigidBody position={[sx, sy - SEG, 0]} ref={j1} {...seg}><BallCollider args={[0.1]} collisionGroups={ghost} /></RigidBody>
+      <RigidBody position={[sx, sy - 2 * SEG, 0]} ref={j2} {...seg}><BallCollider args={[0.1]} collisionGroups={ghost} /></RigidBody>
+      <RigidBody position={[sx, sy - 3 * SEG, 0]} ref={j3} {...seg}><BallCollider args={[0.1]} collisionGroups={ghost} /></RigidBody>
       <RigidBody position={[sx, sy - 3 * SEG - CLIP_H - CARD_H / 2, 0]} ref={card} {...seg} type={dragged ? 'kinematicPosition' : 'dynamic'}>
-        <CuboidCollider args={[CARD_W / 2, CARD_H / 2, 0.01]} />
+        <CuboidCollider args={[CARD_W / 2, CARD_H / 2, 0.01]} collisionGroups={ghost} />
         <group
           ref={cardGroup}
           onPointerDown={(e) => {

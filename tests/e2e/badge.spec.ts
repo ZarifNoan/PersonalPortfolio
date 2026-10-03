@@ -294,3 +294,16 @@ test('mouse-only desktops get no touch grab area', async ({ page }, info) => {
   await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
   await expect(page.locator('[data-badge-grab]')).toBeHidden();
 });
+
+test('after scroll jumps the card still hangs at full length, its bottom riding on About Me', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await readyTravel(page);
+  // Regression: a jump of the anchor while the chain slept left the card wedged on a rope bead, ~150px too high.
+  for (const y of [300, 500, 700]) {
+    await page.evaluate((y) => scrollTo({ top: y, behavior: 'instant' }), y);
+    await page.waitForTimeout(2500);
+  }
+  const card = await settledCard(page);
+  const aboutBottom = await page.evaluate(() => document.querySelector('[data-badge-release]')!.getBoundingClientRect().bottom);
+  expect(Math.abs(card.y + card.h - aboutBottom)).toBeLessThan(24);
+});
