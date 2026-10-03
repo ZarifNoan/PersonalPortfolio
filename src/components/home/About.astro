@@ -6,7 +6,9 @@ import { site } from '../../data/site';
   <div class="body" data-badge-avoid>{site.about.map((p) => <p>{p}</p>)}</div>
 </section>
 <style>
-  .about { display: grid; grid-template-columns: 200px minmax(0, 60ch); gap: 32px; padding-block: 72px; }
+  /* min(60ch, 44vw) keeps the 1440px column at its full 60ch (44vw is wider there) while narrowing it on
+     medium viewports (~900-1200px), where the travelling badge needs clearance on the right of this text. */
+  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw)); gap: 32px; padding-block: 72px; }
   h2 { font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--sw); padding-top: 6px; }
   p { margin: 0 0 16px; color: var(--muted); font-size: 1.08rem; }
   p:first-child { color: var(--text); font-size: 1.2rem; }
