@@ -33,5 +33,10 @@ const og = new URL('/og.png', Astro.site).toString();
     <main id="main"><slot /></main>
     <Footer />
     <Lightbox />
+    <script>
+      document.documentElement.classList.add('js');
+      import { initReveal } from '../scripts/reveal';
+      initReveal();
+    </script>
   </body>
 </html>
