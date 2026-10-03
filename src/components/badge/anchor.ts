@@ -13,6 +13,15 @@ export const hangPx = (viewportH: number) => HANG_WORLD * pxPerWorld(viewportH);
 /** Anchor → resting card bottom edge, in px. */
 export const cardDropPx = (viewportH: number) => (HANG_WORLD + CARD_H / 2) * pxPerWorld(viewportH);
 
+/** The static badge's card width in CSS px (global.css .badge-card). */
+export const STATIC_CARD_W = 210;
+/**
+ * The badge's resting card-centre x (viewport px), shared by both badges so the static→3D swap doesn't move it: the
+ * static badge hangs `rightOffset` px (Hero.astro's --badge-right on the slot) in from the hero slot's right edge, and
+ * the 3D card comes to rest on the same centre line.
+ */
+export const restX = (slotRight: number, rightOffset: number) => slotRight - rightOffset - STATIC_CARD_W / 2;
+
 export interface AnchorInput {
   /** Horizontal rest position (viewport px): the hero slot, nudged into the margin beside About Me. */
   heroX: number;

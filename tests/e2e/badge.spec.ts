@@ -134,6 +134,34 @@ test('the badge hangs beside About Me and scrolls away with it, never travelling
   expect(gone.y + gone.h).toBeLessThan(split.top);
 });
 
+/** The static card's rest centre: the sway paused at both keyframe extremes (-3deg, +2.5deg), averaged. */
+const staticCentre = (page: Page) => page.locator('.badge-hang').evaluate((hang) => {
+  const sway = hang.getAnimations().find((a) => (a as CSSAnimation).animationName === 'badge-sway')!;
+  sway.pause();
+  const card = hang.querySelector('.badge-card')!;
+  const at = (t: number) => { sway.currentTime = t; const r = card.getBoundingClientRect(); return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 }; };
+  const [a, b] = [at(0), at(3000)];
+  sway.play();
+  return { cx: (a.cx + b.cx) / 2, cy: (a.cy + b.cy) / 2 };
+});
+
+for (const width of [900, 1024, 1100, 1180, 1280, 1440]) {
+  test(`desktop ${width}px: the 3D card comes to rest where the static badge hung`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop');
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const before = await staticCentre(page);
+    await engage(page);
+    await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
+    await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+    await page.mouse.move(5, 500);
+    const rest = await settledCard(page);
+    console.log(`swap delta ${width}: dx=${(rest.cx - before.cx).toFixed(1)} dy=${(rest.cy - before.cy).toFixed(1)}`);
+    expect(Math.abs(rest.cx - before.cx)).toBeLessThanOrEqual(6);
+    expect(Math.abs(rest.cy - before.cy)).toBeLessThanOrEqual(6);
+  });
+}
+
 for (const width of [900, 940, 980, 1024, 1280, 1440]) {
   test(`desktop ${width}px: the 3D card at rest clears the About text`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop');

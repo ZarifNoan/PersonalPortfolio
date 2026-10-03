@@ -41,3 +41,13 @@ describe('badgeAnchor', () => {
     expect(src).not.toMatch(/from ['"]three['"]|@react-three/);
   });
 });
+
+describe('restX', () => {
+  it('is the static card centre: the slot edge minus the right offset and half the card', () => {
+    expect(anchor.restX(1000, 10)).toBe(1000 - 10 - 105);
+  });
+  it('STATIC_CARD_W mirrors the .badge-card width in global.css', () => {
+    const css = readFileSync('src/styles/global.css', 'utf8');
+    expect(css).toMatch(new RegExp(String.raw`\.badge-card \{[^}]*width: ${anchor.STATIC_CARD_W}px;`));
+  });
+});

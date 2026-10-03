@@ -1,6 +1,6 @@
 import { Component, Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import BadgeStatic from './BadgeStatic';
-import { badgeAnchor, CARD_W, cardDropPx, pxPerWorld, TOP_OFFSET } from './anchor';
+import { badgeAnchor, CARD_W, cardDropPx, pxPerWorld, restX, TOP_OFFSET } from './anchor';
 
 const Lanyard = lazy(() => import('./Lanyard'));
 type Mode = 'static' | '3d-travel' | '3d-inline';
@@ -97,14 +97,17 @@ export default function BadgeIsland(props: Props) {
   const gate = engaged ? '' : undefined; // data-engaged: the interaction gate has opened (used by tests)
 
   const getTravelAnchor = useCallback(() => {
-    const hero = document.querySelector('[data-badge-anchor="hero"]')?.getBoundingClientRect();
+    const slot = document.querySelector<HTMLElement>('[data-badge-anchor="hero"]');
+    const hero = slot?.getBoundingClientRect();
     const about = document.querySelector('[data-badge-release]')?.getBoundingClientRect();
-    if (!hero || !about) return { x: innerWidth * 0.75, y: TOP_OFFSET };
-    // Hang in the right margin beside About Me: nudge right of the slot centre so the card clears the text column.
-    const half = (CARD_W / 2) * pxPerWorld(innerHeight);
+    if (!slot || !hero || !about) return { x: innerWidth * 0.75, y: TOP_OFFSET };
+    // Rest on the static badge's centre line (same rule as Hero.astro's CSS; the slot outlives the static badge).
+    let heroX = restX(hero.right, parseFloat(getComputedStyle(slot).getPropertyValue('--badge-right')) || 0);
+    // Safety net only: About.astro's column already leaves ≥ 24px, so this binds only on very tall viewports, where
+    // the 3D card (scaled by viewport height) is wider than the static one.
     const avoid = document.querySelector('[data-badge-avoid]')?.getBoundingClientRect();
-    let heroX = hero.left + hero.width / 2;
-    if (avoid) heroX = Math.min(Math.max(heroX, avoid.right + half + 32), Math.max(heroX, hero.right - half));
+    const half = (CARD_W / 2) * pxPerWorld(innerHeight);
+    if (avoid) heroX = Math.max(heroX, avoid.right + half + 16);
     return badgeAnchor({ heroX, aboutBottom: about.bottom, drop: cardDropPx(innerHeight) });
   }, []);
   const getInlineAnchor = useCallback(() => {

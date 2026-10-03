@@ -74,7 +74,7 @@ for (const width of [900, 940, 980, 1024, 1280, 1440]) {
       return out;
     });
     expect(boxes, 'the sway animation runs').not.toBeNull();
-    expect(Math.min(...boxes!.map((b) => b.left)) - text).toBeGreaterThanOrEqual(16);
+    expect(Math.min(...boxes!.map((b) => b.left)) - text).toBeGreaterThanOrEqual(24);
     expect(Math.max(...boxes!.map((b) => b.right))).toBeLessThanOrEqual(width);
     // Decorative (aria-hidden): it must not block selecting or clicking what's under it.
     expect(await page.locator('.badge-static').evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');

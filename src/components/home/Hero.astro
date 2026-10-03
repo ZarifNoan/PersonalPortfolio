@@ -17,13 +17,15 @@ import { site } from '../../data/site';
   h1 { font-size: clamp(2.2rem, 5.2vw, 4.2rem); font-weight: 800; letter-spacing: -.01em; }
   .headline { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); margin: 18px 0 0; max-width: 34ch; }
   /* A zero-height anchor box at the top of the right column, pulled up to the nav's bottom edge. The static badge
-     hangs from it with a long strap, right of centre, where the 3D card rests (BadgeIsland nudges that into the
-     margin beside About Me), so the swap to 3D doesn't visibly move the badge either. */
-  .slot { --badge-strap: 130px; position: relative; height: 0; margin-top: -56px; }
-  /* right: 10px and the 210px card are mirrored in About.astro's column limit (its comment has the sway derivation).
+     hangs from it with a long strap in the margin beside About Me, exactly where the 3D card rests, so the swap to 3D
+     doesn't visibly move the badge either. */
+  .slot { --badge-strap: 125px; --badge-right: 10px; position: relative; height: 0; margin-top: -56px; }
+  /* --badge-right (10px) and the 210px card are mirrored in About.astro's column limit (its comment has the sway
+     derivation). BadgeIsland reads --badge-right from the slot so the 3D card rests on the same centre line (anchor.ts
+     restX); the 125px strap puts the card's centre where the 3D card's rests at 900px tall.
      At −3° the card's right corner swings ~21px past this edge, still inside the 36–40px gutter at 900px+. (global.css
      gives it pointer-events: none, so it never blocks clicks or text selection on About underneath.) */
-  .slot :global(.badge-static) { position: absolute; top: 0; right: 10px; z-index: 1; }
+  .slot :global(.badge-static) { position: absolute; top: 0; right: var(--badge-right); z-index: 1; }
   @media (max-width: 899px) {
     .hero { grid-template-columns: 1fr; text-align: center; padding-top: 0; }
     /* In flow, as tall as the static badge (= BadgeIsland's INLINE_H), so the static→3D swap doesn't shift the page. */
