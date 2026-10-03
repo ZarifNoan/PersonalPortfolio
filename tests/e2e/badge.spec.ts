@@ -82,73 +82,109 @@ test('resizing across 900px switches mode without errors', async ({ page }, info
   expect(errors).toEqual([]);
 });
 
-test('the card captures pointer events but the pick-a-side halves around it stay clickable', async ({ page }, info) => {
-  test.skip(info.project.name !== 'desktop');
+/** The card's on-screen bounds: Lanyard keeps the (touch-only, hidden on mouse desktops) grab box over it every frame. */
+const cardBox = (page: Page) => page.evaluate(() => {
+  const s = (document.querySelector('[data-badge-grab]') as HTMLElement).style;
+  const [x, y, w, h] = [s.left, s.top, s.width, s.height].map(parseFloat) as [number, number, number, number];
+  return { x, y, w, h, cx: x + w / 2, cy: y + h / 2 };
+});
+
+/** Waits until the card has stopped swinging (two reads 300ms apart within 1px), then returns its bounds. */
+async function settledCard(page: Page) {
+  let prev = await cardBox(page);
+  for (let i = 0; i < 30; i++) {
+    await page.waitForTimeout(300);
+    const next = await cardBox(page);
+    if (Math.abs(next.cx - prev.cx) < 1 && Math.abs(next.cy - prev.cy) < 1) return next;
+    prev = next;
+  }
+  return prev;
+}
+
+async function readyTravel(page: Page) {
   await page.goto('/');
   await engage(page);
   await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
   // Static badge is replaced once the physics scene is ready.
   await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
-  await page.evaluate(() => document.querySelector('[data-split]')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
-  await page.waitForTimeout(2500); // let the travel finish and the swing settle
-  const at = await page.evaluate(() => {
-    const divider = document.querySelector('[data-badge-anchor="split"]')!.getBoundingClientRect();
-    const split = document.querySelector('[data-split]')!.getBoundingClientRect();
-    return { divX: divider.left, splitTop: split.top, splitH: split.height, vh: innerHeight };
-  });
-  const { badgeAnchor, hangPx } = await import('../../src/components/badge/anchor');
-  const hang = hangPx(at.vh);
-  const a = badgeAnchor({ heroX: at.divX, splitX: at.divX, splitTop: at.splitTop, splitHeight: at.splitH, viewportH: at.vh, hang });
-  // Resting card centre is on the divider line; aim 40px right of it so the point is over the /3d link, not the 1px divider.
-  const card = { x: at.divX + 40, y: a.y + hang };
-  expect(card.y).toBeGreaterThan(at.splitTop); // the card is over the split section, i.e. over the links
+}
 
-  await page.mouse.move(card.x - 10, card.y - 10);
-  await page.mouse.click(card.x, card.y);
+test('the badge hangs beside About Me and scrolls away with it, never travelling to the divider', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await readyTravel(page);
+  await page.mouse.move(5, 500);
+  const rest = await settledCard(page);
+  // Scroll About Me up beside the card: the card stays put and sits right of the About text.
+  await page.evaluate(() => scrollTo({ top: document.querySelector('[data-badge-release]')!.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }));
+  const beside = await settledCard(page);
+  const text = await page.evaluate(() => document.querySelector('[data-badge-avoid]')!.getBoundingClientRect().toJSON());
+  expect(Math.abs(beside.cx - rest.cx)).toBeLessThan(4);
+  expect(Math.abs(beside.cy - rest.cy)).toBeLessThan(4);
+  expect(beside.x).toBeGreaterThan(text.right);
+  // With the pick-a-side section centred, the card has left with About: it is above About's bottom edge, not on the
+  // divider and not over the halves.
+  await page.evaluate(() => document.querySelector('[data-split]')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  const gone = await settledCard(page);
+  const split = await page.evaluate(() => document.querySelector('[data-split]')!.getBoundingClientRect().toJSON());
+  const aboutBottom = await page.evaluate(() => document.querySelector('[data-badge-release]')!.getBoundingClientRect().bottom);
+  expect(Math.abs(gone.cx - rest.cx)).toBeLessThan(4);
+  expect(gone.y + gone.h).toBeLessThan(aboutBottom + 20); // grab pad (6px) + rope stretch under gravity
+  expect(gone.y + gone.h).toBeLessThan(split.top);
+});
+
+test('the card captures pointer events beside About Me and the pick-a-side halves stay clickable', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await readyTravel(page);
+  await page.evaluate(() => scrollTo({ top: document.querySelector('[data-badge-release]')!.getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }));
+  const card = await settledCard(page);
+  const canvasAt = (x: number, y: number) => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName, { x, y });
+
+  await page.mouse.move(card.cx - 10, card.cy - 10);
+  await page.mouse.move(card.cx, card.cy);
+  await expect.poll(() => canvasAt(card.cx, card.cy)).toBe('CANVAS'); // hovering the card: the canvas captures
+  await page.mouse.click(card.cx, card.cy);
   await page.waitForTimeout(600);
   await expect(page).toHaveURL(/\/$/);
 
   // A drag from the card must not leave it stuck in the grabbing state.
-  await page.mouse.move(card.x, card.y);
+  await page.mouse.move(card.cx, card.cy);
   await page.mouse.down();
-  await page.mouse.move(card.x + 60, card.y + 40, { steps: 5 });
+  await page.mouse.move(card.cx + 60, card.cy + 40, { steps: 5 });
   await page.mouse.up();
   await page.waitForTimeout(300);
   await expect(page).toHaveURL(/\/$/);
   expect(await page.evaluate(() => document.body.style.cursor)).not.toBe('grabbing');
 
-  // Well away from the card, inside the left half: navigates.
-  await page.mouse.click(Math.max(40, at.divX - 500), at.splitTop + at.splitH / 2);
-  await expect(page).toHaveURL(/\/software$/);
+  // Away from the card, the About text is not covered by the canvas.
+  await page.mouse.move(40, 40);
+  const text = await page.evaluate(() => document.querySelector('[data-badge-avoid]')!.getBoundingClientRect().toJSON());
+  expect(await canvasAt(text.left + 20, text.top + 10)).not.toBe('CANVAS');
+
+  // Directly below where the card hung, the /3d half navigates.
+  await page.evaluate(() => document.querySelector('[data-split]')!.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForTimeout(1500);
+  const split = await page.evaluate(() => document.querySelector('[data-split]')!.getBoundingClientRect().toJSON());
+  await page.mouse.click(card.cx, split.top + split.height / 2);
+  await expect(page).toHaveURL(/\/3d$/);
 });
 
 test('scrolling the card away from a stationary pointer releases the canvas capture', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
-  await page.goto('/');
-  await engage(page);
-  await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
-  await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
-  // Scroll to the bottom: the card has travelled onto the divider.
-  await page.evaluate(() => scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
-  await page.waitForTimeout(2500);
-  const at = await page.evaluate(() => {
-    const divider = document.querySelector('[data-badge-anchor="split"]')!.getBoundingClientRect();
-    const split = document.querySelector('[data-split]')!.getBoundingClientRect();
-    return { divX: divider.left, splitTop: split.top, splitH: split.height, vh: innerHeight };
-  });
-  const { badgeAnchor, hangPx } = await import('../../src/components/badge/anchor');
-  const hang = hangPx(at.vh);
-  const a = badgeAnchor({ heroX: at.divX, splitX: at.divX, splitTop: at.splitTop, splitHeight: at.splitH, viewportH: at.vh, hang });
-  const pt = { x: at.divX + 40, y: a.y + hang };
+  await readyTravel(page);
+  await page.mouse.move(5, 500);
+  await page.waitForTimeout(1000);
+  const pt = await settledCard(page).then((c) => ({ x: c.cx, y: c.cy }));
   const canvasAt = () => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName, pt);
 
   await page.mouse.move(pt.x - 5, pt.y - 5);
   await page.mouse.move(pt.x, pt.y);
   await expect.poll(canvasAt).toBe('CANVAS'); // hovering the card: the canvas captures
 
-  // Scroll up 150px without moving the mouse: the split section moves back into the travel window, so the card
-  // slides ~190px right off the pointer, which is now over the /3d half.
-  await page.evaluate(() => scrollBy({ top: -150, behavior: 'instant' }));
+  // Scroll without moving the mouse until the /3d half is under the pointer: the card has left upward with About Me.
+  await page.evaluate((y) => {
+    const split = document.querySelector('[data-split]')!.getBoundingClientRect();
+    scrollBy({ top: split.top - (y - 120), behavior: 'instant' });
+  }, pt.y);
   await page.waitForTimeout(1500);
   expect(await canvasAt()).not.toBe('CANVAS');
   expect(await page.evaluate(() => document.body.style.cursor)).toBe('');

@@ -1,6 +1,6 @@
 import { Component, Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import BadgeStatic from './BadgeStatic';
-import { badgeAnchor, CARD_W, hangPx, pxPerWorld, TOP_OFFSET } from './anchor';
+import { badgeAnchor, CARD_W, cardDropPx, pxPerWorld, TOP_OFFSET } from './anchor';
 
 const Lanyard = lazy(() => import('./Lanyard'));
 type Mode = 'static' | '3d-travel' | '3d-inline';
@@ -65,14 +65,14 @@ export default function BadgeIsland(props: Props) {
     return () => { reduce.removeEventListener('change', decide); wide.removeEventListener('change', decide); };
   }, [engaged]);
 
-  // Pause rendering when the tab is hidden or the badge is off-screen: in travel mode once the split section has
-  // scrolled off the top, in inline mode once the inline box has left the viewport.
+  // Pause rendering when the tab is hidden or the badge is off-screen: in travel mode once About Me (which the card
+  // leaves with) has scrolled off the top, in inline mode once the inline box has left the viewport.
   useEffect(() => {
     const check = () => {
       let onScreen = true;
       if (mode === '3d-travel') {
-        const split = document.querySelector('[data-split]')?.getBoundingClientRect();
-        onScreen = !split || split.bottom > 0;
+        const about = document.querySelector('[data-badge-release]')?.getBoundingClientRect();
+        onScreen = !about || about.bottom > 0;
       } else if (mode === '3d-inline' && inlineRef.current) {
         const r = inlineRef.current.getBoundingClientRect();
         onScreen = r.bottom > 0 && r.top < innerHeight;
@@ -96,15 +96,14 @@ export default function BadgeIsland(props: Props) {
 
   const getTravelAnchor = useCallback(() => {
     const hero = document.querySelector('[data-badge-anchor="hero"]')?.getBoundingClientRect();
-    const divider = document.querySelector('[data-badge-anchor="split"]')?.getBoundingClientRect();
-    const split = document.querySelector('[data-split]')?.getBoundingClientRect();
-    if (!hero || !divider || !split) return { x: innerWidth * 0.75, y: TOP_OFFSET };
+    const about = document.querySelector('[data-badge-release]')?.getBoundingClientRect();
+    if (!hero || !about) return { x: innerWidth * 0.75, y: TOP_OFFSET };
     // Hang in the right margin beside About Me: nudge right of the slot centre so the card clears the text column.
     const half = (CARD_W / 2) * pxPerWorld(innerHeight);
     const avoid = document.querySelector('[data-badge-avoid]')?.getBoundingClientRect();
     let heroX = hero.left + hero.width / 2;
     if (avoid) heroX = Math.min(Math.max(heroX, avoid.right + half + 32), Math.max(heroX, hero.right - half));
-    return badgeAnchor({ heroX, splitX: divider.left, splitTop: split.top, splitHeight: split.height, viewportH: innerHeight, hang: hangPx(innerHeight) });
+    return badgeAnchor({ heroX, aboutBottom: about.bottom, drop: cardDropPx(innerHeight) });
   }, []);
   const getInlineAnchor = useCallback(() => {
     const el = inlineRef.current;
