@@ -37,3 +37,14 @@ img { max-width: 100%; height: auto; display: block; }
 .page-title h1 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; }
 .page-title p { color: var(--muted); max-width: 60ch; margin: 12px 0 0; }
 [data-filter-item][hidden] { display: none !important; }
+
+.badge-static { display: flex; flex-direction: column; align-items: center; }
+.badge-strap { width: 22px; height: 120px; background: repeating-linear-gradient(180deg, #1e1b3a 0 14px, #2a2650 14px 28px); border-radius: 2px; }
+.badge-card { position: relative; width: 210px; aspect-ratio: 1 / 1.4; margin-top: -4px; background: linear-gradient(160deg, #f8f8ff, #dcdcf0); color: #0b0b14; border-radius: 18px; box-shadow: 0 30px 60px rgba(0,0,0,.55); display: flex; flex-direction: column; align-items: center; padding: 34px 16px 18px; transform: rotate(-4deg); }
+.badge-clip { position: absolute; top: -10px; width: 44px; height: 16px; border-radius: 4px; background: #9ca3af; }
+.badge-photo { width: 104px; height: 104px; border-radius: 50%; object-fit: cover; }
+.badge-mono { display: grid; place-items: center; background: linear-gradient(135deg, #3b2a7a, #0e4a5a); color: #f5f5ff; font: 800 2rem var(--font-head); letter-spacing: .06em; }
+.badge-name { margin-top: 16px; font: 800 .82rem/1.25 var(--font-head); text-align: center; letter-spacing: .03em; }
+.badge-role { margin-top: 6px; font-size: .68rem; color: #4b4f6b; text-align: center; }
+@media (prefers-reduced-motion: no-preference) { .badge-card { animation: badge-sway 6s ease-in-out infinite; transform-origin: 50% -130px; } }
+@keyframes badge-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(3deg); } }

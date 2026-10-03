@@ -1,0 +1,21 @@
+---
+import { site } from '../../data/site';
+---
+<section class="hero container" aria-labelledby="hero-name">
+  <div class="intro">
+    <h1 id="hero-name">{site.name}</h1>
+    <p class="headline">{site.headline}</p>
+  </div>
+  <div class="slot" data-badge-slot data-badge-anchor="hero"><slot /></div>
+</section>
+<style>
+  .hero { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; gap: 32px; min-height: calc(100vh - 64px); padding-block: 48px; }
+  h1 { font-size: clamp(2.2rem, 5.2vw, 4.2rem); font-weight: 800; letter-spacing: -.01em; }
+  .headline { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); margin: 18px 0 0; max-width: 34ch; }
+  .slot { position: relative; min-height: 460px; display: flex; justify-content: center; align-items: flex-start; }
+  @media (max-width: 899px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; text-align: center; padding-top: 24px; }
+    .slot { order: -1; min-height: 380px; }
+    .headline { margin-inline: auto; }
+  }
+</style>
