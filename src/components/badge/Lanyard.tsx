@@ -59,7 +59,7 @@ function Band({ name, role, photo, getAnchorPx, onReady }: Omit<LanyardProps, 'a
   const [vec] = useState(() => new THREE.Vector3());
   const [dir] = useState(() => new THREE.Vector3());
   const lastAnchor = useRef({ x: NaN, y: NaN });
-  const { size, viewport } = useThree();
+  const { size, viewport, gl } = useThree();
   const toWorld = (a: { x: number; y: number }) => ({
     x: (a.x / size.width - 0.5) * viewport.width,
     y: -(a.y / size.height - 0.5) * viewport.height,
@@ -86,13 +86,42 @@ function Band({ name, role, photo, getAnchorPx, onReady }: Omit<LanyardProps, 'a
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], SEG]);
   useSphericalJoint(j3, card, [[0, 0, 0], [0, CARD_H / 2, 0]]);
 
+  // The canvas is click-through (pointer-events: none) except over the card. Hover is raycast by R3F from body
+  // pointermoves, so the canvas switches to pointer-events: auto synchronously on pointerover; the following
+  // pointerdown/click then lands on the canvas instead of the link underneath.
+  const hovered = useRef(false), dragging = useRef(false);
+  const syncCapture = () => {
+    gl.domElement.style.pointerEvents = hovered.current || dragging.current ? 'auto' : '';
+    document.body.style.cursor = dragging.current ? 'grabbing' : hovered.current ? 'grab' : '';
+  };
+  useEffect(() => () => { hovered.current = dragging.current = false; syncCapture(); }, []);
+
   useEffect(() => {
     if (!dragged) return;
-    document.body.style.cursor = 'grabbing';
-    const up = () => drag(false);
-    window.addEventListener('pointerup', up);
-    return () => { window.removeEventListener('pointerup', up); document.body.style.cursor = ''; };
+    const end = () => { dragging.current = false; drag(false); syncCapture(); };
+    const block = (e: Event) => e.preventDefault(); // no native link drag or text selection while dragging the card
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    window.addEventListener('blur', end);
+    window.addEventListener('dragstart', block, true);
+    window.addEventListener('selectstart', block, true);
+    return () => {
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      window.removeEventListener('blur', end);
+      window.removeEventListener('dragstart', block, true);
+      window.removeEventListener('selectstart', block, true);
+    };
   }, [dragged]);
+
+  /** Fallback if a pointerdown reached the page before the canvas took over: swallow its click. */
+  const swallowNextClick = () => {
+    const kill = (ev: Event) => { ev.preventDefault(); ev.stopPropagation(); };
+    window.addEventListener('click', kill, { capture: true, once: true });
+    const release = () => { setTimeout(() => window.removeEventListener('click', kill, true), 0); };
+    window.addEventListener('pointerup', release, { once: true });
+    window.addEventListener('pointercancel', release, { once: true });
+  };
 
   useFrame((state, delta) => {
     if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current) return;
@@ -142,10 +171,12 @@ function Band({ name, role, photo, getAnchorPx, onReady }: Omit<LanyardProps, 'a
         <group
           onPointerDown={(e) => {
             e.stopPropagation();
+            if (e.nativeEvent.target !== gl.domElement) { e.nativeEvent.preventDefault(); swallowNextClick(); }
+            dragging.current = true; syncCapture();
             drag(new THREE.Vector3().copy(e.point).sub(v(card.current!.translation())));
           }}
-          onPointerOver={() => { document.body.style.cursor = 'grab'; }}
-          onPointerOut={() => { if (!dragged) document.body.style.cursor = ''; }}
+          onPointerOver={() => { hovered.current = true; syncCapture(); }}
+          onPointerOut={() => { hovered.current = false; syncCapture(); }}
         >
           <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={CARD_R} smoothness={4}>
             <meshStandardMaterial color="#e8e8f4" roughness={0.55} metalness={0.05} />

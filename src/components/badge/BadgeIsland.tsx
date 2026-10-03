@@ -99,14 +99,14 @@ export default function BadgeIsland(props: Props) {
       <div data-badge-mode="3d-travel">
         <span className="visually-hidden">{props.name}</span>
         {!ready && staticBadge}
-        <div style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', visibility: ready ? 'visible' : 'hidden' }}>{scene}</div>
+        <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', visibility: ready ? 'visible' : 'hidden' }}>{scene}</div>
       </div>
     )
     : (
       <div data-badge-mode="3d-inline" ref={inlineRef} style={{ position: 'relative', width: '100%', height: 380 }}>
         <span className="visually-hidden">{props.name}</span>
         {!ready && <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center' }}>{staticBadge}</div>}
-        <div style={{ position: 'absolute', inset: 0, visibility: ready ? 'visible' : 'hidden' }}>{scene}</div>
+        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, visibility: ready ? 'visible' : 'hidden' }}>{scene}</div>
       </div>
     );
 }
