@@ -1,4 +1,37 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import ProjectSection from '../components/ProjectSection.astro';
+import FilterBar from '../components/FilterBar.astro';
+import { visibleSorted } from '../lib/projects';
+import { deriveOptions } from '../lib/filters';
+import { CATEGORIES, slugify } from '../lib/taxonomy';
+const projects = visibleSorted(await getCollection('visualization'));
+const categoryOptions = deriveOptions(projects.map((p) => [p.data.category]), CATEGORIES);
 ---
-<Layout title="3D Visualization" description="3D architectural and product visualization by Muhammad Zarif Nurhan, made in Blender." page="viz"><div class="container page-title"><h1>3D Visualization</h1></div></Layout>
+<Layout title="3D Visualization" description="3D architectural and product visualization by Muhammad Zarif Nurhan, made in Blender." page="viz">
+  <div class="container">
+    <header class="page-title" data-reveal>
+      <h1><span class="sym" style="color:var(--viz)" aria-hidden="true">◇ </span>3D Visualization</h1>
+      <p>Architectural and product visualization created in Blender, mostly for real clients.</p>
+    </header>
+    <FilterBar param="type" options={categoryOptions} label="Filter by type" />
+    {projects.map((p, i) => (
+      <ProjectSection
+        id={p.id.split('/')[0]!}
+        title={p.data.title}
+        eyebrow={`${p.data.client ? 'Client Project' : 'Personal Project'} · ${p.data.category}`}
+        tags={[p.data.category, 'Blender']}
+        description={p.data.description}
+        images={p.data.images}
+        filterSlugs={[slugify(p.data.category)]}
+        reverse={i % 2 === 1}
+        accent="viz"
+      />
+    ))}
+  </div>
+</Layout>
+<script>
+  import { initGalleries } from '../scripts/gallery';
+  initGalleries();
+</script>
