@@ -48,6 +48,10 @@ img { max-width: 100%; height: auto; display: block; }
 .badge-mono { display: grid; place-items: center; background: linear-gradient(135deg, #3b2a7a, #0e4a5a); color: #f5f5ff; font: 800 2rem var(--font-head); letter-spacing: .06em; }
 .badge-name { margin-top: 16px; font: 800 .82rem/1.25 var(--font-head); text-align: center; letter-spacing: .03em; }
 .badge-role { margin-top: 6px; font-size: .68rem; color: #4b4f6b; text-align: center; }
+/* Touch grab area over the 3D card (Lanyard.tsx positions it every frame). Only touch screens need it: mouse and pen
+   hover switch the canvas itself to capturing. */
+.badge-grab { display: none; position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: auto; touch-action: none; }
+@media (any-pointer: coarse) { .badge-grab { display: block; } }
 @media (prefers-reduced-motion: no-preference) { .badge-card { animation: badge-sway 6s ease-in-out infinite; transform-origin: 50% -130px; } }
 @keyframes badge-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(3deg); } }
 

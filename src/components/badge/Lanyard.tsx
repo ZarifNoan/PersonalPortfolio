@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Canvas, extend, useFrame, useThree, type ThreeElement } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint, type RapierRigidBody } from '@react-three/rapier';
@@ -32,7 +32,9 @@ export interface LanyardProps {
 const CARD_R = 0.06, CARD_D = 0.03, FACE_Z = CARD_D / 2 + 0.002;
 
 export default function Lanyard({ active, fov = FOV, dpr = [1, 1.5], ...p }: LanyardProps) {
+  const grab = useRef<HTMLDivElement>(null);
   return (
+    <>
     <Canvas
       camera={{ position: [0, 0, CAMERA_Z], fov }}
       dpr={dpr}
@@ -47,9 +49,15 @@ export default function Lanyard({ active, fov = FOV, dpr = [1, 1.5], ...p }: Lan
       <ambientLight intensity={1.2} />
       <directionalLight position={[3, 5, 6]} intensity={1.6} />
       <Physics gravity={[0, -40, 0]} timeStep={1 / 60}>
-        <Band {...p} active={active} />
+        <Band {...p} active={active} grab={grab} />
       </Physics>
     </Canvas>
+    {/* Touch grab area: touch has no hover, so the click-through canvas can't switch to capturing before a touch
+        starts, and the browser would turn a vertical drag into a page scroll (pointercancel ends the drag). This box
+        tracks the card's on-screen bounds with touch-action: none, so a touch that starts on the card drags it; R3F
+        still gets the events through its document.body listeners. Shown only on coarse pointers (global.css). */}
+    <div ref={grab} className="badge-grab" data-badge-grab style={{ visibility: active ? undefined : 'hidden' }} />
+    </>
   );
 }
 
@@ -57,8 +65,13 @@ type Seg = RapierRigidBody & { lerped?: THREE.Vector3 };
 type V3 = { x: number; y: number; z: number };
 const v = (t: V3) => new THREE.Vector3(t.x, t.y, t.z);
 
-function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardProps, 'fov' | 'dpr'>) {
+const GRAB_PAD = 6; // px around the card's projected bounds
+const corner = new THREE.Vector3();
+
+function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<LanyardProps, 'fov' | 'dpr'> & { grab: RefObject<HTMLDivElement | null> }) {
   const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null!);
+  const cardGroup = useRef<THREE.Group>(null!);
+  const grabRect = useRef({ x: 0, y: 0, w: 0, h: 0 });
   const fixed = useRef<Seg>(null!), j1 = useRef<Seg>(null!), j2 = useRef<Seg>(null!), j3 = useRef<Seg>(null!), card = useRef<Seg>(null!);
   const [vec] = useState(() => new THREE.Vector3());
   const [dir] = useState(() => new THREE.Vector3());
@@ -100,6 +113,7 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
   const syncCapture = () => {
     gl.domElement.style.pointerEvents = hovered.current || dragging.current ? 'auto' : '';
     document.body.style.cursor = dragging.current ? 'grabbing' : hovered.current ? 'grab' : '';
+    grab.current?.toggleAttribute('data-dragging', dragging.current);
   };
   useEffect(() => () => { hovered.current = dragging.current = false; syncCapture(); }, []);
   // Frames stop when paused (off-screen / hidden tab), so the hover re-check below can't run: drop capture.
@@ -185,6 +199,23 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
     curve.points[2]!.copy(j1.current.lerped!);
     curve.points[3]!.copy(v(fixed.current.translation()));
     band.current.geometry.setPoints(curve.getPoints(32));
+    // Keep the touch grab area over the card: project its four corners to canvas px and take their bounds.
+    const el = grab.current, g = cardGroup.current;
+    if (el && g) {
+      g.updateWorldMatrix(true, false);
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const [cx, cy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]] as const) {
+        corner.set((cx * CARD_W) / 2, (cy * CARD_H) / 2, 0).applyMatrix4(g.matrixWorld).project(state.camera);
+        const px = ((corner.x + 1) / 2) * size.width, py = ((1 - corner.y) / 2) * size.height;
+        x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+      }
+      const r = { x: x0 - GRAB_PAD, y: y0 - GRAB_PAD, w: x1 - x0 + 2 * GRAB_PAD, h: y1 - y0 + 2 * GRAB_PAD };
+      const o = grabRect.current;
+      if (Math.abs(r.x - o.x) > 0.5 || Math.abs(r.y - o.y) > 0.5 || Math.abs(r.w - o.w) > 0.5 || Math.abs(r.h - o.h) > 0.5) {
+        grabRect.current = r;
+        Object.assign(el.style, { left: `${r.x}px`, top: `${r.y}px`, width: `${r.w}px`, height: `${r.h}px` });
+      }
+    }
     // Ease the card back to facing the camera: damp the y spin by the quaternion's y component.
     const ang = card.current.angvel();
     const rot = card.current.rotation();
@@ -212,13 +243,16 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
       <RigidBody position={[sx, sy - 3 * SEG - CARD_H / 2, 0]} ref={card} {...seg} type={dragged ? 'kinematicPosition' : 'dynamic'}>
         <CuboidCollider args={[CARD_W / 2, CARD_H / 2, 0.01]} />
         <group
+          ref={cardGroup}
           onPointerDown={(e) => {
             e.stopPropagation();
             if (e.nativeEvent.target !== gl.domElement) { e.nativeEvent.preventDefault(); swallowNextClick(); }
             dragging.current = true; syncCapture(); invalidate();
             drag(new THREE.Vector3().copy(e.point).sub(v(card.current!.translation())));
           }}
-          onPointerOver={() => { hovered.current = true; syncCapture(); lastActive.current = performance.now(); invalidate(); }}
+          // Touch has no hover: a touch "over" would leave the canvas capturing after the finger lifts (the replay
+          // above keeps re-hitting the card at the last touch point), so only mouse/pen hover switches capture on.
+          onPointerOver={(e) => { if (e.nativeEvent.pointerType === 'touch') return; hovered.current = true; syncCapture(); lastActive.current = performance.now(); invalidate(); }}
           onPointerOut={() => { hovered.current = false; syncCapture(); invalidate(); }}
         >
           <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={CARD_R} smoothness={4}>

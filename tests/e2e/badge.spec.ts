@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type CDPSession } from '@playwright/test';
 
 /**
  * The 3D scene mounts only after a real interaction once the island has hydrated (client:idle). The island's
@@ -179,4 +179,82 @@ test('swapping the static badge for the inline 3D badge does not shift the layou
   const after = await measure();
   expect(Math.abs(after.slot - before.slot)).toBeLessThanOrEqual(1);
   expect(Math.abs(after.h1 - before.h1)).toBeLessThanOrEqual(1);
+});
+
+type Pt = { x: number; y: number };
+/** Real touch input through CDP (goes through the browser's gesture/scroll pipeline, unlike synthetic DOM events). */
+async function touchStartMove(cdp: CDPSession, page: Page, from: Pt, to: Pt, steps = 12) {
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: from.x, y: from.y }] });
+  for (let i = 1; i <= steps; i++) {
+    const x = from.x + ((to.x - from.x) * i) / steps, y = from.y + ((to.y - from.y) * i) / steps;
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] });
+    await page.waitForTimeout(20);
+  }
+}
+const touchEnd = (cdp: CDPSession) => cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+const centre = async (page: Page) => {
+  const b = (await page.locator('[data-badge-grab]').boundingBox())!;
+  return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+};
+
+async function expectTouchDragWorks(page: Page, mode: '3d-inline' | '3d-travel') {
+  await engage(page);
+  await expect(page.locator(`[data-badge-mode="${mode}"] canvas`)).toBeAttached({ timeout: 15_000 });
+  await expect(page.locator(`[data-badge-mode="${mode}"] .badge-static`)).toHaveCount(0, { timeout: 15_000 });
+  await page.waitForTimeout(2500); // let the swing settle
+  const grab = page.locator('[data-badge-grab]');
+  await expect(grab).toBeVisible();
+  const start = await centre(page);
+  const scrollBefore = await page.evaluate(() => scrollY);
+  const cdp = await page.context().newCDPSession(page);
+  // A mostly vertical drag: without touch-action: none on the card this would start a page scroll and cancel the drag.
+  await touchStartMove(cdp, page, start, { x: start.x + 40, y: start.y + 90 });
+  await expect(grab).toHaveAttribute('data-dragging', '');
+  const mid = await centre(page);
+  expect(mid.y - start.y).toBeGreaterThan(45); // the card follows the finger
+  expect(await page.evaluate(() => scrollY)).toBe(scrollBefore);
+  await touchEnd(cdp);
+  await expect(grab).not.toHaveAttribute('data-dragging', '');
+  // It springs back towards its rest position after release.
+  await expect.poll(async () => Math.abs((await centre(page)).y - start.y), { timeout: 5000 }).toBeLessThan(30);
+  expect(await page.evaluate(() => scrollY)).toBe(scrollBefore);
+  return cdp;
+}
+
+test('touch: the inline card can be dragged, and swiping elsewhere still scrolls', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile');
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  const cdp = await expectTouchDragWorks(page, '3d-inline');
+  // A swipe up over the About text (well clear of the card) scrolls the page.
+  const about = (await page.getByRole('heading', { name: 'About me' }).boundingBox())!;
+  const y0 = Math.min(about.y + 40, 780);
+  await touchStartMove(cdp, page, { x: 60, y: y0 }, { x: 60, y: y0 - 300 });
+  await touchEnd(cdp);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
+  expect(errors).toEqual([]);
+});
+
+test('touch: the travelling card can be dragged on a wide touch screen', async ({ browser }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, hasTouch: true });
+  const page = await ctx.newPage();
+  await page.goto('/');
+  await expectTouchDragWorks(page, '3d-travel');
+  // Swiping over the headline (not the card) still scrolls.
+  const cdp = await page.context().newCDPSession(page);
+  const h = (await page.getByText('Computer Science student who builds software and 3D spaces.').boundingBox())!;
+  await touchStartMove(cdp, page, { x: h.x + 20, y: h.y + 10 }, { x: h.x + 20, y: h.y - 290 });
+  await touchEnd(cdp);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
+  await ctx.close();
+});
+
+test('mouse-only desktops get no touch grab area', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  await engage(page);
+  await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+  await expect(page.locator('[data-badge-grab]')).toBeHidden();
 });
