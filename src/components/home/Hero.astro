@@ -9,19 +9,23 @@ import { site } from '../../data/site';
   <div class="slot" data-badge-slot data-badge-anchor="hero"><slot /></div>
 </section>
 <style>
-  /* The name starts 56px under the nav. The hero is as tall as its content (the name block, or the badge slot):
-     the 3D badge hangs from a fixed overlay beside it and leaves with About Me, so it needs no extra hero height. */
+  /* The name starts 56px under the nav. The hero is as tall as the name and headline only: on desktop the badge is out
+     of flow (the 3D one is a fixed overlay; the static one is absolutely positioned in the slot below), hanging down
+     beside About Me in the right margin that About's limited column leaves free. Nothing in flow depends on the
+     badge, so the static→3D swap can't move the page. No transform/filter/contain on the slot's ancestors. */
   .hero { display: grid; grid-template-columns: 1.3fr 1fr; align-items: start; gap: 32px; padding-block: 56px 32px; }
   h1 { font-size: clamp(2.2rem, 5.2vw, 4.2rem); font-weight: 800; letter-spacing: -.01em; }
   .headline { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); margin: 18px 0 0; max-width: 34ch; }
-  /* The static badge's strap starts at the nav's bottom edge (pulled up by the hero's top padding), like the 3D
-     strap, which hangs from above the viewport. It sits right of centre with a longer strap, roughly where the 3D card
-     rests (BadgeIsland nudges that into the margin beside About Me), so the swap to 3D barely moves it. */
-  .slot { --badge-strap: 130px; position: relative; min-height: calc(var(--badge-strap) + var(--badge-body)); margin-top: -56px; display: flex; justify-content: flex-end; padding-right: 31px; align-items: flex-start; }
+  /* A zero-height anchor box at the top of the right column, pulled up to the nav's bottom edge. The static badge
+     hangs from it with a long strap, right of centre, where the 3D card rests (BadgeIsland nudges that into the
+     margin beside About Me), so the swap to 3D doesn't visibly move the badge either. */
+  .slot { --badge-strap: 130px; position: relative; height: 0; margin-top: -56px; }
+  .slot :global(.badge-static) { position: absolute; top: 0; right: 31px; z-index: 1; }
   @media (max-width: 899px) {
     .hero { grid-template-columns: 1fr; text-align: center; padding-top: 0; }
-    /* = the static badge's height and BadgeIsland's INLINE_H, so the static→3D swap doesn't shift the page. */
-    .slot { --badge-strap: 100px; order: -1; margin-top: 0; justify-content: center; padding-right: 0; }
+    /* In flow, as tall as the static badge (= BadgeIsland's INLINE_H), so the static→3D swap doesn't shift the page. */
+    .slot { --badge-strap: 100px; order: -1; height: auto; min-height: calc(var(--badge-strap) + var(--badge-body)); margin-top: 0; display: flex; justify-content: center; }
+    .slot :global(.badge-static) { position: static; }
     .headline { margin-inline: auto; }
   }
 </style>

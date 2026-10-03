@@ -50,7 +50,8 @@ test('reduced motion shows the static badge with the name', async ({ browser }) 
   await engage(page);
   await page.waitForTimeout(1500);
   // The gate opened (engage asserts data-engaged) and the island still chose static.
-  await expect(page.locator('[data-badge-mode="static"][data-engaged]')).toBeVisible();
+  // The wrapper is zero-height on desktop (the badge hangs out of flow), so check the badge itself.
+  await expect(page.locator('[data-badge-mode="static"][data-engaged] .badge-static')).toBeVisible();
   await expect(page.locator('[data-badge-slot]')).toContainText('MUHAMMAD ZARIF NURHAN');
   await expect(page.locator('[data-badge-slot] canvas')).toHaveCount(0);
   await ctx.close();
@@ -65,7 +66,8 @@ test('no WebGL falls back to the static badge', async ({ page }) => {
   await page.goto('/');
   await engage(page);
   await page.waitForTimeout(1500);
-  await expect(page.locator('[data-badge-mode="static"][data-engaged]')).toBeVisible();
+  // The wrapper is zero-height on desktop (the badge hangs out of flow), so check the badge itself.
+  await expect(page.locator('[data-badge-mode="static"][data-engaged] .badge-static')).toBeVisible();
 });
 
 test('resizing across 900px switches mode without errors', async ({ page }, info) => {

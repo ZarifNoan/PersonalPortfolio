@@ -39,7 +39,7 @@ test('project media lifts on hover', async ({ page }, info) => {
   await expect.poll(() => main.evaluate((el) => getComputedStyle(el).translate)).not.toMatch(/^(none|0px)$/);
 });
 
-test('desktop: the name starts 48-64px below the nav and the hero clears the hanging badge', async ({ page }, info) => {
+test('desktop: the name starts 48-64px below the nav and About follows the headline closely', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.goto('/');
   const navBottom = (await page.locator('header.nav-wrap').boundingBox())!;
@@ -47,13 +47,26 @@ test('desktop: the name starts 48-64px below the nav and the hero clears the han
   const gap = h1.y - (navBottom.y + navBottom.height);
   expect(gap).toBeGreaterThanOrEqual(44);
   expect(gap).toBeLessThanOrEqual(68);
-  // The static badge (shown until the first interaction) sits inside the hero, above About Me.
-  const card = (await page.locator('.badge-card').boundingBox())!;
-  const hero = (await page.locator('section.hero').boundingBox())!;
-  const about = (await page.locator('[data-badge-release]').boundingBox())!;
-  expect(card.y + card.height).toBeLessThanOrEqual(hero.y + hero.height + 1);
-  expect(card.y + card.height).toBeLessThanOrEqual(about.y);
+  // The hanging badge is out of the hero's flow, so the headline, not the badge, sets where About starts.
+  const headline = (await page.locator('.hero .headline').boundingBox())!;
+  const aboutTop = await page.evaluate(() => {
+    let y = 0; for (let el = document.querySelector<HTMLElement>('[data-badge-release]'); el; el = el.offsetParent as HTMLElement | null) y += el.offsetTop;
+    return y - scrollY;
+  });
+  expect(aboutTop - (headline.y + headline.height)).toBeLessThanOrEqual(96);
 });
+
+for (const width of [1024, 1280, 1440]) {
+  test(`desktop ${width}px: the static badge hangs right of the About text without covering it`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop');
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const card = (await page.locator('.badge-card').boundingBox())!;
+    const text = await page.locator('[data-badge-avoid]').evaluate((el) => el.getBoundingClientRect().right);
+    expect(card.x).toBeGreaterThan(text + 8);
+    expect(card.x + card.width).toBeLessThanOrEqual(width);
+  });
+}
 
 test('mobile: compact space between the nav and the hero', async ({ page }, info) => {
   test.skip(info.project.name !== 'mobile');
