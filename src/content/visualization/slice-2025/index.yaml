@@ -9,9 +9,9 @@ description: >-
   and exit gates, and perimeter fencing.
 images:
   - src: ./images/01-overview.png
-    alt: Night exterior of the community hall with a white event tent, booths, canopies and gated entrance
-  - src: ./images/02-booths.png
-    alt: Exhibition booth walkway under the tent with banners for participating universities
+    alt: Daytime exterior of the community hall with a white event tent, canopies and the SLICE gated entrance
+  - src: ./images/02-institution-banners.png
+    alt: Barrier banners for participating universities lining the walkway outside Dewan Dato Onn
   - src: ./images/03-auditorium.png
     alt: Main tent interior set up for a talk, with rows of chairs facing a SLICE title screen
   - src: ./images/04-canopy-dining.png
