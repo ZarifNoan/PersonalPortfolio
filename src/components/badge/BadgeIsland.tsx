@@ -6,6 +6,7 @@ const Lanyard = lazy(() => import('./Lanyard'));
 type Mode = 'static' | '3d-travel' | '3d-inline';
 // Narrower than the travel scene's FOV so rope + card fill most of the 380px inline canvas.
 const INLINE_FOV = 15;
+const INLINE_DPR: [number, number] = [1, 1];
 type Props = { name: string; role: string; photo: string | null };
 
 function webglOk(): boolean {
@@ -21,6 +22,9 @@ class Boundary extends Component<{ fallback: ReactNode; onError?: () => void; ch
 
 export default function BadgeIsland(props: Props) {
   const [mode, setMode] = useState<Mode>('static');
+  // The 3D scene (three.js + Rapier WASM, a few seconds of main-thread work on mobile) only loads after the first
+  // real interaction. Until then the static badge, with its CSS sway, stays.
+  const [engaged, setEngaged] = useState(false);
   const [active, setActive] = useState(true);
   // Which mode's scene has finished loading; switching mode remounts the scene, so readiness is per mode.
   const [readyMode, setReadyMode] = useState<Mode | null>(null);
@@ -29,6 +33,15 @@ export default function BadgeIsland(props: Props) {
   const inlineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const events = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'scroll', 'keydown'] as const;
+    const off = () => events.forEach((e) => removeEventListener(e, on, true));
+    const on = () => { off(); setEngaged(true); };
+    events.forEach((e) => addEventListener(e, on, { capture: true, passive: true }));
+    return off;
+  }, []);
+
+  useEffect(() => {
+    if (!engaged) return;
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
     const wide = matchMedia('(min-width: 900px)');
     const decide = () => {
@@ -38,7 +51,7 @@ export default function BadgeIsland(props: Props) {
     decide();
     reduce.addEventListener('change', decide); wide.addEventListener('change', decide);
     return () => { reduce.removeEventListener('change', decide); wide.removeEventListener('change', decide); };
-  }, []);
+  }, [engaged]);
 
   // Pause rendering when the tab is hidden or the badge is off-screen: in travel mode once the split section has
   // scrolled off the top, in inline mode once the 380px box has left the viewport.
@@ -89,7 +102,7 @@ export default function BadgeIsland(props: Props) {
   const scene = (
     <Boundary fallback={null} onError={onError}>
       <Suspense fallback={null}>
-        <Lanyard {...props} active={active} onReady={onReady} fov={mode === '3d-travel' ? undefined : INLINE_FOV} getAnchorPx={mode === '3d-travel' ? getTravelAnchor : getInlineAnchor} />
+        <Lanyard {...props} active={active} onReady={onReady} fov={mode === '3d-travel' ? undefined : INLINE_FOV} dpr={mode === '3d-travel' ? undefined : INLINE_DPR} getAnchorPx={mode === '3d-travel' ? getTravelAnchor : getInlineAnchor} />
       </Suspense>
     </Boundary>
   );

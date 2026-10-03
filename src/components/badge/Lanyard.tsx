@@ -23,18 +23,22 @@ export interface LanyardProps {
   active: boolean;
   /** Camera field of view; the inline (mobile) canvas is only 380px tall, so it narrows this to enlarge the badge. */
   fov?: number;
+  /** Device pixel ratio range; the inline (mobile) canvas renders at [1, 1]. */
+  dpr?: [number, number];
   /** Called once the physics world and card have mounted (WASM loaded, first scene ready). */
   onReady?: () => void;
 }
 
 const CARD_R = 0.06, CARD_D = 0.03, FACE_Z = CARD_D / 2 + 0.002;
 
-export default function Lanyard({ active, fov = FOV, ...p }: LanyardProps) {
+export default function Lanyard({ active, fov = FOV, dpr = [1, 1.5], ...p }: LanyardProps) {
   return (
     <Canvas
       camera={{ position: [0, 0, CAMERA_Z], fov }}
-      dpr={[1, 1.5]}
-      frameloop={active ? 'always' : 'never'}
+      dpr={dpr}
+      // Render on demand: Rapier invalidates while any body is awake, and Band invalidates on scroll/resize (anchor
+      // moves), hover/drag and while the strap smoothing settles. A resting badge costs no frames.
+      frameloop={active ? 'demand' : 'never'}
       eventSource={typeof document !== 'undefined' ? document.body : undefined}
       eventPrefix="client"
       gl={{ alpha: true, antialias: true }}
@@ -53,13 +57,15 @@ type Seg = RapierRigidBody & { lerped?: THREE.Vector3 };
 type V3 = { x: number; y: number; z: number };
 const v = (t: V3) => new THREE.Vector3(t.x, t.y, t.z);
 
-function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardProps, 'fov'>) {
+function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardProps, 'fov' | 'dpr'>) {
   const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null!);
   const fixed = useRef<Seg>(null!), j1 = useRef<Seg>(null!), j2 = useRef<Seg>(null!), j3 = useRef<Seg>(null!), card = useRef<Seg>(null!);
   const [vec] = useState(() => new THREE.Vector3());
   const [dir] = useState(() => new THREE.Vector3());
   const lastAnchor = useRef({ x: NaN, y: NaN });
-  const { size, viewport, gl } = useThree();
+  /** Last time something moved the badge on purpose (anchor, drag, hover); drives the forced sleep below. */
+  const lastActive = useRef(performance.now());
+  const { size, viewport, gl, invalidate } = useThree();
   const toWorld = (a: { x: number; y: number }) => ({
     x: (a.x / size.width - 0.5) * viewport.width,
     y: -(a.y / size.height - 0.5) * viewport.height,
@@ -96,7 +102,14 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
   };
   useEffect(() => () => { hovered.current = dragging.current = false; syncCapture(); }, []);
   // Frames stop when paused (off-screen / hidden tab), so the hover re-check below can't run: drop capture.
-  useEffect(() => { if (!active) { hovered.current = dragging.current = false; drag(false); syncCapture(); } }, [active]);
+  useEffect(() => { if (!active) { hovered.current = dragging.current = false; drag(false); syncCapture(); } else invalidate(); }, [active, invalidate]);
+  // The anchor follows the page, so scroll and resize must wake the demand frame loop.
+  useEffect(() => {
+    const wake = () => invalidate();
+    addEventListener('scroll', wake, { passive: true });
+    addEventListener('resize', wake);
+    return () => { removeEventListener('scroll', wake); removeEventListener('resize', wake); };
+  }, [invalidate]);
 
   useEffect(() => {
     if (!dragged) return;
@@ -129,11 +142,19 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
     if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current) return;
     const a = getAnchorPx();
     const w = toWorld(a);
-    fixed.current.setNextKinematicTranslation({ x: w.x, y: w.y, z: 0 });
-    // Kinematic motion doesn't wake sleeping bodies through joints, so wake the chain when the anchor moves.
-    if (Math.abs(a.x - lastAnchor.current.x) > 0.01 || Math.abs(a.y - lastAnchor.current.y) > 0.01) {
-      [j1, j2, j3, card].forEach((r) => r.current?.wakeUp());
+    // Only move the kinematic anchor when it actually moved: setNextKinematicTranslation wakes the body, and an
+    // awake body makes Rapier invalidate every frame. Kinematic motion doesn't wake sleeping bodies through joints,
+    // so wake the chain too.
+    // Written as !(<=) so the initial NaN anchor counts as moved (NaN comparisons are always false).
+    if (!(Math.abs(a.x - lastAnchor.current.x) <= 0.01 && Math.abs(a.y - lastAnchor.current.y) <= 0.01)) {
+      // A sleeping kinematic body ignores its next translation, so wake it first (it may have been put to sleep below).
+      [fixed, j1, j2, j3, card].forEach((r) => r.current?.wakeUp());
+      fixed.current.setNextKinematicTranslation({ x: w.x, y: w.y, z: 0 });
       lastAnchor.current = a;
+      lastActive.current = performance.now();
+      // Rapier stepped (and decided whether to invalidate) before this frame callback woke the chain, so request
+      // the next frame ourselves; from then on Rapier keeps invalidating while the bodies are awake.
+      invalidate();
     }
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
@@ -145,14 +166,19 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
     // R3F only re-raycasts hover on real DOM pointer events. When scroll moves the card away from a stationary
     // pointer, replay the last pointer event so onPointerOut fires and the canvas stops capturing.
     if (hovered.current && !dragging.current) state.events.update?.();
+    if (dragged) lastActive.current = performance.now();
     const dt = Math.min(delta, 0.1);
+    let settling = false;
     [j1, j2].forEach((ref) => {
       const r = ref.current!;
       const t = v(r.translation());
       if (!r.lerped) r.lerped = t.clone();
       const d = Math.max(0.1, Math.min(1, r.lerped.distanceTo(t)));
       r.lerped.lerp(t, Math.min(1, dt * (10 + d * 40)));
+      if (r.lerped.distanceTo(t) > 1e-4) settling = true;
     });
+    // Keep frames coming while dragging or while the strap smoothing catches up; Rapier covers awake bodies.
+    if (dragged || settling) invalidate();
     curve.points[0]!.copy(v(j3.current.translation()));
     curve.points[1]!.copy(j2.current.lerped!);
     curve.points[2]!.copy(j1.current.lerped!);
@@ -161,7 +187,18 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
     // Ease the card back to facing the camera: damp the y spin by the quaternion's y component.
     const ang = card.current.angvel();
     const rot = card.current.rotation();
-    card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
+    // wakeUp=false: waking the card here every frame (as the original example does) would stop it ever sleeping.
+    if (!card.current.isSleeping()) card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, false);
+    // Rapier's rope joints keep the chain bobbing a few px under gravity, so the bodies never reach its sleep
+    // threshold and Rapier would invalidate every frame forever. Once nothing has moved the badge for 2s, put the
+    // chain to sleep at a slow, front-facing moment (or after 4s regardless); anchor moves, drags and wake-ups
+    // resume it.
+    const bodies = [fixed, j1, j2, j3, card];
+    const quiet = performance.now() - lastActive.current;
+    if (!dragged && quiet > 2000 && bodies.some((r) => !r.current!.isSleeping())) {
+      const maxV = Math.max(...[j1, j2, j3, card].map((r) => { const l = r.current!.linvel(); return Math.hypot(l.x, l.y, l.z); }));
+      if ((maxV < 0.35 && Math.abs(rot.y) < 0.02) || quiet > 4000) bodies.forEach((r) => r.current!.sleep());
+    }
   });
 
   const { x: sx, y: sy } = start;
@@ -177,11 +214,11 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
           onPointerDown={(e) => {
             e.stopPropagation();
             if (e.nativeEvent.target !== gl.domElement) { e.nativeEvent.preventDefault(); swallowNextClick(); }
-            dragging.current = true; syncCapture();
+            dragging.current = true; syncCapture(); invalidate();
             drag(new THREE.Vector3().copy(e.point).sub(v(card.current!.translation())));
           }}
-          onPointerOver={() => { hovered.current = true; syncCapture(); }}
-          onPointerOut={() => { hovered.current = false; syncCapture(); }}
+          onPointerOver={() => { hovered.current = true; syncCapture(); lastActive.current = performance.now(); invalidate(); }}
+          onPointerOut={() => { hovered.current = false; syncCapture(); invalidate(); }}
         >
           <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={CARD_R} smoothness={4}>
             <meshStandardMaterial color="#e8e8f4" roughness={0.55} metalness={0.05} />

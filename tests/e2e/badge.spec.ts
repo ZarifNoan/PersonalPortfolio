@@ -1,10 +1,30 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+/** The 3D scene mounts only after a real interaction once the island has hydrated (client:idle). */
+async function engage(page: Page) {
+  await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
+  await page.mouse.move(8, 8);
+  await page.mouse.move(12, 12);
+}
+
+test('before any interaction the static badge is shown and no canvas exists', async ({ page }, info) => {
+  await page.goto('/');
+  await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
+  await page.waitForTimeout(1500);
+  await expect(page.locator('[data-badge-mode="static"] .badge-static')).toBeVisible();
+  await expect(page.locator('canvas')).toHaveCount(0);
+  if (info.project.name === 'desktop') {
+    await engage(page);
+    await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
+  }
+});
 
 test('desktop uses travelling 3D badge, and the canvas does not block clicks', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
+  await engage(page);
   await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
   // The canvas is hidden from assistive tech; the name stays as real text outside that subtree.
   await expect(page.locator('[data-badge-mode="3d-travel"] [aria-hidden="true"] canvas')).toBeAttached();
@@ -19,6 +39,7 @@ test('reduced motion shows the static badge with the name', async ({ browser }) 
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
   await page.goto('/');
+  await engage(page);
   await page.waitForTimeout(1500);
   await expect(page.locator('[data-badge-mode="static"]')).toBeVisible();
   await expect(page.locator('[data-badge-slot]')).toContainText('MUHAMMAD ZARIF NURHAN');
@@ -33,6 +54,7 @@ test('no WebGL falls back to the static badge', async ({ page }) => {
     HTMLCanvasElement.prototype.getContext = function (t: string, ...a: unknown[]) { return /webgl/.test(t) ? null : orig.call(this, t, ...a); };
   });
   await page.goto('/');
+  await engage(page);
   await page.waitForTimeout(1500);
   await expect(page.locator('[data-badge-mode="static"]')).toBeVisible();
 });
@@ -42,6 +64,7 @@ test('resizing across 900px switches mode without errors', async ({ page }, info
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/');
+  await engage(page);
   await expect(page.locator('[data-badge-mode="3d-travel"]')).toBeAttached({ timeout: 15_000 });
   await page.setViewportSize({ width: 600, height: 900 });
   await expect(page.locator('[data-badge-mode="3d-inline"]')).toBeAttached();
@@ -53,6 +76,7 @@ test('resizing across 900px switches mode without errors', async ({ page }, info
 test('the card captures pointer events but the pick-a-side halves around it stay clickable', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.goto('/');
+  await engage(page);
   await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
   // Static badge is replaced once the physics scene is ready.
   await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
@@ -92,6 +116,7 @@ test('the card captures pointer events but the pick-a-side halves around it stay
 test('scrolling the card away from a stationary pointer releases the canvas capture', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.goto('/');
+  await engage(page);
   await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
   await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
   // Scroll to the bottom: the card has travelled onto the divider.
