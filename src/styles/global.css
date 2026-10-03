@@ -74,7 +74,7 @@ img { max-width: 100%; height: auto; display: block; }
 .badge-sw { left: 6.25cqw; color: var(--sw); } .badge-viz { right: 6.25cqw; color: var(--viz); }
 .badge-photo { left: 50%; right: auto; translate: -50% 0; top: 26.86cqw; width: 32.2cqw; height: 32.2cqw; border-radius: 50%; object-fit: cover; border: 1cqw solid #fff; box-shadow: 0 0 0 .3cqw rgba(11,11,20,.16); box-sizing: content-box; }
 .badge-mono { display: grid; place-items: center; background: linear-gradient(135deg, #3b2a7a, #0e4a5a); color: #f5f5ff; font: 800 11.7cqw var(--font-head); }
-.badge-name { top: 64.9cqw; font: 800 8.98cqw/9.57cqw var(--font-head); color: #0b0b14; }
+.badge-name { top: 64.9cqw; font: 800 8.4cqw/9.57cqw var(--font-head); color: #0b0b14; } /* canvas: 92px fitted to 880px wide */
 .badge-name span, .badge-role span { display: block; }
 .badge-role i { display: none; }
 .badge-sub { top: 85.6cqw; font: 700 5.47cqw/1 var(--font-head); letter-spacing: .59cqw; color: #33364f; }
