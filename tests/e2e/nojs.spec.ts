@@ -11,3 +11,10 @@ test('all content is visible without JavaScript', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'About me' })).toBeVisible();
   await expect(page.locator('[data-badge-slot]')).toContainText('MZN');
 });
+
+test('mobile nav links are visible without JavaScript', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile');
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Main' });
+  for (const t of ['Home', 'Software Development', '3D Visualization']) await expect(nav.getByRole('link', { name: t })).toBeVisible();
+});

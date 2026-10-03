@@ -4,7 +4,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { site } from '../data/site';
-interface Props { title: string; description: string; page: 'home' | 'software' | 'viz' }
+interface Props { title: string; description: string; page: 'home' | 'software' | 'viz' | 'notfound' }
 const { title, description, page } = Astro.props;
 const fullTitle = page === 'home' ? `${site.name} | Portfolio` : `${title} | ${site.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -17,7 +17,7 @@ const og = new URL('/og.png', Astro.site).toString();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {page === 'notfound' ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
@@ -26,15 +26,16 @@ const og = new URL('/og.png', Astro.site).toString();
     <meta property="og:image" content={og} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#0b0b14" />
+    <!-- Runs before first paint so JS-only styles (e.g. the collapsed mobile menu) never flash; without JS nothing is hidden. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
   <body class={`page-${page}`}>
-    <a class="visually-hidden" href="#main">Skip to content</a>
+    <a class="skip-link glass" href="#main">Skip to content</a>
     <Nav page={page} />
     <main id="main"><slot /></main>
     <Footer />
     <Lightbox />
     <script>
-      document.documentElement.classList.add('js');
       import { initReveal } from '../scripts/reveal';
       initReveal();
     </script>

@@ -33,6 +33,8 @@ img { max-width: 100%; height: auto; display: block; }
 .glass { background: var(--glass); border: 1px solid var(--border); border-radius: 999px; backdrop-filter: blur(8px); }
 .sym { font-family: ui-monospace, 'Cascadia Code', monospace; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link { position: absolute; top: 12px; left: 12px; z-index: 100; padding: 8px 18px; background: rgba(11,11,20,.92); color: var(--text); font-weight: 600; text-decoration: none; translate: 0 -200%; }
+.skip-link:focus, .skip-link:focus-visible { translate: 0 0; }
 .page-title { padding-block: clamp(48px, 8vw, 96px) 24px; }
 .page-title h1 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; }
 .page-title p { color: var(--muted); max-width: 60ch; margin: 12px 0 0; }

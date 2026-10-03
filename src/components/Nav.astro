@@ -1,5 +1,5 @@
 ---
-interface Props { page: 'home' | 'software' | 'viz' }
+interface Props { page: 'home' | 'software' | 'viz' | 'notfound' }
 const { page } = Astro.props;
 const links = [
   { key: 'home', href: '/', label: 'Home', sym: '' },
@@ -34,20 +34,31 @@ const links = [
   nav a:hover { color: var(--text); background: var(--glass); }
   nav a[aria-current='page'] { color: var(--text); background: var(--glass-strong); border: 1px solid var(--border); }
   .menu-btn { display: none; color: var(--text); padding: 8px 16px; font: 600 .9rem var(--font-body); cursor: pointer; }
+  /* Without JS (no html.js) the links stay a plain wrapped row and the menu button stays hidden. */
   @media (max-width: 759px) {
-    .menu-btn { display: block; }
-    nav { position: absolute; top: 64px; left: 0; right: 0; background: rgba(11,11,20,.96); border-bottom: 1px solid var(--border); display: none; }
-    nav.open { display: block; }
-    ul { flex-direction: column; padding: 12px var(--gutter) 20px; }
+    .nav { height: auto; min-height: 64px; flex-wrap: wrap; padding-block: 8px; }
+    ul { flex-wrap: wrap; gap: 4px; }
+    nav a { padding: 6px 10px; font-size: .85rem; }
+    :global(html.js) .nav { height: 64px; flex-wrap: nowrap; padding-block: 0; }
+    :global(html.js) .menu-btn { display: block; }
+    :global(html.js) nav { position: absolute; top: 64px; left: 0; right: 0; background: rgba(11,11,20,.96); border-bottom: 1px solid var(--border); display: none; }
+    :global(html.js) nav.open { display: block; }
+    :global(html.js) ul { flex-direction: column; flex-wrap: nowrap; gap: 8px; padding: 12px var(--gutter) 20px; }
+    :global(html.js) nav a { padding: 8px 14px; font-size: .95rem; }
   }
 </style>
 
 <script>
   const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
   const nav = document.querySelector('nav[aria-label="Main"]');
-  btn?.addEventListener('click', () => {
-    const open = btn.getAttribute('aria-expanded') !== 'true';
-    btn.setAttribute('aria-expanded', String(open));
+  const setOpen = (open: boolean) => {
+    btn?.setAttribute('aria-expanded', String(open));
     nav?.classList.toggle('open', open);
+  };
+  btn?.addEventListener('click', () => setOpen(btn.getAttribute('aria-expanded') !== 'true'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || btn?.getAttribute('aria-expanded') !== 'true') return;
+    setOpen(false);
+    btn.focus();
   });
 </script>

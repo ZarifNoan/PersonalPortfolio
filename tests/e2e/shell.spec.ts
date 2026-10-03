@@ -23,3 +23,39 @@ for (const p of pages) {
     expect(errors).toEqual([]);
   });
 }
+
+test('the skip link is the first Tab stop and is visible when focused', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Skip to content' });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeVisible();
+  const box = (await skip.boundingBox())!;
+  expect(box.width).toBeGreaterThan(40);
+  expect(box.height).toBeGreaterThan(16);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.x).toBeGreaterThanOrEqual(0);
+});
+
+test('Esc closes the open mobile menu', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile');
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'Menu' });
+  await toggle.click();
+  const nav = page.getByRole('navigation', { name: 'Main' });
+  await expect(nav.getByRole('link', { name: 'Home' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(nav.getByRole('link', { name: 'Home' })).toBeHidden();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(toggle).toBeFocused();
+});
+
+test('404 page renders with links home and to both sides', async ({ page }) => {
+  const res = await page.goto('/this-page-does-not-exist');
+  expect(res!.status()).toBe(404);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/not found/i);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
+  await expect(main.getByRole('link', { name: /Software Development/ })).toHaveAttribute('href', '/software');
+  await expect(main.getByRole('link', { name: /3D Visualization/ })).toHaveAttribute('href', '/3d');
+});
