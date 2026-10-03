@@ -12,3 +12,11 @@ for (const [path, title] of [['/', 'Muhammad Zarif Nurhan Bin Mohd Arifin | Port
 test('sitemap exists', async ({ request }) => {
   expect((await request.get('/sitemap-index.xml')).status()).toBe(200);
 });
+test('robots.txt allows crawling and points at the sitemap', async ({ request }) => {
+  const res = await request.get('/robots.txt');
+  expect(res.status()).toBe(200);
+  const body = await res.text();
+  expect(body).toContain('User-agent: *');
+  expect(body).toContain('Allow: /');
+  expect(body).toMatch(/^Sitemap: https?:\/\/\S+\/sitemap-index\.xml$/m);
+});

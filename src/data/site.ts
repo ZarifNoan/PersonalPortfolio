@@ -12,5 +12,4 @@ export const site = {
   phoneDisplay: '+60 11-5878 5830',
   phoneTel: '+601158785830',
   badge: { photo: null as string | null, role: 'Computer Science · 3D Visualization' },
-  url: 'https://zarifnurhan.vercel.app',
 } as const;

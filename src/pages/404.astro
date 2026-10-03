@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Page not found" description="This page doesn't exist. Head back to the portfolio of Muhammad Zarif Nurhan Bin Mohd Arifin." page="notfound">
+  <div class="container nf">
+    <p class="code" aria-hidden="true">404</p>
+    <h1>Page not found</h1>
+    <p class="msg">That page doesn't exist, or it has moved. Try one of these instead:</p>
+    <ul class="links">
+      <li><a class="glass" href="/">Home</a></li>
+      <li><a class="glass sw" href="/software"><span class="sym" aria-hidden="true">&lt;/&gt; </span>Software Development</a></li>
+      <li><a class="glass viz" href="/3d"><span class="sym" aria-hidden="true">◇ </span>3D Visualization</a></li>
+    </ul>
+  </div>
+</Layout>
+<style>
+  .nf { padding-block: clamp(64px, 14vh, 160px) 24px; text-align: center; }
+  .code { margin: 0 0 8px; font: 800 clamp(3.5rem, 12vw, 7rem)/1 var(--font-head); color: var(--dim); letter-spacing: .04em; }
+  h1 { font-size: clamp(1.8rem, 4.5vw, 2.8rem); font-weight: 800; }
+  .msg { color: var(--muted); margin: 14px auto 28px; max-width: 46ch; }
+  .links { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0; padding: 0; }
+  .links a { display: inline-block; padding: 10px 20px; text-decoration: none; font-weight: 600; }
+  .links a:hover { background: var(--glass-strong); }
+  .sw .sym { color: var(--sw); } .viz .sym { color: var(--viz); }
+</style>
