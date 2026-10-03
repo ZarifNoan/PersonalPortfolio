@@ -40,8 +40,8 @@ Three pages, with tabs labelled **Home · Software Development · 3D Visualizati
 
 ### 3.1 Home (`/`)
 
-1. **Header.** Left: full name "Muhammad Zarif Nurhan Bin Mohd Arifin", with the headline below it: "Computer Science student who builds software and 3D spaces." Right: the lanyard badge (section 5).
-2. **About Me**, using the approved text:
+1. **Header.** Left: full name "Muhammad Zarif Nurhan Bin Mohd Arifin", with the headline below it: "Computer Science student who builds software and 3D spaces." The name starts about 56px below the nav (the header is as tall as its content, not a full screen). Right: the lanyard badge (section 5).
+2. **About Me** (compact top padding; paragraphs justified with hyphenation from 600px wide), using the approved text:
    > Hi, I'm Zarif, a final-year Computer Science (Honours) student at UCSI University.
    >
    > I work in two worlds. On one side, I build software, from full-stack web applications to systems that use AI to make smarter decisions. On the other, I create 3D visualisations in Blender for real clients, bringing spaces to life before they're built.
@@ -49,7 +49,7 @@ Three pages, with tabs labelled **Home · Software Development · 3D Visualizati
    > Different tools, same goal: taking an idea that only exists on paper and turning it into something people can actually see and use.
    >
    > I'm currently looking for an internship where I can keep building, learn from experienced teams, and bring a bit of both worlds to the table.
-3. **Pick a side.** Two equal halves: **`</>` Software Development** (blue glow) and **◇ 3D Visualization** (amber glow). Each half links to its page. On desktop, the lanyard badge settles on the dividing line between them.
+3. **Pick a side.** Two equal halves: **`</>` Software Development** (blue glow) and **◇ 3D Visualization** (amber glow). Each half links to its page. Each half has a background photo (free Unsplash photos, not Zarif's projects, credited in the README: code on a laptop screen for Software, low-angle glass towers for 3D) under its colour wash and a dark fade that keeps the text at WCAG AA. The photos are optimised by `astro:assets` (responsive WebP) and lazy-loaded.
 4. **Footer** (shared, section 3.4).
 
 ### 3.2 Software Development (`/software`)
@@ -71,7 +71,7 @@ Three pages, with tabs labelled **Home · Software Development · 3D Visualizati
 
 ### 3.4 Shared elements
 
-- **Top navigation** with the active tab highlighted.
+- **Top navigation** with the brand "NURHAN ARIFIN" (links home) and the active tab highlighted.
 - **Footer** on every page: `zrf.nurhan@gmail.com` (a `mailto:` link), `+60 11-5878 5830` (a `tel:` link), and "© 2026 Muhammad Zarif Nurhan Bin Mohd Arifin".
 - **Full-screen image viewer:** previous/next with arrow keys or swipe, closes with Esc or a click on the backdrop, and returns keyboard focus to the image that opened it.
 
@@ -92,21 +92,21 @@ Blog, contact form, light theme, individual project pages, CMS, analytics.
 
 - A React Three Fiber scene with a Rapier rope-joint chain, hanging a 3D card from a fabric strap.
   - It swings under gravity and can be grabbed and dragged with mouse or touch, springing back on release.
-  - **Card front:** photo, full name, "Computer Science · 3D Visualization".
-  - **Strap texture:** repeating "`</>` ◇ ZARIF".
+  - **Card:** a printed card in a clear glossy plastic sleeve, joined to the strap by a metal clip and split ring. Front: header with the `</>` and ◇ marks, blue/amber accent stripes, photo, full name (given names large, "BIN MOHD ARIFIN" smaller), "Computer Science · 3D Visualization".
+  - **Strap texture:** woven fabric with stitched edges and "NURHAN ARIFIN" plus the `</>` ◇ marks, at the correct aspect so the text is not stretched.
+  - Lighting uses image-based light from three's procedural room environment (no HDR download).
 - **Photo placeholder:** until Zarif supplies a photo, the card shows an **MZN** monogram. Swapping it in means replacing one image file.
 - **Scroll travel (desktop Home page only).**
   - The canvas is fixed-position and lets pointer events pass through to the page, except on the card itself.
-  - The rope's anchor point moves along a path that runs from the header's right side, down the right margin beside About Me, to the centre line of the pick-a-side section.
-  - The anchor follows scroll progress through those sections, so the physics produces a natural swing.
-  - Past the pick-a-side section the badge scrolls away with the page.
+  - The badge hangs on the right of the header and stays in place, in the right margin beside About Me, while About Me is read.
+  - Once About Me's bottom edge reaches the card's bottom, the anchor follows it up, so the badge scrolls away with About Me. It never travels to the pick-a-side section.
 - **Fallbacks:**
 
   | Condition | Behaviour |
   |---|---|
   | Viewport under 900 px wide | Smaller badge above the name in the header; no travel. Pick-a-side halves stack vertically. |
   | `prefers-reduced-motion` | The badge renders still, with no physics or travel. |
-  | No WebGL, or the scene fails to load | A static image of the badge is shown instead. |
+  | No WebGL, or the scene fails to load | A static HTML/CSS badge (same strap text, clip, sleeve and card) is shown instead. |
 
 - **Performance:**
   - The island hydrates `client:idle`, after the page has painted.
