@@ -1,6 +1,8 @@
 export const site = {
   name: 'Muhammad Zarif Nurhan Bin Mohd Arifin',
   shortName: 'Zarif',
+  /** Nav brand and the text woven into the badge strap. */
+  brand: 'NURHAN ARIFIN',
   headline: 'Computer Science student who builds software and 3D spaces.',
   about: [
     "Hi, I'm Zarif, a final-year Computer Science (Honours) student at UCSI University.",

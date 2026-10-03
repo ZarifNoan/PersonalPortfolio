@@ -1,4 +1,5 @@
 ---
+import { site } from '../data/site';
 interface Props { page: 'home' | 'software' | 'viz' | 'notfound' }
 const { page } = Astro.props;
 const links = [
@@ -9,7 +10,7 @@ const links = [
 ---
 <header class="nav-wrap">
   <div class="container nav">
-    <a class="brand" href="/">NURHAN ARIFIN</a>
+    <a class="brand" href="/">{site.brand}</a>
     <button class="menu-btn glass" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>
     <nav aria-label="Main">
       <ul id="nav-list">

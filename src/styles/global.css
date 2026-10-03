@@ -40,20 +40,48 @@ img { max-width: 100%; height: auto; display: block; }
 .page-title p { color: var(--muted); max-width: 60ch; margin: 12px 0 0; }
 [data-filter-item][hidden] { display: none !important; }
 
+/* Static badge (BadgeStatic.tsx), drawn to match the 3D one. Height: 100 strap + 16 ring + 294 card = 410px. */
 .badge-static { display: flex; flex-direction: column; align-items: center; }
-.badge-strap { width: 22px; height: 120px; background: repeating-linear-gradient(180deg, #1e1b3a 0 14px, #2a2650 14px 28px); border-radius: 2px; }
-.badge-card { position: relative; width: 210px; aspect-ratio: 1 / 1.4; margin-top: -4px; background: linear-gradient(160deg, #f8f8ff, #dcdcf0); color: #0b0b14; border-radius: 18px; box-shadow: 0 30px 60px rgba(0,0,0,.55); display: flex; flex-direction: column; align-items: center; padding: 34px 16px 18px; transform: rotate(-4deg); }
-.badge-clip { position: absolute; top: -10px; width: 44px; height: 16px; border-radius: 4px; background: #9ca3af; }
-.badge-photo { width: 104px; height: 104px; border-radius: 50%; object-fit: cover; }
-.badge-mono { display: grid; place-items: center; background: linear-gradient(135deg, #3b2a7a, #0e4a5a); color: #f5f5ff; font: 800 2rem var(--font-head); letter-spacing: .06em; }
-.badge-name { margin-top: 16px; font: 800 .82rem/1.25 var(--font-head); text-align: center; letter-spacing: .03em; }
-.badge-role { margin-top: 6px; font-size: .68rem; color: #4b4f6b; text-align: center; }
+.badge-strap { position: relative; width: 26px; height: 100px; overflow: hidden; display: flex; flex-direction: column-reverse; align-items: center; justify-content: flex-start; gap: 10px; padding-bottom: 8px;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 2px, rgba(0,0,0,.12) 2px 4px),
+    linear-gradient(90deg, #15132b, #1b1838 50%, #15132b);
+  box-shadow: inset 3px 0 0 rgba(255,255,255,.06), inset -3px 0 0 rgba(255,255,255,.06); }
+.badge-strap::before, .badge-strap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(196,198,224,.5); }
+.badge-strap::before { left: 4px; } .badge-strap::after { right: 4px; }
+.badge-strap span { writing-mode: vertical-rl; transform: rotate(180deg); font: 800 9px/1 var(--font-head); letter-spacing: .1em; color: #eef0ff; white-space: nowrap; }
+.badge-hang { display: flex; flex-direction: column; align-items: center; }
+.badge-ring { width: 22px; height: 22px; margin-top: -3px; border-radius: 50%; border: 3px solid #dfe3ea; box-shadow: inset 0 1px 1px rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.5); }
+.badge-card { position: relative; width: 210px; height: 294px; margin-top: -3px; padding: 7px; border-radius: 16px; color: #0b0b14; display: flex; flex-direction: column; align-items: center; text-align: center;
+  /* clear sleeve: a faint glossy frame and highlight around the printed card */
+  background: linear-gradient(150deg, rgba(255,255,255,.34), rgba(255,255,255,.08) 40%, rgba(255,255,255,.18)), rgba(220,224,240,.08);
+  border: 1px solid rgba(255,255,255,.35); box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.5); }
+.badge-card::after { content: ''; position: absolute; inset: 7px; border-radius: 10px; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.35) 0 18%, transparent 30%); }
+.badge-clip { position: absolute; top: -9px; left: 50%; translate: -50% 0; width: 42px; height: 22px; border-radius: 5px; z-index: 2;
+  background: linear-gradient(180deg, #f1f3f7, #b8bdc8 55%, #8d93a1); box-shadow: 0 2px 4px rgba(0,0,0,.4), inset 0 1px 0 #fff; }
+.badge-clip::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; translate: -50% -50%; border-radius: 50%; background: #6b7080; }
+.badge-head, .badge-photo, .badge-name, .badge-sub, .badge-role, .badge-foot { position: relative; z-index: 1; }
+.badge-head { align-self: stretch; height: 46px; border-radius: 9px 9px 0 0; background: #0b0b14; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 12px 6px; font: 700 .7rem var(--font-head); border-bottom: 3px solid; border-image: linear-gradient(90deg, var(--sw) 50%, var(--viz) 50%) 1; }
+.badge-slot { position: absolute; left: 50%; top: 9px; translate: -50% 0; width: 44px; height: 8px; border-radius: 4px; background: #26263a; }
+.badge-sw { color: var(--sw); } .badge-viz { color: var(--viz); }
+.badge-kicker { color: #c4c6e0; font-size: .5rem; letter-spacing: .3em; padding-bottom: 2px; }
+.badge-card { --paper: linear-gradient(160deg, #fbfbff, #f1f1f8 55%, #e4e4f0); }
+.badge-card::before { content: ''; position: absolute; inset: 7px; border-radius: 10px; background: var(--paper); }
+.badge-photo { width: 86px; height: 86px; margin-top: 16px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(11,11,20,.14); }
+.badge-mono { display: grid; place-items: center; background: linear-gradient(135deg, #3b2a7a, #0e4a5a); color: #f5f5ff; font: 800 1.6rem var(--font-head); letter-spacing: .04em; }
+.badge-name { margin-top: 14px; padding-inline: 8px; font: 800 .74rem/1.2 var(--font-head); letter-spacing: .02em; }
+.badge-sub { margin-top: 3px; font: 600 .52rem var(--font-head); letter-spacing: .18em; color: #5a5e7c; }
+.badge-sub::after { content: ''; display: block; width: 24px; height: 1px; margin: 9px auto 0; background: rgba(11,11,20,.14); }
+.badge-role { margin-top: 8px; font: 600 .6rem var(--font-body); color: #3b2a7a; }
+.badge-foot { position: absolute; left: 7px; right: 7px; bottom: 7px; height: 26px; display: grid; place-items: center; border-radius: 0 0 9px 9px; background: #0b0b14; color: #9a9dbd; font: 600 .44rem var(--font-body); letter-spacing: .16em; border-top: 3px solid; border-image: linear-gradient(90deg, var(--sw) 50%, var(--viz) 50%) 1; }
 /* Touch grab area over the 3D card (Lanyard.tsx positions it every frame). Only touch screens need it: mouse and pen
    hover switch the canvas itself to capturing. */
 .badge-grab { display: none; position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: auto; touch-action: none; }
 @media (any-pointer: coarse) { .badge-grab { display: block; } }
-@media (prefers-reduced-motion: no-preference) { .badge-card { animation: badge-sway 6s ease-in-out infinite; transform-origin: 50% -130px; } }
-@keyframes badge-sway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(3deg); } }
+/* The ring and card swing together from the strap's top. */
+.badge-hang { transform: rotate(-3deg); transform-origin: 50% -100px; }
+@media (prefers-reduced-motion: no-preference) { .badge-hang { animation: badge-sway 6s ease-in-out infinite; } }
+@keyframes badge-sway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(2.5deg); } }
 
 .reveal-on [data-reveal] { opacity: 0; translate: 0 24px; transition: opacity .6s ease, translate .6s ease; }
 .reveal-on [data-reveal].revealed { opacity: 1; translate: 0 0; }

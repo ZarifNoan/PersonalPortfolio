@@ -4,8 +4,9 @@ import { Canvas, extend, useFrame, useThree, type ThreeElement } from '@react-th
 import { RoundedBox } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint, type RapierRigidBody } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-import { cardFaceTexture, strapTexture } from './textures';
-import { CAMERA_Z, FOV, SEG, CARD_W, CARD_H } from './anchor';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { cardFaceTexture, sheenTexture, strapTexture, STRAP_TILE_ASPECT } from './textures';
+import { CAMERA_Z, FOV, SEG, CARD_W, CARD_H, CLIP_H } from './anchor';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 declare module '@react-three/fiber' {
@@ -18,6 +19,8 @@ declare module '@react-three/fiber' {
 
 export interface LanyardProps {
   name: string; role: string; photo: string | null;
+  /** Text woven into the strap. */
+  label: string;
   /** Anchor in canvas-local CSS px. Called every frame. */
   getAnchorPx: () => { x: number; y: number };
   active: boolean;
@@ -30,6 +33,32 @@ export interface LanyardProps {
 }
 
 const CARD_R = 0.06, CARD_D = 0.03, FACE_Z = CARD_D / 2 + 0.002;
+/** Clear plastic sleeve around the card: a little larger on every side. */
+const SLEEVE_PAD = 0.05, SLEEVE_D = CARD_D + 0.05;
+/** Strap width in world units. meshline's lineWidth is camera-relative (px = lineWidth · viewportH / (2·CAMERA_Z)),
+ *  so lineWidth = STRAP_W / tan(fov/2) keeps the same width relative to the card at every FOV. */
+const STRAP_W = 0.17;
+/** Rope length between the kinematic anchor and the ring (three segments), for the strap texture repeat. */
+const ROPE = 3 * SEG;
+/** Ring (torus) radius and its centre above the card's top edge; the strap attaches at the ring's top (CLIP_H). */
+const RING_R = 0.06, RING_Y = CARD_H / 2 + CLIP_H - RING_R;
+
+/** Image-based lighting from three's procedural RoomEnvironment (no HDR download), so the metal clip and the plastic
+ *  sleeve get reflections. Built once per canvas. */
+function RoomLight() {
+  const { gl, scene, invalidate } = useThree();
+  useEffect(() => {
+    const pm = new THREE.PMREMGenerator(gl);
+    const room = new RoomEnvironment();
+    const env = pm.fromScene(room, 0.04).texture;
+    scene.environment = env;
+    scene.environmentIntensity = 0.7;
+    room.dispose(); pm.dispose();
+    invalidate();
+    return () => { scene.environment = null; env.dispose(); };
+  }, [gl, scene, invalidate]);
+  return null;
+}
 
 export default function Lanyard({ active, fov = FOV, dpr = [1, 1.5], ...p }: LanyardProps) {
   const grab = useRef<HTMLDivElement>(null);
@@ -46,10 +75,12 @@ export default function Lanyard({ active, fov = FOV, dpr = [1, 1.5], ...p }: Lan
       gl={{ alpha: true, antialias: true }}
       style={{ pointerEvents: 'none' }}
     >
-      <ambientLight intensity={1.2} />
-      <directionalLight position={[3, 5, 6]} intensity={1.6} />
+      <RoomLight />
+      <ambientLight intensity={0.45} />
+      <directionalLight position={[3, 5, 6]} intensity={1.4} />
+      <directionalLight position={[-4, 2, 3]} intensity={0.35} color="#9ec5ff" />
       <Physics gravity={[0, -40, 0]} timeStep={1 / 60}>
-        <Band {...p} active={active} grab={grab} />
+        <Band {...p} fov={fov} active={active} grab={grab} />
       </Physics>
     </Canvas>
     {/* Touch grab area: touch has no hover, so the click-through canvas can't switch to capturing before a touch
@@ -68,7 +99,7 @@ const v = (t: V3) => new THREE.Vector3(t.x, t.y, t.z);
 const GRAB_PAD = 6; // px around the card's projected bounds
 const corner = new THREE.Vector3();
 
-function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<LanyardProps, 'fov' | 'dpr'> & { grab: RefObject<HTMLDivElement | null> }) {
+function Band({ name, role, photo, label, fov, getAnchorPx, onReady, active, grab }: Omit<LanyardProps, 'dpr'> & { fov: number; grab: RefObject<HTMLDivElement | null> }) {
   const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null!);
   const cardGroup = useRef<THREE.Group>(null!);
   const grabRect = useRef({ x: 0, y: 0, w: 0, h: 0 });
@@ -88,7 +119,8 @@ function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<La
   const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [face, setFace] = useState<THREE.Texture | null>(null);
-  const [strap] = useState(() => strapTexture());
+  const [strap] = useState(() => strapTexture(label));
+  const [sheen] = useState(() => sheenTexture((CARD_H + 2 * SLEEVE_PAD) / (CARD_W + 2 * SLEEVE_PAD), (CARD_R + SLEEVE_PAD) / (CARD_W + 2 * SLEEVE_PAD)));
 
   useEffect(() => {
     let live = true;
@@ -97,6 +129,7 @@ function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<La
   }, [name, role, photo]);
   useEffect(() => () => { face?.dispose(); }, [face]);
   useEffect(() => () => { strap.dispose(); }, [strap]);
+  useEffect(() => () => { sheen.dispose(); }, [sheen]);
   // Wait for the face texture so the swap from the static badge never shows a blank card.
   useEffect(() => { if (face) onReady?.(); }, [face, onReady]);
 
@@ -104,7 +137,7 @@ function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<La
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], SEG]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], SEG]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], SEG]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, CARD_H / 2, 0]]);
+  useSphericalJoint(j3, card, [[0, 0, 0], [0, CARD_H / 2 + CLIP_H, 0]]);
 
   // The canvas is click-through (pointer-events: none) except over the card. Hover is raycast by R3F from body
   // pointermoves, so the canvas switches to pointer-events: auto synchronously on pointerover; the following
@@ -240,7 +273,7 @@ function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<La
       <RigidBody position={[sx, sy - SEG, 0]} ref={j1} {...seg}><BallCollider args={[0.1]} /></RigidBody>
       <RigidBody position={[sx, sy - 2 * SEG, 0]} ref={j2} {...seg}><BallCollider args={[0.1]} /></RigidBody>
       <RigidBody position={[sx, sy - 3 * SEG, 0]} ref={j3} {...seg}><BallCollider args={[0.1]} /></RigidBody>
-      <RigidBody position={[sx, sy - 3 * SEG - CARD_H / 2, 0]} ref={card} {...seg} type={dragged ? 'kinematicPosition' : 'dynamic'}>
+      <RigidBody position={[sx, sy - 3 * SEG - CLIP_H - CARD_H / 2, 0]} ref={card} {...seg} type={dragged ? 'kinematicPosition' : 'dynamic'}>
         <CuboidCollider args={[CARD_W / 2, CARD_H / 2, 0.01]} />
         <group
           ref={cardGroup}
@@ -255,21 +288,46 @@ function Band({ name, role, photo, getAnchorPx, onReady, active, grab }: Omit<La
           onPointerOver={(e) => { if (e.nativeEvent.pointerType === 'touch') return; hovered.current = true; syncCapture(); lastActive.current = performance.now(); invalidate(); }}
           onPointerOut={() => { hovered.current = false; syncCapture(); invalidate(); }}
         >
+          {/* The card: paper-white core with the printed face on both sides. */}
           <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={CARD_R} smoothness={4}>
-            <meshStandardMaterial color="#e8e8f4" roughness={0.55} metalness={0.05} />
+            <meshStandardMaterial color="#eef0f8" roughness={0.9} metalness={0} envMapIntensity={0.2} />
           </RoundedBox>
           {/* The face is a plane over each flat side: RoundedBox's extruded bevel UVs would smear the texture. */}
           {face && [0, Math.PI].map((ry) => (
             <mesh key={ry} rotation={[0, ry, 0]} position={[0, 0, ry ? -FACE_Z : FACE_Z]}>
               <planeGeometry args={[CARD_W - 2 * CARD_R, CARD_H - 2 * CARD_R]} />
-              <meshStandardMaterial map={face} roughness={0.55} metalness={0.05} />
+              <meshStandardMaterial map={face} roughness={0.9} metalness={0} envMapIntensity={0} />
             </mesh>
           ))}
+          {/* Clear plastic sleeve: glossy clearcoat that mostly shows as reflections and edge highlights. */}
+          <RoundedBox args={[CARD_W + 2 * SLEEVE_PAD, CARD_H + 2 * SLEEVE_PAD, SLEEVE_D]} radius={CARD_R + SLEEVE_PAD} smoothness={4} renderOrder={1}>
+            <meshPhysicalMaterial color="#ffffff" transparent opacity={0.05} roughness={0.05} metalness={0} clearcoat={0.6} clearcoatRoughness={0.03} envMapIntensity={0.5} depthWrite={false} />
+          </RoundedBox>
+          {[0, Math.PI].map((ry) => (
+            <mesh key={ry} rotation={[0, ry, 0]} position={[0, 0, ry ? -(SLEEVE_D / 2 + 0.002) : SLEEVE_D / 2 + 0.002]} renderOrder={2}>
+              <planeGeometry args={[CARD_W + 2 * SLEEVE_PAD, CARD_H + 2 * SLEEVE_PAD]} />
+              <meshBasicMaterial map={sheen} transparent depthWrite={false} toneMapped={false} />
+            </mesh>
+          ))}
+          {/* Metal clip over the sleeve's top edge and the split ring the strap loops through. */}
+          <group position={[0, CARD_H / 2, 0]}>
+            <RoundedBox args={[0.22, 0.13, SLEEVE_D + 0.03]} radius={0.025} smoothness={3} position={[0, 0.035, 0]}>
+              <meshStandardMaterial color="#d7dbe4" metalness={1} roughness={0.22} />
+            </RoundedBox>
+            <mesh position={[0, 0.035, SLEEVE_D / 2 + 0.016]}>
+              <circleGeometry args={[0.022, 20]} />
+              <meshStandardMaterial color="#6b7080" metalness={1} roughness={0.35} />
+            </mesh>
+            <mesh position={[0, RING_Y - CARD_H / 2, 0]}>
+              <torusGeometry args={[RING_R, 0.014, 12, 40]} />
+              <meshStandardMaterial color="#e4e7ee" metalness={1} roughness={0.18} />
+            </mesh>
+          </group>
         </group>
       </RigidBody>
       <mesh ref={band}>
         <meshLineGeometry />
-        <meshLineMaterial color="white" depthTest={false} resolution={[size.width, size.height]} useMap={1} map={strap} repeat={[-4, 1]} lineWidth={0.6} />
+        <meshLineMaterial color="white" depthTest={false} resolution={[size.width, size.height]} useMap={1} map={strap} repeat={[-ROPE / (STRAP_W * STRAP_TILE_ASPECT), 1]} lineWidth={STRAP_W / Math.tan((fov / 2) * Math.PI / 180)} />
       </mesh>
     </>
   );

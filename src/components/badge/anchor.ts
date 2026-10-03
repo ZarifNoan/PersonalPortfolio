@@ -3,7 +3,9 @@ export const TOP_OFFSET = -24;
 export const CAMERA_Z = 13, FOV = 25;
 export const SEG = 0.45;
 export const CARD_W = 1.2, CARD_H = 1.68;
-export const HANG_WORLD = 3 * SEG + CARD_H / 2; // rope length plus half the card height, at rest
+/** The strap ends at the top of the metal ring, this far above the card's top edge (clip + ring). */
+export const CLIP_H = 0.2;
+export const HANG_WORLD = 3 * SEG + CLIP_H + CARD_H / 2; // rope + clip/ring + half the card height, at rest
 /** World height visible at z=0 is 2·z·tan(fov/2); CSS px per world unit for a given viewport height. */
 export const pxPerWorld = (viewportH: number) => viewportH / (2 * CAMERA_Z * Math.tan((FOV / 2) * Math.PI / 180));
 /** Anchor → resting card centre, in px. */

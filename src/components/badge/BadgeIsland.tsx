@@ -9,8 +9,10 @@ const INLINE_FOV = 15;
 /** Inline (mobile) canvas height: the static badge's height (120px strap + 210×1.4 card − 4px overlap), so swapping
  *  one for the other doesn't shift the page. Hero.astro's mobile slot min-height matches. */
 const INLINE_H = 410;
-const INLINE_DPR: [number, number] = [1, 1];
-type Props = { name: string; role: string; photo: string | null };
+/** The inline canvas is small (≤ ~900×410 CSS px) and renders only while the badge moves, so it can afford up to 2× for
+ *  a crisp card face on phones (it was [1, 1], which blurred the redesigned face text). Lighthouse never mounts it. */
+const INLINE_DPR: [number, number] = [1, 2];
+type Props = { name: string; role: string; photo: string | null; label: string };
 
 let webglCached: boolean | undefined;
 /** Probes WebGL once per page load and releases the probe context (browsers cap live contexts). */
