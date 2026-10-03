@@ -1,0 +1,53 @@
+---
+interface Props { page: 'home' | 'software' | 'viz' }
+const { page } = Astro.props;
+const links = [
+  { key: 'home', href: '/', label: 'Home', sym: '' },
+  { key: 'software', href: '/software', label: 'Software Development', sym: '</>' },
+  { key: 'viz', href: '/3d', label: '3D Visualization', sym: '◇' },
+] as const;
+---
+<header class="nav-wrap">
+  <div class="container nav">
+    <a class="brand" href="/">ZARIF</a>
+    <button class="menu-btn glass" type="button" aria-expanded="false" aria-controls="nav-list">Menu</button>
+    <nav aria-label="Main">
+      <ul id="nav-list">
+        {links.map((l) => (
+          <li>
+            <a href={l.href} aria-current={l.key === page ? 'page' : undefined}>
+              {l.sym && <span class="sym" aria-hidden="true">{l.sym} </span>}{l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav-wrap { position: sticky; top: 0; z-index: 50; background: rgba(11,11,20,.72); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { font: 800 1.05rem var(--font-head); letter-spacing: .12em; text-decoration: none; }
+  ul { list-style: none; display: flex; gap: 8px; margin: 0; padding: 0; }
+  nav a { display: block; padding: 8px 14px; border-radius: 999px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: .95rem; }
+  nav a:hover { color: var(--text); background: var(--glass); }
+  nav a[aria-current='page'] { color: var(--text); background: var(--glass-strong); border: 1px solid var(--border); }
+  .menu-btn { display: none; color: var(--text); padding: 8px 16px; font: 600 .9rem var(--font-body); cursor: pointer; }
+  @media (max-width: 759px) {
+    .menu-btn { display: block; }
+    nav { position: absolute; top: 64px; left: 0; right: 0; background: rgba(11,11,20,.96); border-bottom: 1px solid var(--border); display: none; }
+    nav.open { display: block; }
+    ul { flex-direction: column; padding: 12px var(--gutter) 20px; }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
+  const nav = document.querySelector('nav[aria-label="Main"]');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    nav?.classList.toggle('open', open);
+  });
+</script>

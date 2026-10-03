@@ -1,0 +1,19 @@
+---
+import { site } from '../data/site';
+---
+<footer class="footer">
+  <div class="container row">
+    <ul>
+      <li><span aria-hidden="true">✉ </span><a href={`mailto:${site.email}`}>{site.email}</a></li>
+      <li><span aria-hidden="true">☎ </span><a href={`tel:${site.phoneTel}`}>{site.phoneDisplay}</a></li>
+    </ul>
+    <p>© 2026 {site.name}</p>
+  </div>
+</footer>
+<style>
+  .footer { border-top: 1px solid var(--border); margin-top: 96px; padding-block: 28px; color: var(--dim); font-size: .9rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: center; }
+  ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; padding: 0; }
+  a { color: var(--muted); text-decoration: none; } a:hover { color: var(--text); text-decoration: underline; }
+  p { margin: 0; }
+</style>
