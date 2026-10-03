@@ -44,7 +44,7 @@ img { max-width: 100%; height: auto; display: block; }
    (ring 22 − 3 overlap, card 294 − 3 overlap = 310): 410px by default = BadgeIsland's INLINE_H. Hero.astro sizes the
    slot from the same variables so removing the static badge (when the 3D one is ready) can't shift the page. */
 :root { --badge-strap: 100px; --badge-body: 310px; }
-.badge-static { display: flex; flex-direction: column; align-items: center; }
+.badge-static { display: flex; flex-direction: column; align-items: center; pointer-events: none; } /* decorative; aria-hidden */
 .badge-strap { position: relative; width: 26px; height: var(--badge-strap); overflow: hidden; display: flex; flex-direction: column-reverse; align-items: center; justify-content: flex-start; gap: 10px; padding-bottom: 8px;
   background:
     repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 2px, rgba(0,0,0,.12) 2px 4px),

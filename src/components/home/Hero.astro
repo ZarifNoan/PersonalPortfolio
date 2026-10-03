@@ -20,6 +20,8 @@ import { site } from '../../data/site';
      hangs from it with a long strap, right of centre, where the 3D card rests (BadgeIsland nudges that into the
      margin beside About Me), so the swap to 3D doesn't visibly move the badge either. */
   .slot { --badge-strap: 130px; position: relative; height: 0; margin-top: -56px; }
+  /* right: 31px and the 210px card are mirrored in About.astro's column limit. (global.css gives it pointer-events: none,
+     so it never blocks clicks or text selection on About underneath.) */
   .slot :global(.badge-static) { position: absolute; top: 0; right: 31px; z-index: 1; }
   @media (max-width: 899px) {
     .hero { grid-template-columns: 1fr; text-align: center; padding-top: 0; }

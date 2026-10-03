@@ -56,7 +56,7 @@ test('desktop: the name starts 48-64px below the nav and About follows the headl
   expect(aboutTop - (headline.y + headline.height)).toBeLessThanOrEqual(96);
 });
 
-for (const width of [1024, 1280, 1440]) {
+for (const width of [900, 940, 980, 1024, 1280, 1440]) {
   test(`desktop ${width}px: the static badge hangs right of the About text without covering it`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop');
     await page.setViewportSize({ width, height: 900 });
@@ -64,6 +64,8 @@ for (const width of [1024, 1280, 1440]) {
     const card = (await page.locator('.badge-card').boundingBox())!;
     const text = await page.locator('[data-badge-avoid]').evaluate((el) => el.getBoundingClientRect().right);
     expect(card.x).toBeGreaterThan(text + 8);
+    // Decorative (aria-hidden): it must not block selecting or clicking what's under it.
+    expect(await page.locator('.badge-static').evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
     expect(card.x + card.width).toBeLessThanOrEqual(width);
   });
 }
