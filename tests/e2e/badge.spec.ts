@@ -200,6 +200,24 @@ test('the badge name and role exist as real text in every mode', async ({ page }
   await expect(page.locator('[data-badge-mode] > [aria-hidden="true"] .visually-hidden')).toHaveCount(0);
 });
 
+test('desktop: swapping the static badge for the travelling 3D badge does not shift the layout', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
+  const measure = () => page.evaluate(() => ({
+    slot: document.querySelector('[data-badge-slot]')!.getBoundingClientRect().height,
+    // Layout position (offsetTop chain), not getBoundingClientRect: About's scroll-reveal translate animates.
+    about: (() => { let y = 0; for (let el = document.querySelector<HTMLElement>('[data-badge-release]'); el; el = el.offsetParent as HTMLElement | null) y += el.offsetTop; return y; })(),
+  }));
+  const before = await measure();
+  await engage(page);
+  await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
+  await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+  const after = await measure();
+  expect(Math.abs(after.slot - before.slot)).toBeLessThanOrEqual(1);
+  expect(Math.abs(after.about - before.about)).toBeLessThanOrEqual(1);
+});
+
 test('swapping the static badge for the inline 3D badge does not shift the layout', async ({ page }, info) => {
   test.skip(info.project.name !== 'mobile');
   await page.goto('/');

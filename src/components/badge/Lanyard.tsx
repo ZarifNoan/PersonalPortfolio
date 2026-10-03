@@ -124,9 +124,9 @@ function Band({ name, role, photo, label, fov, getAnchorPx, onReady, active, gra
 
   useEffect(() => {
     let live = true;
-    cardFaceTexture(name, role, photo).then((t) => { if (live) setFace(t); else t.dispose(); });
+    cardFaceTexture(name, role, photo, label).then((t) => { if (live) setFace(t); else t.dispose(); });
     return () => { live = false; };
-  }, [name, role, photo]);
+  }, [name, role, photo, label]);
   useEffect(() => () => { face?.dispose(); }, [face]);
   useEffect(() => () => { strap.dispose(); }, [strap]);
   useEffect(() => () => { sheen.dispose(); }, [sheen]);
@@ -299,7 +299,9 @@ function Band({ name, role, photo, label, fov, getAnchorPx, onReady, active, gra
           {face && [0, Math.PI].map((ry) => (
             <mesh key={ry} rotation={[0, ry, 0]} position={[0, 0, ry ? -FACE_Z : FACE_Z]}>
               <planeGeometry args={[CARD_W - 2 * CARD_R, CARD_H - 2 * CARD_R]} />
-              <meshStandardMaterial map={face} roughness={0.9} metalness={0} envMapIntensity={0} />
+              {/* Unlit and not tone-mapped: the printed face shows the canvas colours exactly (lighting and ACES greyed
+                  the ink and paled the role line). The sleeve's gloss and the card edges carry the 3D shading. */}
+              <meshBasicMaterial map={face} toneMapped={false} />
             </mesh>
           ))}
           {/* Clear plastic sleeve: glossy clearcoat that mostly shows as reflections and edge highlights. */}

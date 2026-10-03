@@ -1,39 +1,45 @@
 import * as THREE from 'three';
 import { initials } from '../../lib/initials';
+import { faceLines } from '../../lib/badgeText';
 
 /** Site accents (global.css --sw / --viz): the card's stripes and the strap's marks use the two sides' colours. */
 const SW = '#60a5fa', VIZ = '#f59e0b', INK = '#0b0b14', NAVY = '#1b1838';
 
-/** Card face canvas size: CARD_W × CARD_H minus the rounded corners (1.08 × 1.56 world), at ~950 px per world unit. */
+/** Card face canvas size: CARD_W × CARD_H minus the rounded corners (1.08 × 1.56 world), at ~950 px per world unit.
+ *  On a 1440×900 screen the face is ~168 CSS px wide, so 1 CSS px ≈ 6 canvas px: text below ~55px here is too small to
+ *  read. BadgeStatic mirrors this layout in CSS (container units; 1cqw = 10.24 canvas px). */
 export const FACE_W = 1024, FACE_H = 1480;
 
-export async function cardFaceTexture(name: string, role: string, photo: string | null): Promise<THREE.CanvasTexture> {
+/** Fonts the canvases use. Canvas text doesn't trigger font loading, so load the exact faces before drawing. */
+const FONTS = ['800 92px "Sora Variable"', '700 64px "Sora Variable"', '650 60px "Inter Variable"'];
+const fontsReady = () => (typeof document === 'undefined' ? Promise.resolve() : Promise.all(FONTS.map((f) => document.fonts.load(f))).then(() => undefined, () => undefined));
+
+export async function cardFaceTexture(name: string, role: string, photo: string | null, label: string): Promise<THREE.CanvasTexture> {
   const c = document.createElement('canvas');
   c.width = FACE_W; c.height = FACE_H;
   const g = c.getContext('2d')!;
-  await document.fonts.ready;
+  await fontsReady();
   const W = FACE_W, H = FACE_H, cx = W / 2;
+  const lines = faceLines(name, role);
   g.textAlign = 'center';
 
-  // Paper: a soft cool white with a faint diagonal sheen.
+  // Paper: a soft cool white.
   const paper = g.createLinearGradient(0, 0, W, H);
-  paper.addColorStop(0, '#fbfbff'); paper.addColorStop(.55, '#f1f1f8'); paper.addColorStop(1, '#e4e4f0');
+  paper.addColorStop(0, '#fcfcff'); paper.addColorStop(1, '#ececf5');
   g.fillStyle = paper; g.fillRect(0, 0, W, H);
 
-  // Header band with the punched slot the clip goes through, the brand marks and the two-side stripes under it.
-  const HEAD = 230;
-  g.fillStyle = INK; g.fillRect(0, 0, W, HEAD);
-  g.fillStyle = '#26263a'; roundRect(g, cx - 110, 46, 220, 40, 20); g.fill();
-  g.font = '700 54px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
-  g.fillStyle = SW; g.textAlign = 'left'; g.fillText('</>', 64, 160);
-  g.fillStyle = VIZ; g.textAlign = 'right'; g.fillText('◇', W - 64, 160);
-  g.textAlign = 'center'; g.fillStyle = '#c4c6e0'; g.font = '600 34px "Sora Variable", sans-serif';
-  spaced(g, 'PORTFOLIO', cx, 162, 10);
-  g.fillStyle = SW; g.fillRect(0, HEAD, W / 2, 14);
-  g.fillStyle = VIZ; g.fillRect(W / 2, HEAD, W / 2, 14);
+  // Header: ink band with the punched slot the clip goes through and the two sides' marks; stripes under it.
+  g.fillStyle = INK; g.fillRect(0, 0, W, 200);
+  g.fillStyle = '#2a2a40'; roundRect(g, cx - 100, 36, 200, 36, 18); g.fill();
+  g.font = '700 64px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
+  g.fillStyle = SW; g.textAlign = 'left'; g.fillText('</>', 64, 136);
+  g.fillStyle = VIZ; g.textAlign = 'right'; g.fillText('◇', W - 64, 136);
+  g.textAlign = 'center';
+  g.fillStyle = SW; g.fillRect(0, 200, W / 2, 16);
+  g.fillStyle = VIZ; g.fillRect(W / 2, 200, W / 2, 16);
 
   // Photo or monogram, in a ring.
-  const cy = 520, r = 210;
+  const cy = 440, r = 165;
   g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
   let drewPhoto = false;
   if (photo) {
@@ -48,32 +54,31 @@ export async function cardFaceTexture(name: string, role: string, photo: string 
     const mg = g.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
     mg.addColorStop(0, '#3b2a7a'); mg.addColorStop(1, '#0e4a5a');
     g.fillStyle = mg; g.fillRect(cx - r, cy - r, 2 * r, 2 * r);
-    g.fillStyle = '#f5f5ff'; g.font = '800 150px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
-    g.fillText(initials(name), cx, cy + 8);
+    g.fillStyle = '#f5f5ff'; g.font = '800 120px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
+    g.fillText(initials(name), cx, cy + 6);
   }
   g.restore();
   g.lineWidth = 10; g.strokeStyle = '#ffffff'; g.beginPath(); g.arc(cx, cy, r + 5, 0, Math.PI * 2); g.stroke();
-  g.lineWidth = 3; g.strokeStyle = 'rgba(11,11,20,.14)'; g.beginPath(); g.arc(cx, cy, r + 12, 0, Math.PI * 2); g.stroke();
+  g.lineWidth = 3; g.strokeStyle = 'rgba(11,11,20,.16)'; g.beginPath(); g.arc(cx, cy, r + 12, 0, Math.PI * 2); g.stroke();
 
-  // Name: the given names large, the patronymic smaller and spaced; then the role.
-  const words = name.toUpperCase().split(' ');
+  // Name: given names large on two lines, the patronymic smaller and spaced; a hairline; the role on two lines.
   g.textBaseline = 'alphabetic'; g.fillStyle = INK;
-  g.font = '800 70px "Sora Variable", sans-serif';
-  fit(g, words.slice(0, 3).join(' '), 900);
-  g.fillText(words.slice(0, 3).join(' '), cx, 900);
-  g.font = '700 42px "Sora Variable", sans-serif'; g.fillStyle = '#464a68';
-  spaced(g, words.slice(3).join(' '), cx, 968, 8);
-  g.fillStyle = 'rgba(11,11,20,.18)'; g.fillRect(cx - 60, 1030, 120, 4);
-  g.font = '650 46px "Inter Variable", sans-serif'; g.fillStyle = '#2f2270';
-  fit(g, role, 900);
-  g.fillText(role, cx, 1110);
+  lines.name.forEach((t, i) => { g.font = '800 92px "Sora Variable", sans-serif'; fit(g, t, 880); g.fillText(t, cx, 742 + i * 98); });
+  let y = 742 + (lines.name.length - 1) * 98;
+  if (lines.sub) {
+    g.font = '700 56px "Sora Variable", sans-serif'; g.fillStyle = '#33364f';
+    y += 84; spaced(g, lines.sub, cx, y, 6);
+  }
+  y += 52; g.fillStyle = 'rgba(11,11,20,.22)'; g.fillRect(cx - 60, y, 120, 5);
+  g.font = '650 60px "Inter Variable", sans-serif'; g.fillStyle = '#2a1f6b';
+  lines.role.forEach((t, i) => { fit(g, t, 920); g.fillText(t, cx, y + 92 + i * 74); });
 
-  // Footer: the two sides' stripes.
-  g.fillStyle = INK; g.fillRect(0, H - 120, W, 120);
-  g.fillStyle = SW; g.fillRect(0, H - 134, W / 2, 14);
-  g.fillStyle = VIZ; g.fillRect(W / 2, H - 134, W / 2, 14);
-  g.fillStyle = '#b4b7d4'; g.font = '700 32px "Inter Variable", sans-serif'; g.textBaseline = 'middle';
-  spaced(g, 'SOFTWARE  ·  3D VISUALIZATION', cx, H - 60, 4);
+  // Footer: stripes over an ink band with the strap's label.
+  g.fillStyle = SW; g.fillRect(0, 1262, W / 2, 16);
+  g.fillStyle = VIZ; g.fillRect(W / 2, 1262, W / 2, 16);
+  g.fillStyle = INK; g.fillRect(0, 1278, W, H - 1278);
+  g.fillStyle = '#d6d8ee'; g.font = '700 56px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
+  spaced(g, label.toUpperCase(), cx, 1380, 10);
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
@@ -87,6 +92,17 @@ export function strapTexture(label: string): THREE.CanvasTexture {
   const h = 256, w = h * STRAP_TILE_ASPECT;
   const c = document.createElement('canvas');
   c.width = w; c.height = h;
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+  drawStrap(c, label);
+  // Redraw once the fonts have loaded (the card face waits for the same fonts, so this lands before the scene shows).
+  fontsReady().then(() => { drawStrap(c, label); tex.needsUpdate = true; });
+  return tex;
+}
+
+function drawStrap(c: HTMLCanvasElement, label: string) {
+  const w = c.width, h = c.height;
   const g = c.getContext('2d')!;
   // Base fabric with a faint lengthwise sheen.
   const base = g.createLinearGradient(0, 0, 0, h);
@@ -116,10 +132,6 @@ export function strapTexture(label: string): THREE.CanvasTexture {
   g.fillStyle = SW; g.fillText('</>', w * .7, mid);
   g.fillStyle = VIZ; g.fillText('◇', w * .82, mid);
   g.restore();
-  const tex = new THREE.CanvasTexture(c);
-  tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.ClampToEdgeWrapping;
-  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
-  return tex;
 }
 
 /** Glossy highlight for the clear sleeve's front: soft diagonal light bands, transparent elsewhere, inside the
