@@ -1,0 +1,228 @@
+# Personal Portfolio Website: Design Spec
+
+**Date:** 2026-10-03
+**Owner:** Muhammad Zarif Nurhan Bin Mohd Arifin
+**Location:** `D:\backup\Nurhan\PersonalWebsite`
+**Status:** Approved in brainstorming, pending written-spec review
+
+---
+
+## 1. Purpose and success criteria
+
+A personal portfolio site, linked from Zarif's internship resume, that presents him on **two equal sides**: Software Development and 3D Visualization.
+
+The site succeeds when:
+
+- A recruiter opening the link sees Zarif's full name, what he does, and a memorable interactive header within a couple of seconds.
+- Both sides (software projects and 3D work) are one click from the home page, and each is equally prominent.
+- Projects can be scanned without clicking into anything; every description and image is visible on the page.
+- New projects can be added by editing a data file and dropping images in a folder, with no layout code.
+- Lighthouse scores 90+ for Performance, Accessibility, Best Practices and SEO on all three pages.
+- It runs within Vercel's free Hobby plan (100 GB/month transfer).
+
+## 2. Tech stack
+
+| Concern | Choice |
+|---|---|
+| Site framework | **Astro** (current stable), static output |
+| Interactive 3D | **React** island: `@react-three/fiber`, `@react-three/drei`, `@react-three/rapier` (physics), `meshline` (strap) |
+| Content | Astro content collections, validated with Zod schemas |
+| Images | Astro `<Image>`/`<Picture>`: WebP/AVIF, responsive sizes, generated at build |
+| Styling | Plain CSS with custom properties (design tokens), scoped Astro component styles |
+| Fonts | Sora (headings), Inter (body), self-hosted via Fontsource |
+| Unit tests | Vitest |
+| End-to-end tests | Playwright |
+| Hosting | Vercel (Hobby), auto-deploy from a GitHub repository |
+
+## 3. Site structure
+
+Three pages, with tabs labelled **Home · Software Development · 3D Visualization**. On narrow screens the tabs collapse into a menu button.
+
+### 3.1 Home (`/`)
+
+1. **Header.** Left: full name "Muhammad Zarif Nurhan Bin Mohd Arifin", with the headline below it: "Computer Science student who builds software and 3D spaces." Right: the lanyard badge (section 5).
+2. **About Me**, using the approved text:
+   > Hi, I'm Zarif, a final-year Computer Science (Honours) student at UCSI University.
+   >
+   > I work in two worlds. On one side, I build software, from full-stack web applications to systems that use AI to make smarter decisions. On the other, I create 3D visualisations in Blender for real clients, bringing spaces to life before they're built.
+   >
+   > Different tools, same goal: taking an idea that only exists on paper and turning it into something people can actually see and use.
+   >
+   > I'm currently looking for an internship where I can keep building, learn from experienced teams, and bring a bit of both worlds to the table.
+3. **Pick a side.** Two equal halves: **`</>` Software Development** (blue glow) and **◇ 3D Visualization** (amber glow). Each half links to its page. On desktop, the lanyard badge settles on the dividing line between them.
+4. **Footer** (shared, section 3.4).
+
+### 3.2 Software Development (`/software`)
+
+- Page title, then a **filter bar**: All · Python · JavaScript · PHP · Java · SQL. The buttons are generated from the projects' `languages` field, so new languages appear automatically.
+- **Alternating project sections.** The image is on the left and text on the right, then swapped for the next project. Each section has:
+  - project title
+  - course and team type
+  - description
+  - tech stack tags
+  - a main image with a thumbnail strip; clicking a thumbnail swaps the main image, and clicking the main image opens the full-screen viewer.
+- Selecting a filter fades out non-matching projects. "All" is the default. The active filter is reflected in the URL (`?lang=python`) so filtered views can be shared.
+
+### 3.3 3D Visualization (`/3d`)
+
+- Same layout as the Software Development page.
+- Filter bar: **All · Architectural Visualization · Product Visualization**.
+- Each section has the project title, a Client or Personal label, a category tag, a description, and a main render with thumbnails.
+
+### 3.4 Shared elements
+
+- **Top navigation** with the active tab highlighted.
+- **Footer** on every page: `zrf.nurhan@gmail.com` (a `mailto:` link), `+60 11-5878 5830` (a `tel:` link), and "© 2026 Muhammad Zarif Nurhan Bin Mohd Arifin".
+- **Full-screen image viewer:** previous/next with arrow keys or swipe, closes with Esc or a click on the backdrop, and returns keyboard focus to the image that opened it.
+
+### 3.5 Out of scope
+
+Blog, contact form, light theme, individual project pages, CMS, analytics.
+
+## 4. Visual style: "Studio glow"
+
+- **Background:** near-black (`#0b0b14`) with soft radial colour glows. The glow is purple/teal on Home, blue on Software Development, and amber on 3D Visualization.
+- **Type:** Sora 600/800 for headings, Inter 400/600 for body text.
+- **Controls:** rounded, glassy buttons and filter chips (translucent white fill with a hairline border).
+- **Side symbols:** **`</>`** for Software Development and **◇** for 3D Visualization, used on the pick-a-side halves, page titles and nav.
+- **Accent colours:** blue (`#60a5fa`) for software, amber (`#f59e0b`) for 3D.
+- **Motion:** sections fade up on scroll, cards lift slightly on hover, and filtered items cross-fade. Everything is disabled under `prefers-reduced-motion`.
+
+## 5. Lanyard badge
+
+- A React Three Fiber scene with a Rapier rope-joint chain, hanging a 3D card from a fabric strap.
+  - It swings under gravity and can be grabbed and dragged with mouse or touch, springing back on release.
+  - **Card front:** photo, full name, "Computer Science · 3D Visualization".
+  - **Strap texture:** repeating "`</>` ◇ ZARIF".
+- **Photo placeholder:** until Zarif supplies a photo, the card shows an **MZN** monogram. Swapping it in means replacing one image file.
+- **Scroll travel (desktop Home page only).**
+  - The canvas is fixed-position and lets pointer events pass through to the page, except on the card itself.
+  - The rope's anchor point moves along a path that runs from the header's right side, down the right margin beside About Me, to the centre line of the pick-a-side section.
+  - The anchor follows scroll progress through those sections, so the physics produces a natural swing.
+  - Past the pick-a-side section the badge scrolls away with the page.
+- **Fallbacks:**
+
+  | Condition | Behaviour |
+  |---|---|
+  | Viewport under 900 px wide | Smaller badge above the name in the header; no travel. Pick-a-side halves stack vertically. |
+  | `prefers-reduced-motion` | The badge renders still, with no physics or travel. |
+  | No WebGL, or the scene fails to load | A static image of the badge is shown instead. |
+
+- **Performance:**
+  - The island hydrates `client:idle`, after the page has painted.
+  - Rendering pauses when the badge is off-screen or the tab is hidden.
+  - Physics runs at a fixed time step.
+
+## 6. Content model
+
+Two content collections, `software` and `visualization`. Each entry is a folder holding a data file plus its images:
+
+```
+src/content/software/stocksense/index.yaml
+src/content/software/stocksense/images/*.png
+src/content/visualization/moltech-johor-warehouse/index.yaml
+src/content/visualization/moltech-johor-warehouse/images/*.png
+```
+
+### 6.1 Software schema
+
+`title`, `course`, `team` ("Individual" or "Team of 3"), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description`, `images[]` (the first image is the cover, each with `src` and `alt`), `draft` (optional boolean; drafts are hidden).
+
+### 6.2 Visualization schema
+
+`title`, `client` (boolean; true shows "Client Project", false shows "Personal Project"), `category` ("Architectural Visualization" or "Product Visualization"), `order`, `description`, `images[]` (with `src` and `alt`), `draft`.
+
+The build fails with a clear error if a required field is missing, an image path doesn't exist, or a language or category is not in the allowed list.
+
+### 6.3 Software projects
+
+| Order | Title | Course · Team | Languages | Stack |
+|---|---|---|---|---|
+| 1 | StockSense – AI Inventory Prediction System | Final Year Project (Project Design and Implementation) · Individual | Python, JavaScript, SQL | Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL |
+| 2 | JomLah – Centralized Event Management Platform | Web Programming · Team of 3 | PHP, JavaScript, SQL | PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3 |
+| 3 | Student Performance Prediction using Fuzzy Logic | Intelligent Systems · Individual | Python | Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter |
+| 4 | Fixer – On-Demand Home Repair Service App | Business Case Project · Team of 3 | Java, SQL | Java, JavaFX, Maven, PostgreSQL |
+
+**Descriptions:**
+
+- **StockSense:** Developed a desktop inventory management app that helps small and medium businesses (SMEs) restock before they run out. It uses an LSTM model built in TensorFlow/Keras to predict demand for each product from 5 years of sales data, and an NLP chatbot that answers stock questions typed in plain language. The app also handles stock management, low-stock alerts and a timestamped change history, with interactive Chart.js charts comparing past sales against predicted demand.
+- **JomLah:** Developed a web platform where people can find and book events, organisers can host them, and admins approve and manage everything in one place. Each user role has its own area: attendees book tickets and leave reviews, organisers create and manage events, and admins approve events and manage users. Behind it is a 10-table MySQL database covering one-to-one, one-to-many and many-to-many relationships. Logins are secure with role-based access, prepared statements block SQL injection, and input is checked on both the browser and the server. jQuery/AJAX lets users search and book without reloading the page, and every main feature was checked against a written set of test cases.
+- **Fuzzy Logic:** Developed an AI system that spots students at risk of failing early in the semester and recommends what the department should do about it. It uses 27 fuzzy logic rules to predict a performance score from attendance, test and project marks, then a second rule-based layer turns that score into a risk level and a ranked list of recommended actions. Tuning the model raised accuracy from 41.7% to 72.9% and cut the average error from 15.4 to 9.1 points, tested on 800 students with k-fold cross-validation. A Tkinter desktop app shows which rules fired for each prediction, so non-technical staff can see why a student was flagged.
+- **Fixer:** Designed a Grab-style app that connects customers with nearby repair workers to book home repair services. The work covered the requirements document and the system design, including use case, sequence, class and activity diagrams. It also included an 8-table PostgreSQL database for users, repair workers, service listings, bookings and in-app chat. The result is a clickable JavaFX prototype with 13 screens, including sign-up and login, browsing services, booking, wallet top-up, ratings and activity history.
+
+**Screenshot source:** images are extracted from each project's report PDF:
+
+- StockSense: `Y3S1/Project Design and Implementation/Document/1002267337_StockSenseReport.pdf`
+- JomLah: `Y3S2/Web Programming/Assignment/Document/DONE/Report_JOMLAH - Centralize Event Management App.pdf`
+- Fuzzy Logic: `Y3S2/Intelligent System/Assignment/Document/Done/1002267337_Report_FuzzyLogicStudentPerformance.pdf`
+- Fixer: `Y2S3/BIC3203 Business Case Project/Assignment/BizCaseDoc/Fixer_BusinessCaseDocument.pdf`, plus `FixerBizCase/User Manual.pdf`
+
+Paths are relative to `D:\backup\Nurhan\UCSI\Degree`. Each project gets 3–5 images, preferring UI screens and charts over diagrams and text.
+
+### 6.4 3D projects
+
+Renders come from `D:\backup\Nurhan\Blender\Image`. Each project uses its best 4–6 renders.
+
+| Order | Title | Label | Category | Source folder | Description |
+|---|---|---|---|---|---|
+| 1 | Moltech Johor Warehouse | Client Project | Architectural Visualization | `MoltechJohorWarehouse/` | Interior visualization of an industrial warehouse, featuring ISO tank containers, forklifts, safety barriers and hazard labelling, with realistic materials and lighting. |
+| 2 | SLICE 2025 – School Leavers Inspiration & Success Initiatives | Client Project | Architectural Visualization | `UMNO Jln Lingkaran 1/` | Event venue visualization for SLICE 2025, powered by DASEM: an education expo where universities and institutions meet school leavers to share their programmes. The scene lays out the venue at Rumah Komuniti Parlimen Sembrong, with a main tent, exhibition booths for each institution, canopies, entrance and exit gates, and perimeter fencing. |
+| 3 | Gobami Product Visualization | Personal Project | Product Visualization | `Gobami Blender/` | Product visualization of Gobami, a thermos-style container that keeps both food and drinks warm, created for a friend's university assignment. The product is shown in six patterned designs: Chinese New Year, Hari Raya, Deepavali, Earth Day, Breast Cancer Awareness and Autism Awareness. |
+| 4 | JOHEX Halal Expo | Client Project | Architectural Visualization | `Project/Johex/` (renders pending) | Exhibition venue visualization for JOHEX, a halal expo showcasing all kinds of halal products, not just food. Description to be expanded when renders are supplied. |
+
+**Johex** is added with `draft: true` and hidden until renders exist.
+
+## 7. Accessibility
+
+- WCAG AA contrast.
+- Visible focus rings.
+- Every control is reachable by keyboard.
+- Filter buttons use `aria-pressed`.
+- The image viewer is a focus-trapped dialog with `aria-label`.
+- Every image has descriptive `alt` text.
+- The lanyard canvas is `aria-hidden`, and the same name and role text exists as real HTML.
+- Motion is disabled under `prefers-reduced-motion`.
+
+## 8. SEO and link previews
+
+- Each page has its own `<title>` and meta description.
+- Open Graph and Twitter card tags use a 1200×630 preview image (name, headline and a featured render), generated once and stored in `public/`.
+- A sitemap is generated, and the canonical URL is set from site config.
+
+## 9. Error handling
+
+- **Build-time:** schema validation, plus checks for missing images and unknown filter values (section 6.2).
+- **Runtime:**
+  - The 3D badge falls back to a static image if WebGL is unavailable or the island throws an error, caught by an error boundary.
+  - If an image fails to load inside the viewer, the viewer shows its alt text instead of breaking.
+  - The site never depends on JavaScript for content: all project text and images are in the static HTML. Without JS, the filters show everything and thumbnails are plain links.
+
+## 10. Testing
+
+- **Vitest:**
+  - the filter function returns the right projects for each language and category (e.g. Python → StockSense and Fuzzy Logic; Java → Fixer)
+  - filter options are derived correctly from the data
+  - draft entries are excluded.
+- **Build:** `astro check` and `astro build` must pass, which also enforces the content schemas.
+- **Playwright** (at desktop and mobile viewports):
+  - nav links work
+  - filters show and hide the right sections and update the URL
+  - thumbnails swap the main image
+  - the viewer opens and closes with mouse and keyboard
+  - footer `mailto:` and `tel:` links are correct
+  - there are no console errors.
+- **Lighthouse:** 90+ in all four categories on all three pages.
+- **Manual check:** screenshots at phone, tablet and desktop widths.
+
+## 11. Deployment
+
+1. Git repository in `D:\backup\Nurhan\PersonalWebsite`; `.superpowers/` and build output are ignored.
+2. Push to a new GitHub repository under Zarif's account. This needs his confirmation at that step.
+3. Import the repository into Vercel once (framework preset: Astro). Every later push to `main` deploys automatically.
+4. Default address: `<project>.vercel.app`. A custom domain can be added later.
+
+## 12. Items Zarif will supply later
+
+- A profile photo, for the lanyard badge and link preview.
+- Johex renders and a confirmed description.
+- Optionally, replacements for any auto-selected render or extracted screenshot.
