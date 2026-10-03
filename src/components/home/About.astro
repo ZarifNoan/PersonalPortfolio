@@ -8,9 +8,11 @@ import { site } from '../../data/site';
 <style>
   /* min(60ch, 44vw) keeps the 1440px column at its full 60ch (44vw is wider there) while narrowing it on
      medium viewports (~900-1200px), where the travelling badge needs clearance on the right of this text. */
-  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw)); gap: 32px; padding-block: 72px; }
+  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw)); gap: 32px; padding-block: 24px 72px; }
   h2 { font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--sw); padding-top: 6px; }
   p { margin: 0 0 16px; color: var(--muted); font-size: 1.08rem; }
   p:first-child { color: var(--text); font-size: 1.2rem; }
+  /* Justified only from 600px: at 390px the narrow column opened wide gaps between words (checked in screenshots). */
+  @media (min-width: 600px) { p { text-align: justify; hyphens: auto; } }
   @media (max-width: 899px) { .about { grid-template-columns: 1fr; gap: 12px; } }
 </style>

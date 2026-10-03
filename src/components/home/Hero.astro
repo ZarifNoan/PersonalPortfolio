@@ -9,14 +9,18 @@ import { site } from '../../data/site';
   <div class="slot" data-badge-slot data-badge-anchor="hero"><slot /></div>
 </section>
 <style>
-  .hero { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; gap: 32px; min-height: calc(100vh - 64px); padding-block: 48px; }
+  /* The name starts 56px under the nav. The hero is as tall as its content (the name block, or the badge slot):
+     the 3D badge hangs from a fixed overlay beside it and leaves with About Me, so it needs no extra hero height. */
+  .hero { display: grid; grid-template-columns: 1.3fr 1fr; align-items: start; gap: 32px; padding-block: 56px 32px; }
   h1 { font-size: clamp(2.2rem, 5.2vw, 4.2rem); font-weight: 800; letter-spacing: -.01em; }
   .headline { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); margin: 18px 0 0; max-width: 34ch; }
-  .slot { position: relative; min-height: 460px; display: flex; justify-content: center; align-items: flex-start; }
+  /* The static badge's strap starts at the nav's bottom edge (pulled up by the hero's top padding), like the 3D
+     strap, which hangs from above the viewport. */
+  .slot { position: relative; min-height: 360px; margin-top: -56px; display: flex; justify-content: center; align-items: flex-start; }
   @media (max-width: 899px) {
-    .hero { grid-template-columns: 1fr; min-height: auto; text-align: center; padding-top: 24px; }
+    .hero { grid-template-columns: 1fr; text-align: center; padding-top: 0; }
     /* = the static badge's height and BadgeIsland's INLINE_H, so the static→3D swap doesn't shift the page. */
-    .slot { order: -1; min-height: 410px; }
+    .slot { order: -1; min-height: 410px; margin-top: 0; }
     .headline { margin-inline: auto; }
   }
 </style>
