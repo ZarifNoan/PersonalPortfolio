@@ -33,7 +33,7 @@ export default function Lanyard({ active, fov = FOV, ...p }: LanyardProps) {
   return (
     <Canvas
       camera={{ position: [0, 0, CAMERA_Z], fov }}
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       frameloop={active ? 'always' : 'never'}
       eventSource={typeof document !== 'undefined' ? document.body : undefined}
       eventPrefix="client"
