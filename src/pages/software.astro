@@ -1,4 +1,34 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import ProjectSection from '../components/ProjectSection.astro';
+import { visibleSorted } from '../lib/projects';
+import { slugify } from '../lib/taxonomy';
+const projects = visibleSorted(await getCollection('software'));
 ---
-<Layout title="Software Development" description="Software projects by Muhammad Zarif Nurhan: AI systems, full-stack web apps and desktop software." page="software"><div class="container page-title"><h1>Software Development</h1></div></Layout>
+<Layout title="Software Development" description="Software projects by Muhammad Zarif Nurhan: AI systems, full-stack web apps and desktop software." page="software">
+  <div class="container">
+    <header class="page-title" data-reveal>
+      <h1><span class="sym" style="color:var(--sw)" aria-hidden="true">&lt;/&gt; </span>Software Development</h1>
+      <p>AI systems, full-stack web applications and desktop software, built during my Computer Science degree.</p>
+    </header>
+    <!-- FilterBar inserted in Task 5 -->
+    {projects.map((p, i) => (
+      <ProjectSection
+        id={p.id.split('/')[0]!}
+        title={p.data.title}
+        eyebrow={`${p.data.course} · ${p.data.team}`}
+        tags={p.data.stack}
+        description={p.data.description}
+        images={p.data.images}
+        filterSlugs={p.data.languages.map(slugify)}
+        reverse={i % 2 === 1}
+        accent="sw"
+      />
+    ))}
+  </div>
+</Layout>
+<script>
+  import { initGalleries } from '../scripts/gallery';
+  initGalleries();
+</script>
