@@ -13,6 +13,13 @@ export const hangPx = (viewportH: number) => HANG_WORLD * pxPerWorld(viewportH);
 /** Anchor → resting card bottom edge, in px. */
 export const cardDropPx = (viewportH: number) => (HANG_WORLD + CARD_H / 2) * pxPerWorld(viewportH);
 
+/**
+ * The 3D card's resting centre y (viewport px) while it hangs beside the hero: TOP_OFFSET + hangPx(vh). It is linear in
+ * the viewport height, so Hero.astro's static strap mirrors it in CSS as TOP_OFFSET + REST_VH × 1vh (unit-tested).
+ */
+export const restCentreY = (viewportH: number) => TOP_OFFSET + hangPx(viewportH);
+/** px of resting drop per 1vh: hangPx(100). */
+export const REST_VH = hangPx(100);
 /** The static badge's card width in CSS px (global.css .badge-card). */
 export const STATIC_CARD_W = 210;
 /**

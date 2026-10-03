@@ -145,10 +145,11 @@ const staticCentre = (page: Page) => page.locator('.badge-hang').evaluate((hang)
   return { cx: (a.cx + b.cx) / 2, cy: (a.cy + b.cy) / 2 };
 });
 
-for (const width of [900, 1024, 1100, 1180, 1280, 1440]) {
-  test(`desktop ${width}px: the 3D card comes to rest where the static badge hung`, async ({ page }, info) => {
+const swapSizes: [number, number][] = [[900, 900], [1024, 900], [1100, 900], [1180, 900], [1280, 900], [1440, 900], [1440, 800], [1440, 1080], [1280, 720]];
+for (const [width, height] of swapSizes) {
+  test(`desktop ${width}×${height}: the 3D card comes to rest where the static badge hung`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop');
-    await page.setViewportSize({ width, height: 900 });
+    await page.setViewportSize({ width, height });
     await page.goto('/');
     const before = await staticCentre(page);
     await engage(page);
@@ -156,7 +157,7 @@ for (const width of [900, 1024, 1100, 1180, 1280, 1440]) {
     await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
     await page.mouse.move(5, 500);
     const rest = await settledCard(page);
-    console.log(`swap delta ${width}: dx=${(rest.cx - before.cx).toFixed(1)} dy=${(rest.cy - before.cy).toFixed(1)}`);
+    console.log(`swap delta ${width}x${height}: dx=${(rest.cx - before.cx).toFixed(1)} dy=${(rest.cy - before.cy).toFixed(1)}`);
     expect(Math.abs(rest.cx - before.cx)).toBeLessThanOrEqual(6);
     expect(Math.abs(rest.cy - before.cy)).toBeLessThanOrEqual(6);
   });

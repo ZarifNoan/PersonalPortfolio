@@ -51,3 +51,14 @@ describe('restX', () => {
     expect(css).toMatch(new RegExp(String.raw`\.badge-card \{[^}]*width: ${anchor.STATIC_CARD_W}px;`));
   });
 });
+
+describe('restCentreY', () => {
+  it('is linear in the viewport height', () => {
+    expect(anchor.restCentreY(900)).toBeCloseTo(TOP_OFFSET + 9 * anchor.REST_VH, 6);
+  });
+  it('Hero.astro mirrors TOP_OFFSET and REST_VH in the static strap', () => {
+    const hero = readFileSync('src/components/home/Hero.astro', 'utf8');
+    expect(parseFloat(hero.match(/--badge-rest-top: (-?[\d.]+)px/)![1])).toBe(TOP_OFFSET);
+    expect(parseFloat(hero.match(/--badge-rest-vh: ([\d.]+)vh/)![1])).toBeCloseTo(anchor.REST_VH, 3);
+  });
+});

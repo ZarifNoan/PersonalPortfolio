@@ -19,10 +19,16 @@ import { site } from '../../data/site';
   /* A zero-height anchor box at the top of the right column, pulled up to the nav's bottom edge. The static badge
      hangs from it with a long strap in the margin beside About Me, exactly where the 3D card rests, so the swap to 3D
      doesn't visibly move the badge either. */
-  .slot { --badge-strap: 125px; --badge-right: 10px; position: relative; height: 0; margin-top: -56px; }
+  /* The strap is sized so the static card's centre sits where the 3D card's rests at any viewport height (anchor.ts
+     restCentreY = TOP_OFFSET + REST_VH·vh): centre y = slot top (the 64px nav + 1px border) + strap + 163px (ring
+     22 − 3, card overlap −3, half the 294px card). The two constants are pinned to anchor.ts by tests/unit/anchor.test.ts.
+     Floored at 24px: below ~666px tall the static strap stops shrinking. */
+  .slot { --badge-rest-top: -24px; --badge-rest-vh: 41.464vh; --badge-right: 10px;
+    --badge-strap: max(24px, calc(var(--badge-rest-top) + var(--badge-rest-vh) - 65px - 163px));
+    position: relative; height: 0; margin-top: -56px; }
   /* --badge-right (10px) and the 210px card are mirrored in About.astro's column limit (its comment has the sway
      derivation). BadgeIsland reads --badge-right from the slot so the 3D card rests on the same centre line (anchor.ts
-     restX); the 125px strap puts the card's centre where the 3D card's rests at 900px tall.
+     restX).
      At −3° the card's right corner swings ~21px past this edge, still inside the 36–40px gutter at 900px+. (global.css
      gives it pointer-events: none, so it never blocks clicks or text selection on About underneath.) */
   .slot :global(.badge-static) { position: absolute; top: 0; right: var(--badge-right); z-index: 1; }
