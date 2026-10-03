@@ -1,10 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 
-/** The 3D scene mounts only after a real interaction once the island has hydrated (client:idle). */
+/**
+ * The 3D scene mounts only after a real interaction once the island has hydrated (client:idle). The island's
+ * listeners attach in an effect slightly after the ssr attribute goes, so keep nudging the pointer until the gate
+ * reports it opened.
+ */
 async function engage(page: Page) {
   await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
-  await page.mouse.move(8, 8);
-  await page.mouse.move(12, 12);
+  const gate = page.locator('[data-badge-mode][data-engaged]');
+  for (let i = 0; i < 50 && !(await gate.count()); i++) {
+    await page.mouse.move(8 + (i % 2) * 4, 8 + (i % 2) * 4);
+    await page.waitForTimeout(100);
+  }
+  await expect(gate).toHaveCount(1);
 }
 
 test('before any interaction the static badge is shown and no canvas exists', async ({ page }, info) => {
@@ -28,7 +36,7 @@ test('desktop uses travelling 3D badge, and the canvas does not block clicks', a
   await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
   // The canvas is hidden from assistive tech; the name stays as real text outside that subtree.
   await expect(page.locator('[data-badge-mode="3d-travel"] [aria-hidden="true"] canvas')).toBeAttached();
-  await expect(page.locator('[data-badge-mode="3d-travel"] > .visually-hidden')).toHaveText(/Muhammad Zarif Nurhan/);
+  await expect(page.locator('[data-badge-mode="3d-travel"] > .visually-hidden')).toHaveText(/Muhammad Zarif Nurhan.*Computer Science · 3D Visualization/);
   await page.locator('[data-split]').scrollIntoViewIfNeeded();
   await page.getByRole('link', { name: /3D Visualization/ }).last().click();
   await expect(page).toHaveURL(/\/3d$/);
@@ -41,7 +49,8 @@ test('reduced motion shows the static badge with the name', async ({ browser }) 
   await page.goto('/');
   await engage(page);
   await page.waitForTimeout(1500);
-  await expect(page.locator('[data-badge-mode="static"]')).toBeVisible();
+  // The gate opened (engage asserts data-engaged) and the island still chose static.
+  await expect(page.locator('[data-badge-mode="static"][data-engaged]')).toBeVisible();
   await expect(page.locator('[data-badge-slot]')).toContainText('MUHAMMAD ZARIF NURHAN');
   await expect(page.locator('[data-badge-slot] canvas')).toHaveCount(0);
   await ctx.close();
@@ -56,7 +65,7 @@ test('no WebGL falls back to the static badge', async ({ page }) => {
   await page.goto('/');
   await engage(page);
   await page.waitForTimeout(1500);
-  await expect(page.locator('[data-badge-mode="static"]')).toBeVisible();
+  await expect(page.locator('[data-badge-mode="static"][data-engaged]')).toBeVisible();
 });
 
 test('resizing across 900px switches mode without errors', async ({ page }, info) => {
@@ -145,4 +154,29 @@ test('scrolling the card away from a stationary pointer releases the canvas capt
   expect(await page.evaluate(() => document.body.style.cursor)).toBe('');
   await page.mouse.click(pt.x, pt.y);
   await expect(page).toHaveURL(/\/3d$/);
+});
+
+test('the badge name and role exist as real text in every mode', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
+  const text = page.locator('[data-badge-mode] > .visually-hidden');
+  await expect(text).toHaveText(/Muhammad Zarif Nurhan Bin Mohd Arifin.*Computer Science · 3D Visualization/);
+  await expect(page.locator('[data-badge-mode] > [aria-hidden="true"] .visually-hidden')).toHaveCount(0);
+});
+
+test('swapping the static badge for the inline 3D badge does not shift the layout', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile');
+  await page.goto('/');
+  await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
+  const measure = () => page.evaluate(() => ({
+    slot: document.querySelector('[data-badge-slot]')!.getBoundingClientRect().height,
+    h1: document.querySelector('h1')!.getBoundingClientRect().top + scrollY,
+  }));
+  const before = await measure();
+  await engage(page);
+  await expect(page.locator('[data-badge-mode="3d-inline"] canvas')).toBeAttached({ timeout: 15_000 });
+  await expect(page.locator('[data-badge-mode="3d-inline"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+  const after = await measure();
+  expect(Math.abs(after.slot - before.slot)).toBeLessThanOrEqual(1);
+  expect(Math.abs(after.h1 - before.h1)).toBeLessThanOrEqual(1);
 });

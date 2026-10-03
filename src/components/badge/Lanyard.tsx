@@ -21,11 +21,11 @@ export interface LanyardProps {
   /** Anchor in canvas-local CSS px. Called every frame. */
   getAnchorPx: () => { x: number; y: number };
   active: boolean;
-  /** Camera field of view; the inline (mobile) canvas is only 380px tall, so it narrows this to enlarge the badge. */
+  /** Camera field of view; the inline (mobile) canvas is only 410px tall, so it narrows this to enlarge the badge. */
   fov?: number;
   /** Device pixel ratio range; the inline (mobile) canvas renders at [1, 1]. */
   dpr?: [number, number];
-  /** Called once the physics world and card have mounted (WASM loaded, first scene ready). */
+  /** Called once the physics world and card have mounted (WASM loaded) and the card face texture has resolved. */
   onReady?: () => void;
 }
 
@@ -84,7 +84,8 @@ function Band({ name, role, photo, getAnchorPx, onReady, active }: Omit<LanyardP
   }, [name, role, photo]);
   useEffect(() => () => { face?.dispose(); }, [face]);
   useEffect(() => () => { strap.dispose(); }, [strap]);
-  useEffect(() => { onReady?.(); }, [onReady]);
+  // Wait for the face texture so the swap from the static badge never shows a blank card.
+  useEffect(() => { if (face) onReady?.(); }, [face, onReady]);
 
   const seg = { type: 'dynamic' as const, canSleep: true, colliders: false as const, angularDamping: 2, linearDamping: 2 };
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], SEG]);

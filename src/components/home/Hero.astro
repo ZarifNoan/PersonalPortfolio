@@ -15,7 +15,8 @@ import { site } from '../../data/site';
   .slot { position: relative; min-height: 460px; display: flex; justify-content: center; align-items: flex-start; }
   @media (max-width: 899px) {
     .hero { grid-template-columns: 1fr; min-height: auto; text-align: center; padding-top: 24px; }
-    .slot { order: -1; min-height: 380px; }
+    /* = the static badge's height and BadgeIsland's INLINE_H, so the static→3D swap doesn't shift the page. */
+    .slot { order: -1; min-height: 410px; }
     .headline { margin-inline: auto; }
   }
 </style>

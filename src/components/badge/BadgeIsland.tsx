@@ -4,13 +4,25 @@ import { badgeAnchor, CARD_W, hangPx, pxPerWorld, TOP_OFFSET } from './anchor';
 
 const Lanyard = lazy(() => import('./Lanyard'));
 type Mode = 'static' | '3d-travel' | '3d-inline';
-// Narrower than the travel scene's FOV so rope + card fill most of the 380px inline canvas.
+// Narrower than the travel scene's FOV so rope + card fill most of the inline canvas.
 const INLINE_FOV = 15;
+/** Inline (mobile) canvas height: the static badge's height (120px strap + 210×1.4 card − 4px overlap), so swapping
+ *  one for the other doesn't shift the page. Hero.astro's mobile slot min-height matches. */
+const INLINE_H = 410;
 const INLINE_DPR: [number, number] = [1, 1];
 type Props = { name: string; role: string; photo: string | null };
 
+let webglCached: boolean | undefined;
+/** Probes WebGL once per page load and releases the probe context (browsers cap live contexts). */
 function webglOk(): boolean {
-  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; }
+  if (webglCached !== undefined) return webglCached;
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl2') || c.getContext('webgl');
+    webglCached = !!gl;
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  } catch { webglCached = false; }
+  return webglCached;
 }
 
 class Boundary extends Component<{ fallback: ReactNode; onError?: () => void; children: ReactNode }, { failed: boolean }> {
@@ -54,7 +66,7 @@ export default function BadgeIsland(props: Props) {
   }, [engaged]);
 
   // Pause rendering when the tab is hidden or the badge is off-screen: in travel mode once the split section has
-  // scrolled off the top, in inline mode once the 380px box has left the viewport.
+  // scrolled off the top, in inline mode once the inline box has left the viewport.
   useEffect(() => {
     const check = () => {
       let onScreen = true;
@@ -78,6 +90,9 @@ export default function BadgeIsland(props: Props) {
   const onError = useCallback(() => { broken.current = true; setMode('static'); }, []);
 
   const staticBadge = <BadgeStatic {...props} />;
+  // The canvas and static badge are aria-hidden; this is the same name and role as real text, in every mode.
+  const srText = <span className="visually-hidden">{props.name}, {props.role}</span>;
+  const gate = engaged ? '' : undefined; // data-engaged: the interaction gate has opened (used by tests)
 
   const getTravelAnchor = useCallback(() => {
     const hero = document.querySelector('[data-badge-anchor="hero"]')?.getBoundingClientRect();
@@ -96,7 +111,7 @@ export default function BadgeIsland(props: Props) {
     return { x: (el?.clientWidth ?? 0) / 2, y: TOP_OFFSET };
   }, []);
 
-  if (mode === 'static') return <div data-badge-mode="static">{staticBadge}</div>;
+  if (mode === 'static') return <div data-badge-mode="static" data-engaged={gate}>{srText}{staticBadge}</div>;
 
   // The static badge stays in the slot until the scene is ready, so there's no empty gap while three.js/rapier load.
   const scene = (
@@ -109,15 +124,15 @@ export default function BadgeIsland(props: Props) {
 
   return mode === '3d-travel'
     ? (
-      <div data-badge-mode="3d-travel">
-        <span className="visually-hidden">{props.name}</span>
+      <div data-badge-mode="3d-travel" data-engaged={gate}>
+        {srText}
         {!ready && staticBadge}
         <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 40, pointerEvents: 'none', visibility: ready ? 'visible' : 'hidden' }}>{scene}</div>
       </div>
     )
     : (
-      <div data-badge-mode="3d-inline" ref={inlineRef} style={{ position: 'relative', width: '100%', height: 380 }}>
-        <span className="visually-hidden">{props.name}</span>
+      <div data-badge-mode="3d-inline" data-engaged={gate} ref={inlineRef} style={{ position: 'relative', width: '100%', height: INLINE_H }}>
+        {srText}
         {!ready && <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center' }}>{staticBadge}</div>}
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, visibility: ready ? 'visible' : 'hidden' }}>{scene}</div>
       </div>
