@@ -30,17 +30,18 @@ const photo = { widths: [480, 800, 1200, 1600], sizes: '(min-width: 900px) 50vw,
   .bg { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; opacity: .62; filter: saturate(.75); transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .4s; }
   .half::before, .half::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
   .half::before { z-index: -2; }
+  .half { --fade: linear-gradient(to top, rgba(11,11,20,.94) 0%, rgba(11,11,20,.82) 38%, rgba(11,11,20,.35) 75%, rgba(11,11,20,.2) 100%); }
   .half::after { z-index: -1; opacity: 0; transition: opacity .4s; }
   /* The dark fade sits under the text (bottom), so the text keeps AA contrast whatever the photo does above it. */
   .sw::before {
     background:
-      linear-gradient(to top, rgba(11,11,20,.94) 0%, rgba(11,11,20,.82) 38%, rgba(11,11,20,.35) 75%, rgba(11,11,20,.2) 100%),
+      var(--fade),
       radial-gradient(circle at 20% 20%, rgba(96,165,250,.38), transparent 62%),
       linear-gradient(rgba(29,59,122,.35), rgba(29,59,122,.35));
   }
   .viz::before {
     background:
-      linear-gradient(to top, rgba(11,11,20,.94) 0%, rgba(11,11,20,.82) 38%, rgba(11,11,20,.35) 75%, rgba(11,11,20,.2) 100%),
+      var(--fade),
       radial-gradient(circle at 80% 20%, rgba(245,158,11,.36), transparent 62%),
       linear-gradient(rgba(107,58,14,.35), rgba(107,58,14,.35));
   }
@@ -58,7 +59,8 @@ const photo = { widths: [480, 800, 1200, 1600], sizes: '(min-width: 900px) 50vw,
   @media (max-width: 899px) {
     .split { grid-template-columns: 1fr; min-height: auto; }
     .divider { display: none; }
-    .half { min-height: 40vh; }
+    /* Stacked, the text fills most of each half, so the fade reaches higher. */
+    .half { min-height: 40vh; --fade: linear-gradient(to top, rgba(11,11,20,.94) 0%, rgba(11,11,20,.86) 55%, rgba(11,11,20,.62) 100%); }
     .sw { border-bottom: 1px solid var(--border); }
     .viz { text-align: left; align-items: flex-start; }
     /* Stacked and left-aligned: the arrow points forward like the software half's. */
