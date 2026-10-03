@@ -38,7 +38,7 @@ test('non-matching projects fade out before they are hidden', async ({ page }) =
   const stocksense = page.locator('section#stocksense');
   await page.getByRole('group', { name: 'Filter by language' }).getByRole('button', { name: 'Java', exact: true }).click();
   // Straight after the click it is still laid out, running an opacity animation...
-  const fading = await stocksense.evaluate((el) => !el.hidden && el.getAnimations().some((a) => a.playState === 'running'));
+  const fading = await stocksense.evaluate((el: HTMLElement) => !el.hidden && el.getAnimations().some((a) => a.playState === 'running'));
   expect(fading).toBe(true);
   // ...and then it is hidden.
   await expect(stocksense).toBeHidden();
@@ -50,6 +50,6 @@ test.describe('reduced motion', () => {
   test('filtering hides non-matching projects instantly', async ({ page }) => {
     await page.goto('/software');
     await page.getByRole('group', { name: 'Filter by language' }).getByRole('button', { name: 'Java', exact: true }).click();
-    expect(await page.locator('section#stocksense').evaluate((el) => el.hidden && el.getAnimations().length === 0)).toBe(true);
+    expect(await page.locator('section#stocksense').evaluate((el: HTMLElement) => el.hidden && el.getAnimations().length === 0)).toBe(true);
   });
 });
