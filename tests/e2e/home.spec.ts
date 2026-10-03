@@ -61,12 +61,23 @@ for (const width of [900, 940, 980, 1024, 1280, 1440]) {
     test.skip(info.project.name !== 'desktop');
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
-    const card = (await page.locator('.badge-card').boundingBox())!;
     const text = await page.locator('[data-badge-avoid]').evaluate((el) => el.getBoundingClientRect().right);
-    expect(card.x).toBeGreaterThan(text + 8);
+    // Worst case over the whole CSS sway: pause the animation and seek it through one 6s cycle (0% = -3deg,
+    // 50% = +2.5deg, the lean towards the text), reading the rotated card's bounds at each step.
+    const boxes = await page.locator('.badge-hang').evaluate((hang) => {
+      const sway = hang.getAnimations().find((a) => (a as CSSAnimation).animationName === 'badge-sway');
+      if (!sway) return null;
+      sway.pause();
+      const card = hang.querySelector('.badge-card')!;
+      const out: { left: number; right: number }[] = [];
+      for (let t = 0; t <= 6000; t += 250) { sway.currentTime = t; const r = card.getBoundingClientRect(); out.push({ left: r.left, right: r.right }); }
+      return out;
+    });
+    expect(boxes, 'the sway animation runs').not.toBeNull();
+    expect(Math.min(...boxes!.map((b) => b.left)) - text).toBeGreaterThanOrEqual(16);
+    expect(Math.max(...boxes!.map((b) => b.right))).toBeLessThanOrEqual(width);
     // Decorative (aria-hidden): it must not block selecting or clicking what's under it.
     expect(await page.locator('.badge-static').evaluate((el) => getComputedStyle(el).pointerEvents)).toBe('none');
-    expect(card.x + card.width).toBeLessThanOrEqual(width);
   });
 }
 

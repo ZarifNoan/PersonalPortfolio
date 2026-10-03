@@ -134,6 +134,19 @@ test('the badge hangs beside About Me and scrolls away with it, never travelling
   expect(gone.y + gone.h).toBeLessThan(split.top);
 });
 
+for (const width of [900, 940, 980, 1024, 1280, 1440]) {
+  test(`desktop ${width}px: the 3D card at rest clears the About text`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop');
+    await page.setViewportSize({ width, height: 900 });
+    await readyTravel(page);
+    await page.mouse.move(5, 500);
+    const rest = await settledCard(page);
+    const text = await page.evaluate(() => document.querySelector('[data-badge-avoid]')!.getBoundingClientRect().right);
+    expect(rest.x - text).toBeGreaterThanOrEqual(16);
+    expect(rest.x + rest.w).toBeLessThanOrEqual(width);
+  });
+}
+
 test('the card captures pointer events beside About Me and the pick-a-side halves stay clickable', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await readyTravel(page);

@@ -6,10 +6,13 @@ import { site } from '../../data/site';
   <div class="body" data-badge-avoid>{site.about.map((p) => <p>{p}</p>)}</div>
 </section>
 <style>
-  /* The text column is the smallest of 60ch, 44vw and the room left of the hanging badge: 100% minus the label
-     column and gap (232px), the static badge's footprint from the container's right edge (Hero.astro: 210px card +
-     31px offset = 241px) and 21px of clearance (its CSS sway swings the card's bottom corner up to ~19px). 1440px keeps
-     its column (1100 − 494 = 606px ≥ the 44vw/60ch limits there); at 900–1000px it narrows so the card never covers it. */
+  /* The text column is the smallest of 60ch, 44vw and the room left of the hanging badge, 100% − 494px, where
+     494 = 232 (label column + gap) + 220 (static badge footprint from the container's right edge: 210px card +
+     Hero.astro's right: 10px) + 18 (sway lean) + 24 (clearance). Sway lean: .badge-hang (210 × 310: ring 19 + card
+     294 − 3) rotates about 50% −100px, so the card's bottom-left corner sits 105px left of and 410px below the pivot;
+     at the +2.5° keyframe it moves left by 105(1 − cos 2.5°) + 410 sin 2.5° ≈ 0.1 + 17.9 = 18px (at −3° the card
+     leans away from the text). So the rotated card stays ≥ 24px clear at every width. 1440px keeps its 606px column
+     (1100 − 494); at 900–1000px the column narrows so the card never covers it. */
   .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw, calc(100% - 494px))); gap: 32px; padding-block: 24px 32px; }
   h2 { font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--sw); padding-top: 6px; }
   p { margin: 0 0 16px; color: var(--muted); font-size: 1.08rem; }
