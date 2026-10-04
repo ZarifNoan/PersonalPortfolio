@@ -31,9 +31,12 @@ test('software detail: name, team, stack, course, long description, screenshots 
   // The team work-split paragraph was removed entirely.
   await expect(main.getByRole('region', { name: 'About the project' })).not.toContainText('We split the work by area');
   await expect(main.getByRole('region', { name: 'About the project' })).not.toContainText('payment gateway');
-  // Screenshots: the four non-cover images, as windows with chrome, and no "Gallery" heading anywhere.
+  // Screenshots: the four non-cover images as clean panels (no title bar, dots or window titles), and no "Gallery"
+  // heading anywhere.
   await expect(main.locator('.shots .win')).toHaveCount(4);
-  await expect(main.locator('.shots .win .dots')).toHaveCount(4);
+  await expect(main.locator('.shots .chrome, .shots .dots, .shots .title')).toHaveCount(0);
+  // The hero is the photographic mockup.
+  await expect(main.locator('a.hero img')).toHaveAttribute('src', /00-mockup/);
   await expect(main.getByRole('heading', { name: /gallery/i })).toHaveCount(0);
   await expect(main.locator('.shots').getByRole('heading')).toHaveCount(0);
 });
@@ -119,3 +122,24 @@ for (const width of [390, 820, 1440]) {
     }
   });
 }
+
+test('each software gallery sits on a backdrop in the colours of its own app', async ({ page }) => {
+  // [slug, theme.from as rgb] - sampled from each app's UI (see the project YAML).
+  const cases = [
+    ['stocksense', 'rgb(19, 37, 74)'],
+    ['jomlah', 'rgb(91, 52, 214)'],
+    ['fuzzy-logic', 'rgb(242, 207, 182)'],
+    ['fixer', 'rgb(29, 79, 122)'],
+  ] as const;
+  const seen = new Set<string>();
+  for (const [slug, from] of cases) {
+    await page.goto(`/software/${slug}`);
+    const bg = await page.locator('.shots .panel').first().evaluate((el) => getComputedStyle(el).backgroundImage);
+    expect(bg).toContain('gradient');
+    expect(bg).toContain(from);
+    seen.add(bg);
+    // No shared blue left over.
+    expect(bg).not.toContain('rgb(36, 73, 216)');
+  }
+  expect(seen.size).toBe(4);
+});
