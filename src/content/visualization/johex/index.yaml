@@ -2,12 +2,41 @@ title: JOHEX Halal Expo
 client: true
 clientName: "JOHEX"
 category: Architectural Visualization
-order: 6
-draft: true
+order: 3
+draft: false
 description: >-
   Exhibition venue visualization for JOHEX, a halal expo showcasing all kinds of halal products, not just
-  food.
+  food, laid out in rows of modular booth stands around a stage.
 details: |
   Exhibition venue visualization for JOHEX, a halal expo showcasing all kinds of halal products, not just
-  food.
-images: []
+  food. The hall is filled with rows of modular booth stands with open steel-frame roofs, arranged either
+  side of a central aisle that opens onto a stage backed by a spotlight truss, rows of red auditorium
+  chairs and a block of teal armchairs. The walls carry a warm diamond-patterned wallpaper broken up by
+  solid orange and yellow panels, with a dark timber fascia running along the ceiling edge and a small red
+  information kiosk near the entrance. A second finished render shows the venue's mezzanine-level
+  concourse: a curved balcony faced in wood slats overlooking an escalator bank, with a cluster of booths
+  and a blank placeholder signage panel beneath it.
+
+  The remaining renders are untextured grey massing studies from earlier in the process, used to work out
+  the booth grid against the hall's structural columns: an overhead view of the full layout, a ground-level
+  look down a booth aisle under a mezzanine soffit, a close view of the columns beside a row of booths, and
+  a wider angle through a curved wall nook showing the booths and columns beyond.
+images:
+  - src: ./images/01-hall-overview.png
+    alt: Exhibition hall with rows of modular booth stands facing a stage lit by a spotlight truss, with red auditorium chairs and patterned wallpaper walls
+    group: Finished hall
+  - src: ./images/02-concourse-escalators.png
+    alt: Mezzanine concourse with a curved wood-slat balcony over an escalator bank, booth stands below and a blank placeholder signage panel
+    group: Finished hall
+  - src: ./images/03-layout-study-overview.png
+    alt: Untextured grey massing study showing an overhead view of the booth grid laid out around the hall's structural columns
+    group: Layout studies
+  - src: ./images/04-layout-study-aisle.png
+    alt: Untextured grey massing study looking down a booth aisle beneath a mezzanine soffit, flanked by structural columns
+    group: Layout studies
+  - src: ./images/05-layout-study-columns.png
+    alt: Untextured grey massing study with structural columns beside a row of booths and a mezzanine opening above
+    group: Layout studies
+  - src: ./images/06-layout-study-nook.png
+    alt: Untextured grey massing study of booth rows and columns seen through a curved wall nook
+    group: Layout studies
