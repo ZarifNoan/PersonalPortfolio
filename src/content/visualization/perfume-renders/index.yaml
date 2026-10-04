@@ -1,0 +1,29 @@
+title: Perfume Product Renders
+client: false
+clientName: "Personal project"
+category: Product Visualization
+order: 5
+description: >-
+  Product visualization practice project: three perfume renders modelled, lit and rendered in Blender under a
+  self-designed "RAZOVA" brand, covering a bottle, its gift box and an experimental bottle shape.
+details: |
+  A product visualization practice project exploring perfume bottle and packaging design in Blender, built
+  around a self-designed "RAZOVA" brand used across the renders.
+
+  The eau de parfum bottle is a rectangular glass flask with teal-tinted liquid, capped with a brushed chrome
+  sprayer. A dark label on the front carries the brand's hexagonal "R" monogram in teal and the words "RAZOVA
+  · eau de parfum · 100ml", and a swirled chrome ornament rests beside the bottle on a dark, olive-lit
+  backdrop. The gift box is a glossy dark-green and olive case with "RAZOVA" embossed down one edge and
+  "Limited Edition" and "Parfum" lettered in gold and silver on the front; a circular medallion stamped with
+  the same "R" monogram hangs from the cap by a fine chain.
+
+  The third render is an experimental bottle shape with no branding: a faceted, twisting glass column holding
+  a pale violet liquid that catches the light through the facets, topped with a plain white cap and
+  photographed with its silver sprayer resting loose beside it on a black backdrop.
+images:
+  - src: ./images/01-razova-eau-de-parfum-bottle.png
+    alt: Rectangular RAZOVA eau de parfum bottle with teal liquid, a dark monogram label and a chrome cap
+  - src: ./images/02-razova-limited-edition-box.png
+    alt: Glossy dark-green RAZOVA Limited Edition parfum box with gold embossed lettering and a hanging R monogram medallion
+  - src: ./images/03-experimental-twist-bottle.png
+    alt: Experimental faceted glass bottle with a twisting column and pale violet liquid, cap resting beside it
