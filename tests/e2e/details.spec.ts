@@ -108,12 +108,12 @@ test('detail pages mark their section tab as current', async ({ page }) => {
   await expect(nav.getByRole('link', { name: '3D Visualization' })).toHaveAttribute('aria-current', 'true');
 });
 
-test('JOHEX detail: published with Client "JOHEX", every render in the mosaic and a working lightbox', async ({ page }) => {
+test('JOHEX detail: published with Client "RAZOVA", every render in the mosaic and a working lightbox', async ({ page }) => {
   await page.goto('/3d/johex');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('JOHEX Halal Expo');
   await expect(main.locator('dt', { hasText: 'Category' }).locator('+ dd')).toHaveText('Architectural Visualization');
-  await expect(main.locator('dt', { hasText: 'Client' }).locator('+ dd')).toHaveText('JOHEX');
+  await expect(main.locator('dt', { hasText: 'Client' }).locator('+ dd')).toHaveText('RAZOVA');
   expect(await main.locator('.about p').count()).toBeGreaterThanOrEqual(2);
   await expect(main.locator('.mosaic img')).toHaveCount(6);
   const dlg = page.getByRole('dialog', { name: 'Image viewer' });
