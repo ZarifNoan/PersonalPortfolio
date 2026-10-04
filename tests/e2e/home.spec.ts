@@ -39,14 +39,14 @@ test('project media lifts on hover', async ({ page }, info) => {
   await expect.poll(() => main.evaluate((el) => getComputedStyle(el).translate)).not.toMatch(/^(none|0px)$/);
 });
 
-test('desktop: the name starts 132-156px below the nav and About follows the headline with a comfortable gap', async ({ page }, info) => {
+test('desktop: the name starts 144-168px below the nav and About follows the headline with a comfortable gap', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.goto('/');
   const navBottom = (await page.locator('header.nav-wrap').boundingBox())!;
   const h1 = (await page.locator('h1').boundingBox())!;
   const gap = h1.y - (navBottom.y + navBottom.height);
-  expect(gap).toBeGreaterThanOrEqual(132);
-  expect(gap).toBeLessThanOrEqual(156);
+  expect(gap).toBeGreaterThanOrEqual(144);
+  expect(gap).toBeLessThanOrEqual(168);
   // The hanging badge is out of the hero's flow, so the headline, not the badge, sets where About starts.
   const headline = (await page.locator('.hero .headline').boundingBox())!;
   const aboutTop = await page.evaluate(() => {

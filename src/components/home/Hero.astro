@@ -9,7 +9,7 @@ import { site } from '../../data/site';
   <div class="slot" data-badge-slot data-badge-anchor="hero"><slot /></div>
 </section>
 <style>
-  /* The name starts 144px under the nav, and the hero's own 104px bottom padding gives About Me a comfortable gap
+  /* The name starts 156px under the nav, and the hero's own 104px bottom padding gives About Me a comfortable gap
      below the headline. The hero is as tall as the name and headline only: on desktop the badge is out of flow (the
      3D one is a fixed overlay; the static one is absolutely positioned in the slot below), hanging down beside About
      Me in the right margin that About's limited column leaves free. Nothing in flow depends on the badge, so the
@@ -18,7 +18,7 @@ import { site } from '../../data/site';
      size: the slot's RIGHT edge (and so the badge's position, via --badge-right) stays put regardless of this ratio,
      because the two columns plus the gap always fill the row, so the last column is always flush with the row's
      right edge. */
-  .hero { display: grid; grid-template-columns: 3.5fr 1fr; align-items: start; gap: 32px; padding-block: 144px 104px; }
+  .hero { display: grid; grid-template-columns: 3.5fr 1fr; align-items: start; gap: 32px; padding-block: 156px 104px; }
   h1 { font-size: clamp(2.2rem, 5.2vw, 4.2rem); font-weight: 800; letter-spacing: -.01em; }
   .headline { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); margin: 18px 0 0; max-width: 34ch; }
   /* Desktop: the name ("Muhammad Zarif Nurhan" / "Bin Mohd Arifin") breaks onto exactly 2 lines at 900–1440px. Each
@@ -47,7 +47,7 @@ import { site } from '../../data/site';
      Floored at 24px: below ~666px tall the static strap stops shrinking. */
   .slot { --badge-rest-top: -24px; --badge-rest-vh: 41.464vh; --badge-right: 10px;
     --badge-strap: max(24px, calc(var(--badge-rest-top) + var(--badge-rest-vh) - 65px - 163px));
-    position: relative; height: 0; margin-top: -144px; }
+    position: relative; height: 0; margin-top: -156px; }
   /* --badge-right (10px) and the 210px card are mirrored in About.astro's column limit (its comment has the sway
      derivation). BadgeIsland reads --badge-right from the slot so the 3D card rests on the same centre line (anchor.ts
      restX).
