@@ -70,15 +70,17 @@ img { max-width: 100%; height: auto; display: block; }
   /* clear sleeve: a faint glossy frame and highlight around the printed card */
   background: linear-gradient(150deg, rgba(255,255,255,.34), rgba(255,255,255,.08) 40%, rgba(255,255,255,.18)), rgba(220,224,240,.08);
   border: 1px solid rgba(255,255,255,.35); box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.5); }
-.badge-card::after { content: ''; position: absolute; inset: 7px; border-radius: 10px; pointer-events: none; z-index: 1; background: linear-gradient(115deg, rgba(255,255,255,.3) 0 16%, transparent 28%); }
+.badge-card::after { content: ''; position: absolute; inset: 6px; border-radius: 10px; pointer-events: none; z-index: 1; background: linear-gradient(115deg, rgba(255,255,255,.3) 0 16%, transparent 28%); }
 .badge-clip { position: absolute; top: -9px; left: 50%; translate: -50% 0; width: 42px; height: 22px; border-radius: 5px; z-index: 2;
   background: linear-gradient(180deg, #f1f3f7, #b8bdc8 55%, #8d93a1); box-shadow: 0 2px 4px rgba(0,0,0,.4), inset 0 1px 0 #fff; }
 .badge-clip::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; translate: -50% -50%; border-radius: 50%; background: #6b7080; }
 /* The printed face copies textures.ts cardFaceTexture (1024 × 1463 layout units, the face's 196 × 280 aspect).
    Container units make it exact: 100cqw = the face width = 1024 units, so a canvas value v is v / 10.24 cqw (vertical
    positions too). This static badge is the reference look: the 3D card draws its face, sleeve and shadow from these
-   rules (textures.ts BADGE, Lanyard.tsx), so keep the two in step. */
-.badge-face { position: absolute; inset: 7px; overflow: hidden; border-radius: 10px; container-type: inline-size; text-align: center;
+   rules (textures.ts BADGE, Lanyard.tsx), so keep the two in step.
+   inset 6px is inside the card's 1px border: 7px (BADGE.inset) from its outer edge, where the 3D card draws the face
+   and glare (at 7px from the padding box the face was 2px smaller than the 3D one). */
+.badge-face { position: absolute; inset: 6px; overflow: hidden; border-radius: 10px; container-type: inline-size; text-align: center;
   background: linear-gradient(170deg, #fcfcff, #ececf5); }
 .badge-face > * { position: absolute; left: 0; right: 0; }
 .badge-head { top: 0; height: 19.53cqw; background: #0b0b14; border-bottom: 1.56cqw solid; border-image: linear-gradient(90deg, var(--sw) 50%, var(--viz) 50%) 1; font: 700 6.25cqw/1 var(--font-head); box-sizing: content-box; }
