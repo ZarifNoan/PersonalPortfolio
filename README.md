@@ -24,7 +24,7 @@ npm run check      # type and template checks
      writes `images/00-mockup.jpg`. The alt describes both the scene and the app.
    - **`theme:`** `{ from, to, accent }` (6-digit hex) are the app's own colours, sampled from its screenshots: the
      gallery backdrop is a `from`→`to` gradient with a soft pool of `accent`, and the hero gets a faint `accent` glow.
-3. `languages` must use: Python, JavaScript, PHP, Java, SQL (add new ones to `src/lib/taxonomy.ts`).
+3. `languages` must use: Python, JavaScript, TypeScript, PHP, Java, SQL (add new ones to `src/lib/taxonomy.ts`).
 4. `members:` lists the team in display order, each with a `name`, an optional `linkedin` URL (adds a LinkedIn
    badge after the name that opens their profile in a new tab) and an optional `photo`. Leave it as `members: []`
    for individual work: the page then says "Individual" in the header eyebrow and has no team block. The team
@@ -46,6 +46,12 @@ npm run check      # type and template checks
    the plain screenshot.
    `screenFit: contain` is for charts: they sit side by side without overlapping. `type`, `platform` and `year` are
    optional facts on the page.
+7. `course` is optional: leave it out for work that was not coursework (e.g. a client project). The eyebrow then
+   shows the `type` instead ("Freelance client project · Individual") and the facts card has no Course row.
+8. `url` (optional) is the project's live website. When set, the listing shows a "Visit website ↗" link beside
+   Learn More and the detail page shows one under the title; both open in a new tab (`rel="noopener noreferrer"`)
+   and are named "Visit the <name> website (opens in a new tab)", where <name> is the title up to the en dash.
+   `order: 0` puts a project before the coursework (client work leads the page).
 
 ## Add a 3D project
 Same as above, under `src/content/visualization/` (page: `/3d/<slug>`). `category` is `Architectural Visualization`
@@ -83,6 +89,8 @@ onto the screen by `scripts/make-mockups.py` (sources in `scripts/mockup-photos/
 - JomLah: "White cup and MacBook" by Alex Knight, https://unsplash.com/photos/j4uuKnN43_M
 - Fuzzy Logic: "A calm workspace" (silver iMac on a wooden table) by Clay Banks, https://unsplash.com/photos/TQYTWfN1b7M
 - Fixer: "Hand holding a smartphone with a blank screen" by Jakub Żerdzicki, https://unsplash.com/photos/jSQCLQA99Og
+- Primo Pinnacle: "Macbook pro on white table" (a meeting room) by Devin Pickell (image credit Nextiva.com),
+  https://unsplash.com/photos/1eRS74C-alQ
 
 The phones in the Fixer gallery are not photos: `scripts/make-phone-frames.py` draws them (no third-party asset).
 

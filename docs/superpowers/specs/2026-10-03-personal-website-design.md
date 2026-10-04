@@ -54,14 +54,14 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
 
 ### 3.2 Software Development (`/software`)
 
-- Page title, then a **filter bar**: All · Python · JavaScript · PHP · Java · SQL. The buttons are generated from the projects' `languages` field, so new languages appear automatically.
+- Page title, then a **filter bar**: All · Python · JavaScript · TypeScript · PHP · Java · SQL. The buttons are generated from the projects' `languages` field, so new languages appear automatically.
 - **Alternating project sections.** The image is on the left and text on the right, then swapped for the next project. Each section has:
   - project title
-  - course and team type ("Individual" or "Team of N", counted from the members)
+  - course (or, for work that was not coursework, the project type, e.g. "Freelance client project") and team type ("Individual" or "Team of N", counted from the members)
   - description (the short one)
   - tech stack tags
-  - **one picture**: a **photographic device mockup**: a real photo (Unsplash, credited in the README) of a device in its own setting with the project's cover screenshot composited onto the screen with a perspective transform and matched lighting (StockSense: MacBook Pro in a bright office; JomLah: MacBook Pro on a café counter; Fuzzy Logic: iMac on a lamp-lit study desk; Fixer: phone in a hand by plants). Pre-rendered offline by `scripts/make-mockups.py` into `images/00-mockup.jpg` and served as a responsive `astro:assets` image.
-  - a **Learn More →** button. The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
+  - **one picture**: a **photographic device mockup**: a real photo (Unsplash, credited in the README) of a device in its own setting with the project's cover screenshot composited onto the screen with a perspective transform and matched lighting (Primo Pinnacle: MacBook Pro on a white meeting-room table; StockSense: MacBook Pro in a bright office; JomLah: MacBook Pro on a café counter; Fuzzy Logic: iMac on a lamp-lit study desk; Fixer: phone in a hand by plants). Pre-rendered offline by `scripts/make-mockups.py` into `images/00-mockup.jpg` and served as a responsive `astro:assets` image.
+  - a **Learn More →** button, and beside it, only when the project has a live `url`, an outlined **Visit website ↗** link (new tab, `rel="noopener noreferrer"`, accessible name "Visit the <name> website (opens in a new tab)"). The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
 - Selecting a filter fades out non-matching projects. "All" is the default. The active filter is reflected in the URL (`?lang=python`) so filtered views can be shared.
 
 #### 3.2.1 Software project page (`/software/<slug>`)
@@ -69,12 +69,12 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
 Generated from the collection (drafts get no page). In order:
 1. "← All software projects" back link.
 2. The large device mockup photo (same as the listing, bigger, with a faint glow in the app's accent colour); it opens the cover screenshot in the viewer.
-3. Course · team line and the project name (h1).
+3. Course (or type) · team line and the project name (h1), followed, when `url` is set, by a solid **Visit website** link to the live site (new tab, same naming as on the listing).
 4. **Team**: a vertical list, one member per row — a circular avatar (their photo, or an initials placeholder in the
    site's colours when no photo is set yet) on the left, their name, and a LinkedIn badge (new tab,
    `rel="noopener noreferrer"`, accessible via the link's `aria-label`; the badge SVG itself is `aria-hidden`) to
    the right of the name only when a URL is set. Omitted for individual projects.
-5. A facts card: type, course, platform, year, and the tech stack chips. (Team size is not repeated here — it's
+5. A facts card: type, course (omitted when there is none), platform, year, and the tech stack chips. (Team size is not repeated here — it's
    already in the header eyebrow and, for team projects, in the team list below it.)
 6. "About the project": the long description (2–4 paragraphs).
 7. The other screenshots, with no heading, as overlapping clean panels (rounded corners, soft shadow, no window chrome) on a gradient backdrop in the app's own colours (`theme`), two or three per group; later groups mirror the composition. Mobile apps show realistic phones instead: each screenshot pre-rendered inside a modern smartphone (titanium band, side keys, dynamic island, iOS status bar and home indicator, glass sheen, contact shadow) by `scripts/make-phone-frames.py` as a transparent PNG (`framed`), in a spaced row with no overlap, alternately raised and lowered (a 2 × 2 grid with a subtle offset on phones). Every image opens the viewer. On phones the windows stack with a slight overlap.
@@ -150,7 +150,7 @@ src/content/visualization/moltech-johor-warehouse/images/*.png
 
 ### 6.1 Software schema
 
-`title`, `course`, `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and, for `device: phone` gallery screenshots, a required `framed` phone render from `scripts/make-phone-frames.py`), `draft` (optional boolean; drafts are hidden and get no page).
+`title`, `course` (optional: omitted for work that was not coursework, such as a client project; the eyebrow then shows `type`), `url` (optional: the live website, which adds the Visit website links), `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and, for `device: phone` gallery screenshots, a required `framed` phone render from `scripts/make-phone-frames.py`), `draft` (optional boolean; drafts are hidden and get no page).
 
 ### 6.2 Visualization schema
 
@@ -162,10 +162,13 @@ The build fails with a clear error if a required field is missing, an image path
 
 | Order | Title | Course · Team | Languages | Stack |
 |---|---|---|---|---|
+| 0 | Primo Pinnacle – Government Relations Company Website | Freelance client project (no course) · Individual; live at https://primopinnacle.co | TypeScript | Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Vitest, Playwright, Netlify |
 | 1 | StockSense – AI Inventory Prediction System | Final Year Project (Project Design and Implementation) · Individual | Python, JavaScript, SQL | Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL |
 | 2 | JomLah – Centralized Event Management Platform | Web Programming · Team of 3 | PHP, JavaScript, SQL | PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3 |
 | 3 | Student Performance Prediction using Fuzzy Logic | Intelligent Systems · Team of 5 | Python | Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter |
 | 4 | Fixer – On-Demand Home Repair Service App | Business Case Project · Team of 4 | Java, SQL | Java, JavaFX, Maven, PostgreSQL |
+
+**Primo Pinnacle** (client work, so it leads the page): the stack comes from the site's source repository (`package.json`, `next.config.ts` with `output: 'export'`, `netlify.toml`) and agrees with the live site's assets. Its screenshots are captured from https://primopinnacle.co with Playwright (1440×900 at DPR 2), and its theme uses the site's own brand tokens (navy `#1b3d82`→`#081b41`, crimson `#c6192b`).
 
 **Members** (display order, Zarif first). Hakim Bin Taufik
 (`https://www.linkedin.com/in/hakim-taufik-866622370/`) and Jordan Septian
