@@ -15,10 +15,15 @@ npm run check      # type and template checks
 ## Add a software project
 1. Create `src/content/software/<slug>/index.yaml` (copy an existing one). `<slug>` is also the detail page's URL:
    `/software/<slug>`.
-2. Put images in `src/content/software/<slug>/images/` and list them under `images:` with `alt` text and an optional
-   short `caption` (shown in the screenshot window's title bar). The first image is the cover: it appears on the device
-   mockup on the listing (with a "Learn More →" button to the detail page) and at the top of the detail page; the
-   others appear lower on the detail page.
+2. Put images in `src/content/software/<slug>/images/` and list them under `images:` with `alt` text. The first
+   image is the cover: it is shown on the device in the mockup photo and opens first in the image viewer; the others
+   appear lower on the detail page as clean panels on the project's themed backdrop.
+   - **`mockup:`** (`src` and `alt`) is the picture on the listing (with a "Learn More →" button) and the detail
+     page's hero: a photo of a real device showing the app. Add a scene to `scripts/make-mockups.py` (a photo in
+     `scripts/mockup-photos/`, its screen corners and lighting) and run `python scripts/make-mockups.py <slug>`; it
+     writes `images/00-mockup.jpg`. The alt describes both the scene and the app.
+   - **`theme:`** `{ from, to, accent }` (6-digit hex) are the app's own colours, sampled from its screenshots: the
+     gallery backdrop is a `from`→`to` gradient with a soft pool of `accent`, and the hero gets a faint `accent` glow.
 3. `languages` must use: Python, JavaScript, PHP, Java, SQL (add new ones to `src/lib/taxonomy.ts`).
 4. `members:` lists the team in display order, each with a `name`, an optional `linkedin` URL (adds a LinkedIn
    badge after the name that opens their profile in a new tab) and an optional `photo`. Leave it as `members: []`
@@ -33,9 +38,9 @@ npm run check      # type and template checks
      duplicating the image per project.
 5. `description` is the short text on the listing page; `details` is the long description on the detail page, with
    paragraphs separated by a blank line (use `details: |`).
-6. `device` is `laptop` (desktop and web apps) or `phone` (mobile apps; works best with a portrait ~395×805
-   screenshot). `screenFit: contain` shows the whole cover on the laptop screen on a white background (for charts);
-   the default `cover` fills the screen from the top. `type`, `platform` and `year` are optional facts on the page.
+6. `device` is `laptop` (desktop and web apps: overlapping panels) or `phone` (mobile apps: a fanned row of phones).
+   `screenFit: contain` is for charts: they sit side by side without overlapping. `type`, `platform` and `year` are
+   optional facts on the page.
 
 ## Add a 3D project
 Same as above, under `src/content/visualization/` (page: `/3d/<slug>`). `category` is `Architectural Visualization`
@@ -66,10 +71,13 @@ in `src/assets/home/` and are resized to WebP by `astro:assets`.
 - 3D Visualization: "low angle photography of high-rise building" by Marc-Olivier Jodoin,
   https://unsplash.com/photos/-HIiNFXcbtQ (`skyscrapers.jpg`)
 
-The phone mockup on the software pages (Fixer) is a free Unsplash photo too: "A person holds a phone with a blank
-screen" by Jakub Żerdzicki, https://unsplash.com/photos/9GfR3zLyy6o. `scripts/make-phone-scene.py` crops it, mutes and
-darkens it and blacks out the screen (`src/assets/mockups/phone-hand.jpg`, `phone-thumb.png`); the screenshot is laid
-onto the screen in `src/components/DeviceMockup.astro`. The laptop mockup is drawn in CSS (no photo).
+The device mockups on the software pages are free Unsplash photos too, with each project's own screenshot composited
+onto the screen by `scripts/make-mockups.py` (sources in `scripts/mockup-photos/`, results in each project's
+`images/00-mockup.jpg`):
+- StockSense: "Photo of black MacBook Pro on table" by Dillon Shook, https://unsplash.com/photos/xbFX7qCoAqI
+- JomLah: "White cup and MacBook" by Alex Knight, https://unsplash.com/photos/j4uuKnN43_M
+- Fuzzy Logic: "A calm workspace" (silver iMac on a wooden table) by Clay Banks, https://unsplash.com/photos/TQYTWfN1b7M
+- Fixer: "Hand holding a smartphone with a blank screen" by Jakub Żerdzicki, https://unsplash.com/photos/jSQCLQA99Og
 
 ## Deploy
 The site URL is set in one place: `site` in `astro.config.mjs` (canonical links, the sitemap and `robots.txt` all

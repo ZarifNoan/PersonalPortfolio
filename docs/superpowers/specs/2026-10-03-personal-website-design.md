@@ -60,7 +60,7 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
   - course and team type ("Individual" or "Team of N", counted from the members)
   - description (the short one)
   - tech stack tags
-  - **one picture**: the cover screenshot on a **device mockup**. Desktop and web apps sit on a CSS laptop (bezel, camera notch, aluminium base, contact shadow) in a soft, muted, slightly dark studio scene; mobile apps (Fixer) are shown on a phone held in a hand (a muted Unsplash photo with the screenshot mapped onto its screen). The screenshot is a responsive `astro:assets` image.
+  - **one picture**: a **photographic device mockup**: a real photo (Unsplash, credited in the README) of a device in its own setting with the project's cover screenshot composited onto the screen with a perspective transform and matched lighting (StockSense: MacBook Pro in a bright office; JomLah: MacBook Pro on a café counter; Fuzzy Logic: iMac on a lamp-lit study desk; Fixer: phone in a hand by plants). Pre-rendered offline by `scripts/make-mockups.py` into `images/00-mockup.jpg` and served as a responsive `astro:assets` image.
   - a **Learn More →** button. The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
 - Selecting a filter fades out non-matching projects. "All" is the default. The active filter is reflected in the URL (`?lang=python`) so filtered views can be shared.
 
@@ -68,7 +68,7 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
 
 Generated from the collection (drafts get no page). In order:
 1. "← All software projects" back link.
-2. The large device mockup (same as the listing, bigger); it opens the cover in the viewer.
+2. The large device mockup photo (same as the listing, bigger, with a faint glow in the app's accent colour); it opens the cover screenshot in the viewer.
 3. Course · team line and the project name (h1).
 4. **Team**: a vertical list, one member per row — a circular avatar (their photo, or an initials placeholder in the
    site's colours when no photo is set yet) on the left, their name, and a LinkedIn badge (new tab,
@@ -77,7 +77,7 @@ Generated from the collection (drafts get no page). In order:
 5. A facts card: type, course, platform, year, and the tech stack chips. (Team size is not repeated here — it's
    already in the header eyebrow and, for team projects, in the team list below it.)
 6. "About the project": the long description (2–4 paragraphs).
-7. The other screenshots, with no heading, as overlapping app windows (title bar with three dots and a short caption) on a solid blue backdrop, two or three per group; later groups mirror the composition. Mobile apps use a fanned row of phone frames instead. Every image opens the viewer. On phones the windows stack with a slight overlap (phones go two per row).
+7. The other screenshots, with no heading, as overlapping clean panels (rounded corners, soft shadow, no window chrome) on a gradient backdrop in the app's own colours (`theme`), two or three per group; later groups mirror the composition. Mobile apps use a fanned row of phone frames instead. Every image opens the viewer. On phones the windows stack with a slight overlap (phones go two per row).
 
 ### 3.3 3D Visualization (`/3d`)
 
@@ -149,7 +149,7 @@ src/content/visualization/moltech-johor-warehouse/images/*.png
 
 ### 6.1 Software schema
 
-`title`, `course`, `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the mockup), `screenFit` (`cover`, the default, or `contain` for charts), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and an optional short `caption`), `draft` (optional boolean; drafts are hidden and get no page).
+`title`, `course`, `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src` and `alt`), `draft` (optional boolean; drafts are hidden and get no page).
 
 ### 6.2 Visualization schema
 
