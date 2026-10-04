@@ -78,18 +78,29 @@ export function metaDescription(text: string, max = 160): string {
   return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:–-]+$/, '')}…`;
 }
 
-export interface Member { name: string; linkedin?: string }
+export interface Member { name: string; linkedin?: string; photo?: unknown }
 
-/** The facts card on a software project page. The type is skipped when the course name already contains it. */
+/**
+ * The facts card on a software project page: type, course, platform and year (the type is skipped when the
+ * course name already contains it). Team size is shown in the header eyebrow instead, not here.
+ */
 export function projectFacts(d: { type?: string; course: string; members: readonly Member[]; platform?: string; year?: number }): { label: string; value: string }[] {
   const typeIsInCourse = !!d.type && d.course.toLowerCase().includes(d.type.toLowerCase());
   return [
     d.type && !typeIsInCourse ? { label: 'Type', value: d.type } : null,
     { label: 'Course', value: d.course },
-    { label: 'Team', value: teamLabel(d.members) },
     d.platform ? { label: 'Platform', value: d.platform } : null,
     d.year ? { label: 'Year', value: String(d.year) } : null,
   ].filter((f): f is { label: string; value: string } => f !== null);
+}
+
+/** Initials for a placeholder avatar: the first letter of the first and last word, uppercased. */
+export function initials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '';
+  const first = words[0]!.charAt(0);
+  const last = words[words.length - 1]!.charAt(0);
+  return (words.length === 1 ? first : first + last).toUpperCase();
 }
 
 /** Link attributes for a member's LinkedIn logo (new tab, no opener or referrer), or null without a URL. */

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -96,20 +96,36 @@ describe('metaDescription with decimals', () => {
 
 describe('projectFacts', () => {
   const base = { course: 'Web Programming', members: [{ name: 'A' }, { name: 'B' }, { name: 'C' }] };
-  it('lists type, course, team, platform and year in order, skipping missing ones', () => {
+  it('lists type, course, platform and year in order, skipping missing ones, with no Team row', () => {
     expect(projectFacts({ ...base, type: 'Course project', platform: 'Web app', year: 2026 })).toEqual([
       { label: 'Type', value: 'Course project' },
       { label: 'Course', value: 'Web Programming' },
-      { label: 'Team', value: 'Team of 3' },
       { label: 'Platform', value: 'Web app' },
       { label: 'Year', value: '2026' },
     ]);
-    expect(projectFacts({ course: 'X', members: [] })).toEqual([{ label: 'Course', value: 'X' }, { label: 'Team', value: 'Individual' }]);
+    expect(projectFacts({ course: 'X', members: [] })).toEqual([{ label: 'Course', value: 'X' }]);
   });
   it('drops the type when the course already says it', () => {
     const f = projectFacts({ course: 'Final Year Project (Project Design and Implementation)', type: 'Final Year Project', members: [] });
-    expect(f.map((x) => x.label)).toEqual(['Course', 'Team']);
+    expect(f.map((x) => x.label)).toEqual(['Course']);
     expect(f.filter((x) => /final year project/i.test(x.value))).toHaveLength(1);
+  });
+  it('never includes a Team row, regardless of member count', () => {
+    expect(projectFacts(base).map((x) => x.label)).not.toContain('Team');
+  });
+});
+
+describe('initials', () => {
+  it('takes the first letter of the first and last word', () => {
+    expect(initials('Jordan Septian')).toBe('JS');
+    expect(initials('Hakim Bin Taufik')).toBe('HT');
+    expect(initials('Muhammad Zarif Nurhan Bin Mohd Arifin')).toBe('MA');
+  });
+  it('uses one letter for a single word', () => {
+    expect(initials('Zarif')).toBe('Z');
+  });
+  it('uppercases the letters', () => {
+    expect(initials('jordan septian')).toBe('JS');
   });
 });
 
