@@ -3,6 +3,6 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://zarifnurhan.vercel.app', // updated in Task 11 once the real Vercel URL exists
+  site: 'https://nurhanarifin.vercel.app',
   integrations: [react(), sitemap()],
 });
