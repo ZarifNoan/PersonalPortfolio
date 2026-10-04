@@ -17,11 +17,10 @@ members:
   - name: Yeap Hsien Hong
 order: 3
 device: laptop
-screenFit: contain
 mockup:
   src: ../../../assets/images/fuzzy-logic/00-mockup.jpg  # made by scripts/make-mockups.py
-  alt: "The membership-function calibration result chart (accuracy 41.7% to 72.9%) on an iMac on a study desk lit by a desk lamp"
-# Gallery colours sampled from the Matplotlib charts: the 'Low' orange (#d94801) and its light fill, and the 'High' blue's light fill.
+  alt: "The Fuzzy Logic desktop app's Predict tab, flagging a student as Poor with Critical risk, on an iMac on a study desk lit by a desk lamp"
+# Gallery colours sampled from the app's Matplotlib plots (Fuzzy Sets tab): the 'Low' orange (#d94801) and its light fill, and the 'High' blue's light fill.
 theme: { from: '#f2cfb6', to: '#bcd3ea', accent: '#d94801' }
 stack: [Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter]
 languages: [Python]
@@ -45,15 +44,20 @@ details: |
   and the score is a weighted average of the output terms' peaks, so it can be checked by hand. The second
   is a forward-chaining expert system with 21 production rules that turns the result into a risk level and
   actions such as an exam-technique workshop or attendance counselling, and flags borderline cases for
-  manual review. A Tkinter desktop app shows which rules fired for each student.
+  manual review. A Tkinter desktop app, shown in the screenshots below, walks staff through each prediction:
+  the Predict tab gives the score, class, risk level, the rules that fired and the recommended actions, and
+  further tabs show the membership functions, how the fired rules combine into one number, an evaluation of
+  a whole cohort and the full rule base.
 images:
-  - src: ../../../assets/images/fuzzy-logic/02-calibration.png
-    alt: "Result chart: membership-function calibration, raising test accuracy from 41.7% to 72.9%"
-  - src: ../../../assets/images/fuzzy-logic/03-rules-fired.png
-    alt: "Result chart: the fuzzy rules fired, and how strongly, for one student's performance prediction"
-  - src: ../../../assets/images/fuzzy-logic/04-confusion-matrix.png
-    alt: "Result chart: confusion matrix comparing predicted and actual performance classes on the test set"
-  - src: ../../../assets/images/fuzzy-logic/05-predicted-vs-actual.png
-    alt: "Result chart: scatter plot of predicted versus actual performance scores with MAE and RMSE"
-  - src: ../../../assets/images/fuzzy-logic/01-architecture.png
-    alt: System architecture diagram showing the fuzzy inference layer feeding a rule-based expert system
+  - src: ../../../assets/images/fuzzy-logic/01-predict.png
+    alt: "Predict tab: an at-risk student's marks (attendance 54, test 38, project 42) scored 18.8, Poor, with Critical risk, the membership degrees, the fuzzy rules fired and the expert system's recommended interventions"
+  - src: ../../../assets/images/fuzzy-logic/02-fuzzy-sets.png
+    alt: "Fuzzy Sets tab: the Low, Medium and High membership functions for attendance, test score and project work, with the student's marks and degrees marked, and the four output classes"
+  - src: ../../../assets/images/fuzzy-logic/03-inference.png
+    alt: "Inference tab: the clipped output sets aggregated and defuzzified to a weighted average of 18.8, above a bar chart of the 8 of 27 rules that fired and their strengths"
+  - src: ../../../assets/images/fuzzy-logic/04-predict-strong-student.png
+    alt: "Predict tab for a strong student (attendance 88, test 78, project 85): score 86.2, Excellent, no risk, with an enrichment-track recommendation"
+  - src: ../../../assets/images/fuzzy-logic/05-cohort.png
+    alt: "Cohort tab: 800 simulated students evaluated on a held-out 240, comparing the fuzzy system's accuracy and error with two crisp baselines, beside its confusion matrix"
+  - src: ../../../assets/images/fuzzy-logic/06-rule-base.png
+    alt: "Rule Base tab: the 27 fuzzy rules, each with its attendance, test and project terms, the performance it predicts and the rationale"

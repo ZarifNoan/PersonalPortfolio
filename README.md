@@ -80,6 +80,13 @@ Both the 3D card and the static fallback badge use it.
 changing the name, headline or featured render in that script. It shows a warehouse render, not the badge photo; to
 put your photo in it after adding one, edit the image path in the script and rerun it.
 
+## Fuzzy Logic app screenshots
+The Fuzzy Logic gallery shows the real Tkinter desktop app. `scripts/capture-fuzzy-app.py` (Windows) imports the app
+from its source folder (passed as an argument; nothing is written there), drives it (enters two students' marks,
+presses Run prediction, generates and evaluates the 800-student cohort) and saves each tab at 1440 x 900 logical px,
+rendered 1.7x. See the script's docstring for usage; then copy the PNGs into `src/assets/images/fuzzy-logic/` and
+rerun `python scripts/make-mockups.py fuzzy-logic` if the Predict screen changed.
+
 ## Photo credits
 The home page's pick-a-side backgrounds are free photos from [Unsplash](https://unsplash.com) (Unsplash License:
 free to use, no attribution required; credited here anyway). They are stock photos, not Zarif's projects. Files live

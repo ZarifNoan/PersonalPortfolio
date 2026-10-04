@@ -184,7 +184,7 @@ The build fails with a clear error if a required field is missing, an image path
 else has none for now. No photos exist yet for anyone (every member shows the initials placeholder):
 - StockSense: individual.
 - JomLah: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik.
-- Fuzzy Logic: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik, Mior Ahmad Danial, Yeap Hsien Hong. Its images are result charts produced by the system (plus its architecture diagram), not its interface; the cover is the calibration result.
+- Fuzzy Logic: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik, Mior Ahmad Danial, Yeap Hsien Hong. Its images are screenshots of the real Tkinter desktop app, captured by `scripts/capture-fuzzy-app.py` (run against the coursework source, read-only): the cover is the Predict tab for an at-risk student, and the gallery shows the Fuzzy Sets, Inference, Predict (a strong student), Cohort and Rule Base tabs.
 - Fixer: Muhammad Zarif Nurhan Bin Mohd Arifin, Yogesh Sandeep Jayavant, Hakim Bin Taufik, Jordan Septian.
 
 **Long descriptions** (`details`) are written only from the source reports below and the approved short text; team projects are described as team work.
@@ -200,7 +200,7 @@ else has none for now. No photos exist yet for anyone (every member shows the in
 
 - StockSense: `Y3S1/Project Design and Implementation/Document/1002267337_StockSenseReport.pdf`
 - JomLah: `Y3S2/Web Programming/Assignment/Document/DONE/Report_JOMLAH - Centralize Event Management App.pdf`
-- Fuzzy Logic: `Y3S2/Intelligent System/Assignment/Document/Done/1002267337_Report_FuzzyLogicStudentPerformance.pdf`
+- Fuzzy Logic: originally `Y3S2/Intelligent System/Assignment/Document/Done/1002267337_Report_FuzzyLogicStudentPerformance.pdf`; now screenshots of the app in `Y3S2/Intelligent System/Assignment/SourceCode` (see above)
 - Fixer: `Y2S3/BIC3203 Business Case Project/Assignment/BizCaseDoc/Fixer_BusinessCaseDocument.pdf`, plus `FixerBizCase/User Manual.pdf`
 
 Paths are relative to `D:\backup\Nurhan\UCSI\Degree`. Each project gets 3–5 images, preferring UI screens and charts over diagrams and text.

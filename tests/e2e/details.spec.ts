@@ -64,10 +64,14 @@ test('team block lists the right members, and is omitted for an individual proje
   await expect(page.getByRole('complementary', { name: 'Project facts' })).toContainText('Final Year Project');
 });
 
-test('fuzzy logic images are described as system results, and the removed paragraphs are gone', async ({ page }) => {
+test('fuzzy logic images are screens of its desktop app, and the removed paragraphs are gone', async ({ page }) => {
   await page.goto('/software/fuzzy-logic');
   const alts = await page.locator('.shots img').evaluateAll((els) => els.map((e) => (e as HTMLImageElement).alt));
-  expect(alts.filter((a) => a.startsWith('Result chart')).length).toBeGreaterThanOrEqual(3);
+  // The gallery shows every tab of the app after the cover (Predict): no result charts any more.
+  expect(alts.map((a) => a.split(':')[0])).toEqual(['Fuzzy Sets tab', 'Inference tab', 'Predict tab for a strong student (attendance 88, test 78, project 85)', 'Cohort tab', 'Rule Base tab']);
+  expect(alts.some((a) => a.startsWith('Result'))).toBe(false);
+  await expect(page.locator('.shots .stacks')).not.toHaveClass(/charts/);
+  await expect(page.locator('a.hero img')).toHaveAttribute('alt', /Predict tab/);
   const about = page.getByRole('region', { name: 'About the project' });
   await expect(about).not.toContainText('outputs of the system, not its interface');
   await expect(about).not.toContainText('simulated cohort of 800 students');

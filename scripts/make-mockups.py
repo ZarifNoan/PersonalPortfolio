@@ -53,12 +53,13 @@ SCENES = {
         gain=0.9, tint=(1.0, 0.985, 0.95), glare=0.06, glare_from='left', blur=0.6, grain=2.6,
         crop=(160, 0, 2240, 1300), grade=dict(brightness=0.9, color=0.92, contrast=1.0),
     ),
-    # Fuzzy Logic result chart on an iMac on a study desk at night, lit by a desk lamp.
+    # The Fuzzy Logic desktop app's Predict tab (an at-risk student's prediction) on an iMac on a study desk at night,
+    # lit by a desk lamp. The 16:10 window fills the 16:9 display, anchored at the top (only the bottom rows are cut).
     'fuzzy-logic': dict(
         photo='fuzzy-study.jpg',
         glass=[(626.6, 367.0), (1778.7, 367.0), (1769.3, 1014.0), (635.3, 1009.0)],
         display=(0, 0, 1, 1), grow=1.2,
-        cover='fuzzy-logic/02-calibration.png', fit='contain', pad=0.05,
+        cover='fuzzy-logic/01-predict.png', fit='cover',
         gain=0.86, tint=(1.0, 0.97, 0.9), glare=0.035, glare_from='right', blur=0.6, grain=2.4,
         crop=(160, 130, 2240, 1430), grade=dict(brightness=1.0, color=1.0, contrast=1.0),
     ),
