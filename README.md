@@ -13,14 +13,25 @@ npm run check      # type and template checks
 ```
 
 ## Add a software project
-1. Create `src/content/software/<slug>/index.yaml` (copy an existing one).
-2. Put images in `src/content/software/<slug>/images/` and list them under `images:` with alt text.
+1. Create `src/content/software/<slug>/index.yaml` (copy an existing one). `<slug>` is also the detail page's URL:
+   `/software/<slug>`.
+2. Put images in `src/content/software/<slug>/images/` and list them under `images:` with `alt` text and an optional
+   short `caption` (shown in the screenshot window's title bar). The first image is the cover: it appears on the device
+   mockup on the listing and at the top of the detail page; the others appear lower on the detail page.
 3. `languages` must use: Python, JavaScript, PHP, Java, SQL (add new ones to `src/lib/taxonomy.ts`).
-4. `team` must be `"Individual"` or `"Team of 3"`. To allow another value (for example `"Team of 4"`), add it to the
-   `team: z.enum([...])` list in `src/content.config.ts`.
+4. `members:` lists the team in display order, each with a `name` and an optional `linkedin` URL (adds a LinkedIn
+   logo that opens their profile in a new tab). Leave it as `members: []` for individual work: the page then says
+   "Individual" and has no team block. The team size ("Team of 4") is counted from the list.
+5. `description` is the short text on the listing page; `details` is the long description on the detail page, with
+   paragraphs separated by a blank line (use `details: |`).
+6. `device` is `laptop` (desktop and web apps) or `phone` (mobile apps; works best with a portrait ~395×805
+   screenshot). `screenFit: contain` shows the whole cover on the laptop screen on a white background (for charts);
+   the default `cover` fills the screen from the top. `type`, `platform` and `year` are optional facts on the page.
 
 ## Add a 3D project
-Same as above, under `src/content/visualization/`. `category` is `Architectural Visualization` or `Product Visualization`; `client: true` shows "Client Project".
+Same as above, under `src/content/visualization/` (page: `/3d/<slug>`). `category` is `Architectural Visualization`
+or `Product Visualization`; `client: true` shows "Client Project" on the listing; `clientName` is shown as "Client"
+on the detail page; `details` is the long description. Every render (cover included) appears in the page's mosaic.
 
 ## Publish JOHEX
 Add renders to `src/content/visualization/johex/images/`, list them in `index.yaml`, set `draft: false`.
@@ -45,6 +56,11 @@ in `src/assets/home/` and are resized to WebP by `astro:assets`.
   https://unsplash.com/photos/f77Bh3inUpE (`software-desk.jpg`)
 - 3D Visualization: "low angle photography of high-rise building" by Marc-Olivier Jodoin,
   https://unsplash.com/photos/-HIiNFXcbtQ (`skyscrapers.jpg`)
+
+The phone mockup on the software pages (Fixer) is a free Unsplash photo too: "A person holds a phone with a blank
+screen" by Jakub Żerdzicki, https://unsplash.com/photos/9GfR3zLyy6o. `scripts/make-phone-scene.py` crops it, mutes and
+darkens it and blacks out the screen (`src/assets/mockups/phone-hand.jpg`, `phone-thumb.png`); the screenshot is laid
+onto the screen in `src/components/DeviceMockup.astro`. The laptop mockup is drawn in CSS (no photo).
 
 ## Deploy
 The site URL is set in one place: `site` in `astro.config.mjs` (canonical links, the sitemap and `robots.txt` all

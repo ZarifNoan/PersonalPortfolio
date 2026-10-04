@@ -15,7 +15,7 @@ The site succeeds when:
 
 - A recruiter opening the link sees Zarif's full name, what he does, and a memorable interactive header within a couple of seconds.
 - Both sides (software projects and 3D work) are one click from the home page, and each is equally prominent.
-- Projects can be scanned without clicking into anything; every description and image is visible on the page.
+- Projects can be scanned without clicking into anything: every project's short description and cover are on its listing page, and its project page holds the full story and every image.
 - New projects can be added by editing a data file and dropping images in a folder, with no layout code.
 - Lighthouse scores 90+ for Performance, Accessibility, Best Practices and SEO on all three pages.
 - It runs within Vercel's free Hobby plan (100 GB/month transfer).
@@ -36,7 +36,7 @@ The site succeeds when:
 
 ## 3. Site structure
 
-Three pages, with tabs labelled **Home · Software Development · 3D Visualization**. On narrow screens the tabs collapse into a menu button.
+Three main pages, with tabs labelled **Home · Software Development · 3D Visualization**, plus a page for every published project (sections 3.2.1 and 3.3.1). On narrow screens the tabs collapse into a menu button. On a project page its section's tab is marked current (`aria-current="true"`).
 
 ### 3.1 Home (`/`)
 
@@ -57,27 +57,44 @@ Three pages, with tabs labelled **Home · Software Development · 3D Visualizati
 - Page title, then a **filter bar**: All · Python · JavaScript · PHP · Java · SQL. The buttons are generated from the projects' `languages` field, so new languages appear automatically.
 - **Alternating project sections.** The image is on the left and text on the right, then swapped for the next project. Each section has:
   - project title
-  - course and team type
-  - description
+  - course and team type ("Individual" or "Team of N", counted from the members)
+  - description (the short one)
   - tech stack tags
-  - a main image with a thumbnail strip; clicking a thumbnail swaps the main image, and clicking the main image opens the full-screen viewer.
+  - **one picture**: the cover screenshot on a **device mockup**. Desktop and web apps sit on a CSS laptop (bezel, camera notch, aluminium base, contact shadow) in a soft, muted, slightly dark studio scene; mobile apps (Fixer) are shown on a phone held in a hand (a muted Unsplash photo with the screenshot mapped onto its screen). The screenshot is a responsive `astro:assets` image.
+  - a **Learn more →** button. The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
 - Selecting a filter fades out non-matching projects. "All" is the default. The active filter is reflected in the URL (`?lang=python`) so filtered views can be shared.
+
+#### 3.2.1 Software project page (`/software/<slug>`)
+
+Generated from the collection (drafts get no page). In order:
+1. "← All software projects" back link.
+2. The large device mockup (same as the listing, bigger); it opens the cover in the viewer.
+3. Course · team line and the project name (h1).
+4. **Team**: each member's name, with a LinkedIn logo linking to their profile (new tab, `rel="noopener noreferrer"`) when a URL is set. Omitted for individual projects.
+5. A facts card: type, course, team ("Individual" / "Team of N"), platform, year, and the tech stack chips.
+6. "About the project": the long description (2–4 paragraphs).
+7. The other screenshots, with no heading, as overlapping app windows (title bar with three dots and a short caption) on a solid blue backdrop, two or three per group; later groups mirror the composition. Mobile apps use a fanned row of phone frames instead. Every image opens the viewer. On phones the windows stack with a slight overlap (phones go two per row).
 
 ### 3.3 3D Visualization (`/3d`)
 
 - Same layout as the Software Development page.
 - Filter bar: **All · Architectural Visualization · Product Visualization**.
-- Each section has the project title, a Client or Personal label, a category tag, a description, and a main render with thumbnails.
+- Each section has the project title, a Client or Personal label, a category tag, a description, the cover render as its one picture, and a **Learn more →** button to the project page.
+
+#### 3.3.1 3D project page (`/3d/<slug>`)
+
+"← All 3D work" back link, the name (h1), Category, Client and Tool (Blender), the long description, then every render (cover included) as a mosaic with no heading: a large feature beside two stacked tiles, then pairs (two columns on phones). Every render opens the viewer.
 
 ### 3.4 Shared elements
 
 - **Top navigation** with the brand "NURHAN ARIFIN" (links home) and the active tab highlighted.
 - **Footer** on every page: `zrf.nurhan@gmail.com` (a `mailto:` link), `+60 11-5878 5830` (a `tel:` link), and "© 2026 Muhammad Zarif Nurhan Bin Mohd Arifin".
+- **Project pages** each have their own `<title>`, meta description, canonical URL and an Open Graph image cut from the project's cover (1200×630), and are in the sitemap.
 - **Full-screen image viewer:** previous/next with arrow keys or swipe, closes with Esc or a click on the backdrop, and returns keyboard focus to the image that opened it.
 
 ### 3.5 Out of scope
 
-Blog, contact form, light theme, individual project pages, CMS, analytics.
+Blog, contact form, light theme, CMS, analytics. (Individual project pages were added by change request 6.)
 
 ## 4. Visual style: "Studio glow"
 
@@ -126,11 +143,11 @@ src/content/visualization/moltech-johor-warehouse/images/*.png
 
 ### 6.1 Software schema
 
-`title`, `course`, `team` ("Individual" or "Team of 3"), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description`, `images[]` (the first image is the cover, each with `src` and `alt`), `draft` (optional boolean; drafts are hidden).
+`title`, `course`, `members[]` (`{ name, linkedin? }` in display order; empty = Individual; team size = number of members), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the mockup), `screenFit` (`cover`, the default, or `contain` for charts), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and an optional short `caption`), `draft` (optional boolean; drafts are hidden and get no page).
 
 ### 6.2 Visualization schema
 
-`title`, `client` (boolean; true shows "Client Project", false shows "Personal Project"), `category` ("Architectural Visualization" or "Product Visualization"), `order`, `description`, `images[]` (with `src` and `alt`), `draft`.
+`title`, `client` (boolean; true shows "Client Project", false shows "Personal Project"), `clientName` (shown as "Client" on the project page), `category` ("Architectural Visualization" or "Product Visualization"), `order`, `description`, `details` (long description), `images[]` (with `src` and `alt`), `draft`.
 
 The build fails with a clear error if a required field is missing, an image path doesn't exist, or a language or category is not in the allowed list.
 
@@ -140,8 +157,16 @@ The build fails with a clear error if a required field is missing, an image path
 |---|---|---|---|---|
 | 1 | StockSense – AI Inventory Prediction System | Final Year Project (Project Design and Implementation) · Individual | Python, JavaScript, SQL | Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL |
 | 2 | JomLah – Centralized Event Management Platform | Web Programming · Team of 3 | PHP, JavaScript, SQL | PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3 |
-| 3 | Student Performance Prediction using Fuzzy Logic | Intelligent Systems · Individual | Python | Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter |
-| 4 | Fixer – On-Demand Home Repair Service App | Business Case Project · Team of 3 | Java, SQL | Java, JavaFX, Maven, PostgreSQL |
+| 3 | Student Performance Prediction using Fuzzy Logic | Intelligent Systems · Team of 5 | Python | Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter |
+| 4 | Fixer – On-Demand Home Repair Service App | Business Case Project · Team of 4 | Java, SQL | Java, JavaFX, Maven, PostgreSQL |
+
+**Members** (display order, Zarif first; LinkedIn URLs to be added by Zarif):
+- StockSense: individual.
+- JomLah: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik.
+- Fuzzy Logic: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik, Mior Ahmad Danial, Yeap Hsien Hong. Its images are result charts produced by the system (plus its architecture diagram), not its interface; the cover is the calibration result.
+- Fixer: Muhammad Zarif Nurhan Bin Mohd Arifin, Yogesh Sandeep Jayavant, Hakim Bin Taufik, Jordan Septian.
+
+**Long descriptions** (`details`) are written only from the source reports below and the approved short text; team projects are described as team work.
 
 **Descriptions:**
 
@@ -162,6 +187,8 @@ Paths are relative to `D:\backup\Nurhan\UCSI\Degree`. Each project gets 3–5 im
 ### 6.4 3D projects
 
 Renders come from `D:\backup\Nurhan\Blender\Image`. Each project uses its best 4–6 renders.
+
+Clients shown on the project pages: Moltech (Moltech Johor Warehouse), DASEM (SLICE 2025), JOHEX (JOHEX, draft), and "Personal project (for a friend's university assignment)" (Gobami).
 
 | Order | Title | Label | Category | Source folder | Description |
 |---|---|---|---|---|---|
@@ -195,7 +222,7 @@ Renders come from `D:\backup\Nurhan\Blender\Image`. Each project uses its best 4
 - **Runtime:**
   - The 3D badge falls back to a static image if WebGL is unavailable or the island throws an error, caught by an error boundary.
   - If an image fails to load inside the viewer, the viewer shows its alt text instead of breaking.
-  - The site never depends on JavaScript for content: all project text and images are in the static HTML. Without JS, the filters show everything and thumbnails are plain links.
+  - The site never depends on JavaScript for content: all project text and images are in the static HTML. Without JS, the filters show everything and every image is a plain link to its full-size file.
 
 ## 10. Testing
 
@@ -207,11 +234,11 @@ Renders come from `D:\backup\Nurhan\Blender\Image`. Each project uses its best 4
 - **Playwright** (at desktop and mobile viewports):
   - nav links work
   - filters show and hide the right sections and update the URL
-  - thumbnails swap the main image
+  - each listing section has one picture and a Learn more link to its project page; project pages show the team, facts, long description and images (all opening the viewer), with no horizontal scroll at 390/820/1440
   - the viewer opens and closes with mouse and keyboard
   - footer `mailto:` and `tel:` links are correct
   - there are no console errors.
-- **Lighthouse:** 90+ in all four categories on all three pages.
+- **Lighthouse:** 90+ in all four categories on all three pages and on project pages.
 - **Manual check:** screenshots at phone, tablet and desktop widths.
 
 ## 11. Deployment
