@@ -5,10 +5,14 @@ platform: Mobile app prototype (JavaFX)
 year: 2025
 members:
   - name: Muhammad Zarif Nurhan Bin Mohd Arifin
+    photo: ../../../assets/people/zarif.jpg
   - name: Yogesh Sandeep Jayavant
+    photo: ../../../assets/people/yogesh.jpg
   - name: Hakim Bin Taufik
+    photo: ../../../assets/people/hakim.jpg
     linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
   - name: Jordan Septian
+    photo: ../../../assets/people/jordan.jpg
     linkedin: https://www.linkedin.com/in/jordanseptian9/
 order: 4
 device: phone

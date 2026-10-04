@@ -14,8 +14,9 @@ test('software detail: name, team, stack, course, long description, screenshots 
   await expect(items.nth(0).getByRole('link')).toHaveCount(0);
   await expect(items.nth(1).getByRole('link', { name: 'Jordan Septian on LinkedIn (opens in a new tab)' })).toHaveCount(1);
   await expect(items.nth(2).getByRole('link', { name: 'Hakim Bin Taufik on LinkedIn (opens in a new tab)' })).toHaveCount(1);
-  // No photos yet: every member falls back to an initials avatar placeholder.
-  await expect(items.locator('.avatar-fallback')).toHaveText(['MA', 'JS', 'HT']);
+  // Everyone on JomLah has a photo, so no initials placeholders show.
+  await expect(items.locator('.avatar img')).toHaveCount(3);
+  await expect(items.locator('.avatar-fallback')).toHaveCount(0);
   const facts = main.getByRole('complementary', { name: 'Project facts' });
   await expect(facts).toContainText('Web Programming');
   // The Team row was removed from the facts panel (it's redundant with the header eyebrow and the team list).
@@ -47,6 +48,8 @@ test('team block lists the right members, and is omitted for an individual proje
   await page.goto('/software/fuzzy-logic');
   const fuzzyTeam = page.getByRole('region', { name: 'Team' });
   await expect(fuzzyTeam.getByRole('listitem')).toHaveCount(5);
+  await expect(fuzzyTeam.locator('.avatar img')).toHaveCount(3);
+  await expect(fuzzyTeam.locator('.avatar-fallback')).toHaveText(['MD', 'YH']);
   await expect(fuzzyTeam.getByRole('link')).toHaveCount(3);
   await expect(fuzzyTeam.getByRole('link', { name: 'Mior Ahmad Danial on LinkedIn (opens in a new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/miorahmaddanial/');
   await expect(page.getByRole('complementary', { name: 'Project facts' })).not.toContainText('Team of');

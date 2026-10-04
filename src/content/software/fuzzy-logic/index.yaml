@@ -5,9 +5,12 @@ platform: Python pipeline and desktop app (Tkinter)
 year: 2026
 members:
   - name: Muhammad Zarif Nurhan Bin Mohd Arifin
+    photo: ../../../assets/people/zarif.jpg
   - name: Jordan Septian
+    photo: ../../../assets/people/jordan.jpg
     linkedin: https://www.linkedin.com/in/jordanseptian9/
   - name: Hakim Bin Taufik
+    photo: ../../../assets/people/hakim.jpg
     linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
   - name: Mior Ahmad Danial
     linkedin: https://www.linkedin.com/in/miorahmaddanial/
