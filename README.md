@@ -17,7 +17,8 @@ npm run check      # type and template checks
    `/software/<slug>`.
 2. Put images in `src/content/software/<slug>/images/` and list them under `images:` with `alt` text and an optional
    short `caption` (shown in the screenshot window's title bar). The first image is the cover: it appears on the device
-   mockup on the listing and at the top of the detail page; the others appear lower on the detail page.
+   mockup on the listing (with a "Learn More →" button to the detail page) and at the top of the detail page; the
+   others appear lower on the detail page.
 3. `languages` must use: Python, JavaScript, PHP, Java, SQL (add new ones to `src/lib/taxonomy.ts`).
 4. `members:` lists the team in display order, each with a `name` and an optional `linkedin` URL (adds a LinkedIn
    logo that opens their profile in a new tab). Leave it as `members: []` for individual work: the page then says

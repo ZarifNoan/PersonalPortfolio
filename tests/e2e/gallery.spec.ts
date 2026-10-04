@@ -30,19 +30,19 @@ for (const [listing, slugs] of [
     await expect(sections).toHaveCount(slugs.length);
     for (const s of await sections.all()) {
       await expect(s.locator('[data-cover]')).toHaveCount(1);
-      await expect(s.locator('[data-cover] img')).toHaveCount(listing === '/software' ? 1 : 1);
+      await expect(s.locator('[data-cover] img')).toHaveCount(1); // one picture: no hidden slides or thumbnails
       await expect(s.locator('[data-thumbs], [data-thumb], [data-slide]')).toHaveCount(0);
     }
   });
 
-  test(`${listing}: Learn more links open each detail page`, async ({ page }) => {
+  test(`${listing}: Learn More links open each detail page`, async ({ page }) => {
     for (const slug of slugs) {
       await page.goto(listing);
       const section = page.locator(`section#${slug}`);
       const title = (await section.locator('h2').textContent())!.trim();
-      const more = section.getByRole('link', { name: /^Learn more/ });
+      const more = section.getByRole('link', { name: /^Learn More/ });
       await expect(more).toHaveCount(1);
-      await expect(more).toHaveAccessibleName(`Learn more about ${title}`);
+      await expect(more).toHaveAccessibleName(`Learn More about ${title}`);
       await expect(section.locator('[data-cover]')).toHaveAttribute('href', `${listing}/${slug}`);
       await more.click();
       await expect(page).toHaveURL(new RegExp(`${listing}/${slug}/?$`));

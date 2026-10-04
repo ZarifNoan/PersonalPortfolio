@@ -61,7 +61,7 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
   - description (the short one)
   - tech stack tags
   - **one picture**: the cover screenshot on a **device mockup**. Desktop and web apps sit on a CSS laptop (bezel, camera notch, aluminium base, contact shadow) in a soft, muted, slightly dark studio scene; mobile apps (Fixer) are shown on a phone held in a hand (a muted Unsplash photo with the screenshot mapped onto its screen). The screenshot is a responsive `astro:assets` image.
-  - a **Learn more →** button. The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
+  - a **Learn More →** button. The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
 - Selecting a filter fades out non-matching projects. "All" is the default. The active filter is reflected in the URL (`?lang=python`) so filtered views can be shared.
 
 #### 3.2.1 Software project page (`/software/<slug>`)
@@ -79,7 +79,7 @@ Generated from the collection (drafts get no page). In order:
 
 - Same layout as the Software Development page.
 - Filter bar: **All · Architectural Visualization · Product Visualization**.
-- Each section has the project title, a Client or Personal label, a category tag, a description, the cover render as its one picture, and a **Learn more →** button to the project page.
+- Each section has the project title, a Client or Personal label, a category tag, a description, the cover render as its one picture, and a **Learn More →** button to the project page.
 
 #### 3.3.1 3D project page (`/3d/<slug>`)
 
@@ -234,7 +234,7 @@ Clients shown on the project pages: Moltech (Moltech Johor Warehouse), DASEM (SL
 - **Playwright** (at desktop and mobile viewports):
   - nav links work
   - filters show and hide the right sections and update the URL
-  - each listing section has one picture and a Learn more link to its project page; project pages show the team, facts, long description and images (all opening the viewer), with no horizontal scroll at 390/820/1440
+  - each listing section has one picture and a Learn More link to its project page; project pages show the team, facts, long description and images (all opening the viewer), with no horizontal scroll at 390/820/1440
   - the viewer opens and closes with mouse and keyboard
   - footer `mailto:` and `tel:` links are correct
   - there are no console errors.

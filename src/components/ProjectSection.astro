@@ -14,7 +14,7 @@ const { id, title, eyebrow, tags, description, cover, device, screenFit, href, f
 const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
 ---
 <section id={id} class:list={['project', `accent-${accent}`, { reverse }]} data-filter-item data-filter-values={filterSlugs.join(' ')} data-reveal aria-labelledby={`${id}-title`}>
-  <!-- The picture repeats the "Learn more" link for pointer users; it is hidden from keyboard and screen readers. -->
+  {/* The picture repeats the "Learn More" link for pointer users; it is hidden from keyboard and screen readers. */}
   <a class="media" href={href} tabindex="-1" aria-hidden="true" data-cover>
     {device ? (
       <DeviceMockup src={cover.src} alt={cover.alt} device={device} fit={screenFit} sizes={sizes} eager={eager} />
@@ -27,7 +27,7 @@ const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
     <h2 id={`${id}-title`}>{title}</h2>
     <p class="desc">{description}</p>
     <ul class="tags" aria-label="Tech and tags">{tags.map((t) => <li class="glass">{t}</li>)}</ul>
-    <a class="more" href={href}>Learn more<span class="visually-hidden"> about {title}</span> <span class="arrow" aria-hidden="true">→</span></a>
+    <a class="more" href={href}>Learn More<span class="visually-hidden"> about {title}</span> <span class="arrow" aria-hidden="true">→</span></a>
   </div>
 </section>
 
