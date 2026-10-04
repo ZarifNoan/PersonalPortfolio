@@ -2,7 +2,9 @@ export const TOP_OFFSET = -24;
 // Scene constants, shared with Lanyard.tsx so this module can compute hang without loading three.js.
 export const CAMERA_Z = 13, FOV = 25;
 export const SEG = 0.45;
-export const CARD_W = 1.2, CARD_H = 1.68;
+/** The card's physics body (world units). Only CARD_H sets the hang; CARD_W only shapes the body's inertia, and keeps
+ *  the visible card's 182:294 proportions (1.2 × 182/210: it was 1.2 for the 210px card). */
+export const CARD_W = 1.04, CARD_H = 1.68;
 /** The strap ends at the top of the metal ring, this far above the card's top edge (clip + ring). */
 export const CLIP_H = 0.2;
 export const HANG_WORLD = 3 * SEG + CLIP_H + CARD_H / 2; // rope + clip/ring + half the card height, at rest
@@ -10,8 +12,9 @@ export const HANG_WORLD = 3 * SEG + CLIP_H + CARD_H / 2; // rope + clip/ring + h
 export const pxPerWorld = (viewportH: number) => viewportH / (2 * CAMERA_Z * Math.tan((FOV / 2) * Math.PI / 180));
 /** Anchor → resting card centre, in px. */
 export const hangPx = (viewportH: number) => HANG_WORLD * pxPerWorld(viewportH);
-/** The static badge's card in CSS px (global.css .badge-card: the clear sleeve). */
-export const STATIC_CARD_W = 210, STATIC_CARD_H = 294;
+/** The static badge's card in CSS px (global.css .badge-card: the clear sleeve). 182 × 294 (CR18, narrowed from 210):
+ *  a 1.615 portrait, ≈ the golden ratio and close to a portrait ID card's 1.586, tall enough for a full-bleed photo. */
+export const STATIC_CARD_W = 182, STATIC_CARD_H = 294;
 /** The 3D card's visible size in world units: the static card's size on the reference 1440×900 screen (Lanyard.tsx
  *  draws the sleeve and face at this size around the CARD_W × CARD_H physics body). */
 export const VIS_W = STATIC_CARD_W / pxPerWorld(900), VIS_H = STATIC_CARD_H / pxPerWorld(900);

@@ -6,14 +6,14 @@ import { site } from '../../data/site';
   <div class="body" data-badge-avoid>{site.about.map((p) => <p class="justify">{p}</p>)}</div>
 </section>
 <style>
-  /* The text column is the smallest of 60ch, 44vw and the room left of the hanging badge, 100% − 494px, where
-     494 = 232 (label column + gap) + 220 (static badge footprint from the container's right edge: 210px card +
-     Hero.astro's --badge-right: 10px) + 18 (sway lean) + 24 (clearance). Sway lean: .badge-hang (210 × 310: ring 19 + card
-     294 − 3) rotates about 50% −100px, so the card's bottom-left corner sits 105px left of and 410px below the pivot;
-     at the +2.5° keyframe it moves left by 105(1 − cos 2.5°) + 410 sin 2.5° ≈ 0.1 + 17.9 = 18px (at −3° the card
-     leans away from the text). So the rotated card stays ≥ 24px clear at every width. 1440px keeps its 606px column
-     (1100 − 494); at 900–1000px the column narrows so the card never covers it. */
-  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw, calc(100% - 494px))); gap: 32px; padding-block: 24px 48px; }
+  /* The text column is the smallest of 60ch, 44vw and the room left of the hanging badge, 100% − 480px, where
+     480 = 232 (label column + gap) + 206 (static badge footprint from the container's right edge: 182px card +
+     Hero.astro's --badge-right: 24px) + 18 (sway lean) + 24 (clearance). Sway lean: .badge-hang (182 × 310: ring 19 +
+     card 294 − 3) rotates about 50% −100px, so the card's bottom-left corner sits 91px left of and 410px below the
+     pivot; at the +2.5° keyframe it moves left by 91(1 − cos 2.5°) + 410 sin 2.5° ≈ 0.1 + 17.9 = 18px (at −3° the card
+     leans away from the text). So the rotated card stays ≥ 24px clear at every width (pinned by
+     tests/unit/badgeFace.test.ts). At 900–1000px the column narrows so the card never covers it. */
+  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw, calc(100% - 480px))); gap: 32px; padding-block: 24px 48px; }
   h2 { font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--sw); padding-top: 6px; }
   p { margin: 0 0 16px; color: var(--muted); font-size: 1.08rem; }
   p:first-child { color: var(--text); font-size: 1.2rem; }

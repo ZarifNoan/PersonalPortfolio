@@ -45,7 +45,7 @@ describe('badgeAnchor', () => {
 
 describe('restX', () => {
   it('is the static card centre: the slot edge minus the right offset and half the card', () => {
-    expect(anchor.restX(1000, 10)).toBe(1000 - 10 - 105);
+    expect(anchor.restX(1000, 10)).toBe(1000 - 10 - anchor.STATIC_CARD_W / 2);
   });
   it('STATIC_CARD_W and STATIC_CARD_H mirror the .badge-card size in global.css', () => {
     const css = readFileSync('src/styles/global.css', 'utf8');

@@ -9,7 +9,9 @@ test('all content is visible without JavaScript', async ({ page }) => {
   await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(6);
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'About me' })).toBeVisible();
-  await expect(page.locator('[data-badge-slot]')).toContainText('MZN');
+  // The static badge is server-rendered: the photo (site.badge.photo) and the role on the card.
+  await expect(page.locator('[data-badge-slot] img.badge-photo')).toBeVisible();
+  await expect(page.locator('[data-badge-slot] .badge-role')).toContainText('Computer Science3D Visualization');
 });
 
 test('detail pages are fully readable without JavaScript', async ({ page }) => {

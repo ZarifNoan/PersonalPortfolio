@@ -45,14 +45,15 @@ import { site } from '../../data/site';
      restCentreY = TOP_OFFSET + REST_VH·vh): centre y = slot top (the 64px nav + 1px border) + strap + 163px (ring
      22 − 3, card overlap −3, half the 294px card). The two constants are pinned to anchor.ts by tests/unit/anchor.test.ts.
      Floored at 24px: below ~666px tall the static strap stops shrinking. */
-  .slot { --badge-rest-top: -24px; --badge-rest-vh: 41.464vh; --badge-right: 10px;
+  .slot { --badge-rest-top: -24px; --badge-rest-vh: 41.464vh; --badge-right: 24px;
     --badge-strap: max(24px, calc(var(--badge-rest-top) + var(--badge-rest-vh) - 65px - 163px));
     position: relative; height: 0; margin-top: -161px; }
-  /* --badge-right (10px) and the 210px card are mirrored in About.astro's column limit (its comment has the sway
-     derivation). BadgeIsland reads --badge-right from the slot so the 3D card rests on the same centre line (anchor.ts
-     restX).
-     At −3° the card's right corner swings ~21px past this edge, still inside the 36–40px gutter at 900px+. (global.css
-     gives it pointer-events: none, so it never blocks clicks or text selection on About underneath.) */
+  /* --badge-right (24px) and the 182px card are mirrored in About.astro's column limit (its comment has the sway
+     derivation). The card's centre line stays 115px in from the slot's right edge, where the 210px card (at 10px) hung,
+     so narrowing the card didn't move the strap. BadgeIsland reads --badge-right from the slot so the 3D card rests on
+     the same centre line (anchor.ts restX).
+     At −3° the card's right corner swings ~21px past this edge, well inside the 24px + 36–40px gutter at 900px+.
+     (global.css gives it pointer-events: none, so it never blocks clicks or text selection on About underneath.) */
   .slot :global(.badge-static) { position: absolute; top: 0; right: var(--badge-right); z-index: 1; }
   @media (max-width: 899px) {
     /* ~65% of the desktop 104px bottom gap: the CR's "roughly 60-70% on mobile" guideline. */

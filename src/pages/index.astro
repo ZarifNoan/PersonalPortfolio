@@ -5,10 +5,15 @@ import About from '../components/home/About.astro';
 import Connect from '../components/home/Connect.astro';
 import PickSide from '../components/home/PickSide.astro';
 import BadgeIsland from '../components/badge/BadgeIsland.tsx';
+import { getImage } from 'astro:assets';
 import { site } from '../data/site';
+import { FACE } from '../components/badge/face';
+// The badge photo as a WebP at 3× the card's photo area (168 CSS px wide): crisp on 2× screens and on the 3D card,
+// which draws it 1:1 into its face texture (up to ~2.4× on tall 2× screens). Both badges load this one file.
+const badgePhoto = site.badge.photo ? (await getImage({ src: site.badge.photo, width: 3 * FACE.w, format: 'webp', quality: 86 })).src : null;
 ---
 <Layout title="Home" description="Portfolio of Muhammad Zarif Nurhan Bin Mohd Arifin: software development and 3D visualization." page="home">
-  <Hero><BadgeIsland client:idle name={site.name} role={site.badge.role} photo={site.badge.photo} label={site.brand} /></Hero>
+  <Hero><BadgeIsland client:idle name={site.name} role={site.badge.role} photo={badgePhoto} label={site.brand} /></Hero>
   <About />
   <Connect />
   <PickSide />

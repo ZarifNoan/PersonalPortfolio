@@ -1,3 +1,6 @@
+import type { ImageMetadata } from 'astro';
+import badgePhoto from '../assets/images/badge/zarif-badge.jpg';
+
 export const site = {
   name: 'Muhammad Zarif Nurhan Bin Mohd Arifin',
   shortName: 'Zarif',
@@ -15,5 +18,8 @@ export const site = {
   phoneTel: '+601158785830',
   /** null renders no LinkedIn link anywhere on the site (never a dead link), until this is set. */
   linkedin: 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/' as string | null,
-  badge: { photo: null as string | null, role: 'Computer Science · 3D Visualization' },
+  /** The lanyard card's photo, full-bleed between its header and footer bands (null shows the MZN monogram instead).
+   *  Pre-cropped to the photo area's 168:201 shape, head with some headroom down to the folded arms; index.astro
+   *  serves it as a WebP sized for the card. The role is printed over a white fade at the photo's bottom. */
+  badge: { photo: badgePhoto as ImageMetadata | null, role: 'Computer Science · 3D Visualization' },
 } as const;

@@ -1,4 +1,6 @@
 import { test, expect, type Page, type CDPSession } from '@playwright/test';
+import { STATIC_CARD_H, STATIC_CARD_W } from '../../src/components/badge/anchor';
+import { BADGE, FACE } from '../../src/components/badge/face';
 
 /**
  * The 3D scene mounts only after a real interaction once the island has hydrated (client:idle). The island's
@@ -43,7 +45,7 @@ test('desktop uses travelling 3D badge, and the canvas does not block clicks', a
   expect(errors).toEqual([]);
 });
 
-test('reduced motion shows the static badge with the name', async ({ browser }) => {
+test('reduced motion shows the static badge with the photo and role', async ({ browser }) => {
   const ctx = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
   await page.goto('/');
@@ -52,7 +54,8 @@ test('reduced motion shows the static badge with the name', async ({ browser }) 
   // The gate opened (engage asserts data-engaged) and the island still chose static.
   // The wrapper is zero-height on desktop (the badge hangs out of flow), so check the badge itself.
   await expect(page.locator('[data-badge-mode="static"][data-engaged] .badge-static')).toBeVisible();
-  await expect(page.locator('[data-badge-slot]')).toContainText('MUHAMMAD ZARIF NURHAN');
+  await expect(page.locator('[data-badge-slot] .badge-role')).toHaveText('Computer Science3D Visualization');
+  await expect(page.locator('[data-badge-slot] img.badge-photo')).toBeVisible();
   await expect(page.locator('[data-badge-slot] canvas')).toHaveCount(0);
   await ctx.close();
 });
@@ -68,6 +71,35 @@ test('no WebGL falls back to the static badge', async ({ page }) => {
   await page.waitForTimeout(1500);
   // The wrapper is zero-height on desktop (the badge hangs out of flow), so check the badge itself.
   await expect(page.locator('[data-badge-mode="static"][data-engaged] .badge-static')).toBeVisible();
+});
+
+test('the static card face: full-bleed photo between the bands, the role over a white fade, no name', async ({ page }) => {
+  await page.goto('/');
+  const card = page.locator('.badge-static .badge-card');
+  const face = card.locator('.badge-face');
+  await expect.poll(() => face.locator('img.badge-photo').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
+  const g = await card.evaluate((c: HTMLElement) => {
+    // Held upright (the sway paused at 0°) so the boxes are the card's own.
+    const hang = c.closest<HTMLElement>('.badge-hang')!; hang.style.animation = 'none'; hang.style.transform = 'none';
+    const face = c.querySelector('.badge-face')!.getBoundingClientRect(), img = c.querySelector('img.badge-photo')!;
+    const r = img.getBoundingClientRect(), cs = getComputedStyle(img);
+    const fade = c.querySelector('.badge-fade')!.getBoundingClientRect(), role = c.querySelector('.badge-role')!.getBoundingClientRect();
+    return { card: { w: c.offsetWidth, h: c.offsetHeight }, face: { w: face.width, h: face.height },
+      img: { x: r.left - face.left, y: r.top - face.top, w: r.width, h: r.height, radius: cs.borderRadius, fit: cs.objectFit },
+      fadeBottom: fade.bottom - face.top, role: { top: role.top - face.top, bottom: role.bottom - face.top } };
+  });
+  expect(g.card).toEqual({ w: STATIC_CARD_W, h: STATIC_CARD_H });
+  expect(g.face).toEqual({ w: FACE.w, h: FACE.h });
+  // Full-bleed: the whole width, from the header stripe to the footer stripe, square corners, cropped to cover.
+  expect(g.img).toEqual({ x: 0, y: FACE.photo.top, w: FACE.w, h: FACE.photo.bottom - FACE.photo.top, radius: '0px', fit: 'cover' });
+  // The role sits on the fade, over the lower photo.
+  expect(g.fadeBottom).toBe(FACE.photo.bottom);
+  expect(g.role.top).toBeGreaterThan(FACE.photo.bottom - FACE.fade.h);
+  expect(g.role.bottom).toBeLessThanOrEqual(FACE.photo.bottom);
+  await expect(face.locator('.badge-role span')).toHaveText(['Computer Science', '3D Visualization']);
+  await expect(face).not.toContainText(/MUHAMMAD|BIN MOHD/);
+  await expect(face.locator('.badge-mono')).toHaveCount(0);
+  await expect(face.locator('.badge-foot')).toHaveText('NURHAN ARIFIN');
 });
 
 test('resizing across 900px switches mode without errors', async ({ page }, info) => {
@@ -163,27 +195,69 @@ for (const [width, height] of swapSizes) {
   });
 }
 
-/** Ink in a horizontal band of a screenshot (decoded in the page): summed darkness of pixels darker than the paper, in
- *  CSS px² units, and the darkest luminance. `y0`/`y1` are CSS px from the crop's centre. */
-const ink = (page: Page, png: Buffer, scale: number, y0: number, y1: number) => page.evaluate(async ({ b64, scale, y0, y1 }) => {
+/**
+ * Compares two equally sized crops centred on the static and the resting 3D card (decoded in the page). Rows are CSS px
+ * from the crop's centre (the card's centre); only the face's middle 160px are read. Returns, per crop:
+ * - role: ink (summed darkness of pixels darker than 200) and the darkest luminance in the role lines' band;
+ * - label: summed brightness of the light "NURHAN ARIFIN" letters on the footer's ink band;
+ * - photo: the mean luminance of the photo band, and the mean absolute luminance difference between the two crops
+ *   there, at the best whole-device-pixel alignment within ±2px (the 3D card rests up to a few px off).
+ */
+const compareFaces = (page: Page, a: Buffer, b: Buffer, scale: number) => page.evaluate(async ({ a, b, scale, F }) => {
+  const read = async (b64: string) => {
+    const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const g = c.getContext('2d')!; g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data, L = new Float32Array(c.width * c.height);
+    for (let i = 0; i < L.length; i++) L[i] = 0.2126 * d[i * 4]! + 0.7152 * d[i * 4 + 1]! + 0.0722 * d[i * 4 + 2]!;
+    return { w: c.width, h: c.height, L };
+  };
+  const [A, B] = [await read(a), await read(b)];
+  const cx = A.w / 2, cy = A.h / 2, x0 = Math.round(cx - 80 * scale), x1 = Math.round(cx + 80 * scale);
+  const rows = (y0: number, y1: number) => [Math.round(cy + y0 * scale), Math.round(cy + y1 * scale)] as const;
+  const band = (I: typeof A, [r0, r1]: readonly [number, number], f: (l: number) => number) => {
+    let sum = 0, darkest = 255;
+    for (let y = r0; y < r1; y++) for (let x = x0; x < x1; x++) { const l = I.L[y * I.w + x]!; darkest = Math.min(darkest, l); sum += f(l); }
+    return { sum: sum / scale / scale, darkest };
+  };
+  // Card-centre-relative bands: the face's top is at −h/2 + inset.
+  const top = -F.h / 2 + F.inset;
+  const roleRows = rows(top + F.role.top - 3, top + F.role.top + 2 * F.role.lh + 3);
+  const labelRows = rows(top + F.label.top - 2, top + F.label.top + F.label.size + 2);
+  const photoRows = rows(top + F.photo.top + 4, top + F.role.top - 4);
+  const ink = (l: number) => (l < 200 ? 240 - l : 0), light = (l: number) => (l > 100 ? l - 60 : 0);
+  let best = Infinity;
+  for (let dy = -2 * scale; dy <= 2 * scale; dy++) for (let dx = -2 * scale; dx <= 2 * scale; dx++) {
+    let s = 0, n = 0;
+    for (let y = photoRows[0]; y < photoRows[1]; y++) for (let x = x0; x < x1; x++) { s += Math.abs(A.L[y * A.w + x]! - B.L[(y + dy) * B.w + x + dx]!); n++; }
+    best = Math.min(best, s / n);
+  }
+  const mean = (I: typeof A) => { let s = 0, n = 0; for (let y = photoRows[0]; y < photoRows[1]; y++) for (let x = x0; x < x1; x++) { s += I.L[y * I.w + x]!; n++; } return s / n; };
+  return {
+    role: [band(A, roleRows, ink), band(B, roleRows, ink)],
+    label: [band(A, labelRows, light).sum, band(B, labelRows, light).sum],
+    photo: { mean: [mean(A), mean(B)], diff: best },
+  };
+}, { a: a.toString('base64'), b: b.toString('base64'), scale, F: { h: BADGE.h, inset: BADGE.inset, role: FACE.role, label: FACE.label, photo: FACE.photo } });
+
+/** Mean luminance of a screenshot (decoded in the page). */
+const meanLum = (page: Page, png: Buffer) => page.evaluate(async (b64) => {
   const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
   const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
-  const g = c.getContext('2d')!; g.drawImage(img, 0, 0);
-  const cy = c.height / 2;
-  const d = g.getImageData(0, Math.round(cy + y0 * scale), c.width, Math.round((y1 - y0) * scale)).data;
-  let sum = 0, darkest = 255;
-  for (let i = 0; i < d.length; i += 4) { const l = 0.2126 * d[i]! + 0.7152 * d[i + 1]! + 0.0722 * d[i + 2]!; darkest = Math.min(darkest, l); if (l < 200) sum += 240 - l; }
-  return { sum: sum / scale / scale, darkest };
-}, { b64: png.toString('base64'), scale, y0, y1 });
+  const g = c.getContext('2d')!; g.drawImage(img, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data;
+  let s = 0; for (let i = 0; i < d.length; i += 4) s += 0.2126 * d[i]! + 0.7152 * d[i + 1]! + 0.0722 * d[i + 2]!;
+  return s / (d.length / 4);
+}, png.toString('base64'));
 
 for (const dpr of [1, 2]) {
-  test(`desktop 1440×900 @${dpr}x: the 3D card looks like the static badge (size, ink weight and darkness)`, async ({ browser }, info) => {
+  test(`desktop 1440×900 @${dpr}x: the 3D card looks like the static badge (size, photo, role and label)`, async ({ browser }, info) => {
     test.skip(info.project.name !== 'desktop');
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: dpr });
     const page = await ctx.newPage();
     await page.goto('/');
     await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
     await page.evaluate(() => document.fonts.ready);
+    await expect.poll(() => page.locator('.badge-static img.badge-photo').evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
     // The static card, held upright (the sway paused at 0°) for a like-for-like crop around its centre.
     const st = await page.locator('.badge-hang').evaluate((hang) => {
       (hang as HTMLElement).style.animation = 'none'; (hang as HTMLElement).style.transform = 'none';
@@ -192,26 +266,49 @@ for (const dpr of [1, 2]) {
     });
     const crop = (c: { cx: number; cy: number }) => ({ x: Math.round(c.cx - 100), y: Math.round(c.cy - 140), width: 200, height: 280 });
     const before = await page.screenshot({ clip: crop(st) });
+    // A patch of his dark suit (right lapel, 35px right of and 10px below the card's centre).
+    const suit = (c: { cx: number; cy: number }) => ({ x: Math.round(c.cx + 35 - 6), y: Math.round(c.cy + 10 - 6), width: 12, height: 12 });
+    expect(await meanLum(page, await page.screenshot({ clip: suit(st) })), 'static suit patch').toBeLessThan(100);
     await engage(page);
     await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+    // Revealed with the photo already on the face (the face texture waits for the photo to decode): his suit is dark
+    // from the first visible frame, not blank paper (~250).
+    expect(await meanLum(page, await page.screenshot({ clip: suit(await cardBox(page)) })), 'photo on the first visible frame').toBeLessThan(150);
     await page.mouse.move(5, 500);
     const rest = await settledCard(page);
     // Same size as the static card (the grab box adds 6px each side).
-    expect(Math.abs(rest.w - 12 - 210)).toBeLessThanOrEqual(3);
-    expect(Math.abs(rest.h - 12 - 294)).toBeLessThanOrEqual(3);
+    expect(Math.abs(rest.w - 12 - STATIC_CARD_W)).toBeLessThanOrEqual(3);
+    expect(Math.abs(rest.h - 12 - STATIC_CARD_H)).toBeLessThanOrEqual(3);
     await page.waitForTimeout(4500); // asleep: the last frame is the resting one
     const after = await page.screenshot({ clip: crop(await cardBox(page)) });
-    // The name and the role lines: as heavy (within 10%) and as dark as the static badge's DOM text. Blurred,
-    // mipmapped or washed-out face text (the CR 4 regression) loses ink and lifts the darkest pixel.
-    for (const [y0, y1] of [[-16, 30], [52, 86]] as const) {
-      const [s, t] = [await ink(page, before, dpr, y0, y1), await ink(page, after, dpr, y0, y1)];
-      expect(t.sum / s.sum, `ink ${y0}..${y1}`).toBeGreaterThan(0.9);
-      expect(t.sum / s.sum, `ink ${y0}..${y1}`).toBeLessThan(1.15);
-      expect(t.darkest - s.darkest, `darkest ${y0}..${y1}`).toBeLessThanOrEqual(4);
-    }
+    const m = await compareFaces(page, before, after, dpr);
+    console.log(`face @${dpr}x ${JSON.stringify(m)}`);
+    // The role lines: as heavy (within 10%) and as dark as the static badge's DOM text. Blurred, mipmapped or
+    // washed-out face text (the CR 4 regression) loses ink and lifts the darkest pixel.
+    expect(m.role[1]!.sum / m.role[0]!.sum, 'role ink').toBeGreaterThan(0.9);
+    expect(m.role[1]!.sum / m.role[0]!.sum, 'role ink').toBeLessThan(1.15);
+    expect(m.role[1]!.darkest - m.role[0]!.darkest, 'role darkest').toBeLessThanOrEqual(4);
+    expect(m.label[1]! / m.label[0]!, 'label').toBeGreaterThan(0.85);
+    expect(m.label[1]! / m.label[0]!, 'label').toBeLessThan(1.18);
+    // The same photo, crop and sharpness: same brightness, and pixel for pixel close (a blurred, shifted or
+    // differently cropped photo differs by far more).
+    expect(Math.abs(m.photo.mean[1]! - m.photo.mean[0]!), 'photo brightness').toBeLessThanOrEqual(4);
+    expect(m.photo.diff, 'photo per-pixel difference').toBeLessThanOrEqual(6);
     await ctx.close();
   });
 }
+
+test('if the photo fails to load, the 3D card still appears (with the monogram)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.route(/zarif-badge.*\.(webp|jpe?g)$/, (r) => r.abort());
+  await page.goto('/');
+  await engage(page);
+  await expect(page.locator('[data-badge-mode="3d-travel"] canvas')).toBeAttached({ timeout: 15_000 });
+  await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+  expect(errors).toEqual([]);
+});
 
 for (const width of [900, 940, 980, 1024, 1280, 1440]) {
   test(`desktop ${width}px: the 3D card at rest clears the About text`, async ({ page }, info) => {

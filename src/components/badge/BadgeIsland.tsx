@@ -6,7 +6,7 @@ const Lanyard = lazy(() => import('./Lanyard'));
 type Mode = 'static' | '3d-travel' | '3d-inline';
 // Narrower than the travel scene's FOV so rope + card fill most of the inline canvas.
 const INLINE_FOV = 15;
-/** Inline (mobile) canvas height: the static badge's height (120px strap + 210×1.4 card − 4px overlap), so swapping
+/** Inline (mobile) canvas height: the static badge's height (100px strap + ring 22 − 3 + 294px card − 3), so swapping
  *  one for the other doesn't shift the page. Hero.astro's mobile slot min-height matches. */
 const INLINE_H = 410;
 /** The inline canvas is small (≤ ~900×410 CSS px) and renders only while the badge moves, so it can afford up to 2× for

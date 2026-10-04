@@ -1,12 +1,11 @@
 import { initials } from '../../lib/initials';
-import { faceLines } from '../../lib/badgeText';
+import { roleLines } from '../../lib/badgeText';
 
 /** HTML/CSS badge (before the first interaction, reduced motion, no WebGL). Mirrors the 3D badge: woven strap with the
  *  label, metal ring and clip, clear sleeve over a card whose face copies textures.ts cardFaceTexture line for line
- *  (same faceLines breaks; positions and sizes in container units). Styles in global.css; its height is
- *  --badge-strap + --badge-body. */
+ *  (face.ts FACE: the photo full-bleed between the header and footer bands, or the monogram when there is no photo,
+ *  under a white fade with the role). Styles in global.css; its height is --badge-strap + --badge-body. */
 export default function BadgeStatic({ name, role, photo, label }: { name: string; role: string; photo: string | null; label: string }) {
-  const lines = faceLines(name, role);
   return (
     <div className="badge-static" aria-hidden="true">
       <div className="badge-strap"><span>{label}</span></div>
@@ -16,11 +15,9 @@ export default function BadgeStatic({ name, role, photo, label }: { name: string
           <div className="badge-clip" />
           <div className="badge-face">
             <div className="badge-head"><span className="badge-slot" /><span className="badge-sw">&lt;/&gt;</span><span className="badge-viz">◇</span></div>
-            {photo ? <img className="badge-photo" src={photo} alt="" /> : <div className="badge-photo badge-mono">{initials(name)}</div>}
-            <div className="badge-name">{lines.name.map((l, i) => <span key={i}>{i ? ' ' : ''}{l}</span>)}</div>
-            {lines.sub && <div className="badge-sub">{lines.sub}</div>}
-            <div className="badge-rule" />
-            <div className="badge-role">{lines.role.map((l, i) => <span key={i}>{i ? <i> · </i> : null}{l}</span>)}</div>
+            {photo ? <img className="badge-photo" src={photo} alt="" decoding="async" /> : <div className="badge-photo badge-mono">{initials(name)}</div>}
+            <div className="badge-fade" />
+            <div className="badge-role">{roleLines(role).map((l, i) => <span key={i}>{l}</span>)}</div>
             <div className="badge-foot">{label}</div>
           </div>
         </div>

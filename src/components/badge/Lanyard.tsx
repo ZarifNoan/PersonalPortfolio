@@ -5,7 +5,8 @@ import { RoundedBox } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, interactionGroups, useRopeJoint, useSphericalJoint, type RapierRigidBody } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { BADGE, cardFaceTexture, shadowTexture, SHADOW_PAD, sleeveTexture, strapTexture, STRAP_TILE_ASPECT } from './textures';
+import { cardFaceTexture, shadowTexture, SHADOW_PAD, sleeveTexture, strapTexture, STRAP_TILE_ASPECT } from './textures';
+import { BADGE } from './face';
 import { CAMERA_Z, FOV, SEG, CARD_W, CARD_H, CLIP_H, pxPerWorld } from './anchor';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
@@ -32,9 +33,9 @@ export interface LanyardProps {
   onReady?: () => void;
 }
 
-/** The visible badge copies the static one (global.css .badge-card, textures.ts BADGE) at the size it hangs on the
- *  reference 1440×900 screen: U world units per static CSS px. So the sleeve is 210 × 294 and the printed face
- *  196 × 280, inset 7, there (the old card showed a ~9px paper rim plus a 50% wider sleeve, the light grey-white frame).
+/** The visible badge copies the static one (global.css .badge-card, face.ts BADGE) at the size it hangs on the
+ *  reference 1440×900 screen: U world units per static CSS px. So the sleeve is 182 × 294 and the printed face
+ *  168 × 280, inset 7, there (the old card showed a ~9px paper rim plus a 50% wider sleeve, the light grey-white frame).
  *  The physics body (CARD_W × CARD_H, anchor.ts) is unchanged; the visuals are centred on it. */
 const U = 1 / pxPerWorld(900);
 const SLEEVE_W = BADGE.w * U, SLEEVE_H = BADGE.h * U, SLEEVE_R = BADGE.r * U;

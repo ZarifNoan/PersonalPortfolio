@@ -1,23 +1,13 @@
 import * as THREE from 'three';
 import { initials } from '../../lib/initials';
-import { faceLines } from '../../lib/badgeText';
-import { STATIC_CARD_H, STATIC_CARD_W } from './anchor';
+import { roleLines } from '../../lib/badgeText';
+import { BADGE, FACE } from './face';
 
 /** Site accents (global.css --sw / --viz): the card's stripes and the strap's marks use the two sides' colours. */
 const SW = '#60a5fa', VIZ = '#f59e0b', INK = '#0b0b14', NAVY = '#1b1838';
 
-/** The static badge's card in CSS px (global.css .badge-card / .badge-face): a 210 × 294 clear sleeve (radius 16) with
- *  the printed face inset 7px (radius 10). The 3D card reproduces these proportions exactly (Lanyard.tsx), so the
- *  textures below are laid out in the same units. */
-export const BADGE = { w: STATIC_CARD_W, h: STATIC_CARD_H, r: 16, inset: 7, faceR: 10 } as const;
-const FACE_CSS_W = BADGE.w - 2 * BADGE.inset, FACE_CSS_H = BADGE.h - 2 * BADGE.inset; // 196 × 280
-
-/** Card face layout units: the face is 1024 units wide (BadgeStatic mirrors this layout in CSS container units,
- *  1cqw = 10.24 units) and 1024 × 280 / 196 = 1463 tall, the static face's aspect. */
-export const FACE_W = 1024, FACE_H = Math.round((FACE_W * FACE_CSS_H) / FACE_CSS_W);
-
 /** Fonts the canvases use. Canvas text doesn't trigger font loading, so load the exact faces before drawing. */
-const FONTS = ['800 92px "Sora Variable"', '700 64px "Sora Variable"', '650 60px "Inter Variable"'];
+const FONTS = ['800 46px "Sora Variable"', '700 12px "Sora Variable"', '650 14px "Inter Variable"'];
 const fontsReady = () => (typeof document === 'undefined' ? Promise.resolve() : Promise.all(FONTS.map((f) => document.fonts.load(f))).then(() => undefined, () => undefined));
 
 /** A canvas texture shown 1:1 on screen: sampled without mipmaps, so text isn't averaged into the paper (6:1
@@ -29,80 +19,110 @@ function screenTexture(c: HTMLCanvasElement) {
   return tex;
 }
 
+/** Loads and decodes the badge photo; null if it fails (the face then shows the monogram, as with no photo). */
+async function loadPhoto(src: string): Promise<HTMLImageElement | null> {
+  try {
+    const img = new Image(); img.decoding = 'async'; img.src = src; await img.decode();
+    return img;
+  } catch { return null; }
+}
+
 /**
  * The printed card face, drawn at `scale` canvas px per static-badge CSS px (Lanyard passes the card's on-screen
- * size × DPR, so the texture maps 1:1 to device pixels at rest, like the static badge's DOM text). Corners outside the
- * face's rounded rect are transparent.
+ * size × DPR, so the texture maps 1:1 to device pixels at rest, like the static badge's DOM). The layout is face.ts
+ * FACE in CSS px, the same numbers global.css gives the static face. Corners outside the face's rounded rect are
+ * transparent. Resolves only once the photo has decoded and been drawn, so the 3D card is never revealed without it.
  */
 export async function cardFaceTexture(name: string, role: string, photo: string | null, label: string, scale: number): Promise<THREE.CanvasTexture> {
   const c = document.createElement('canvas');
-  c.width = Math.round(FACE_CSS_W * scale); c.height = Math.round(FACE_CSS_H * scale);
+  c.width = Math.round(FACE.w * scale); c.height = Math.round(FACE.h * scale);
   const g = c.getContext('2d')!;
-  await fontsReady();
-  g.setTransform(c.width / FACE_W, 0, 0, c.height / FACE_H, 0, 0);
-  const W = FACE_W, H = FACE_H, cx = W / 2;
-  const lines = faceLines(name, role);
-  roundRect(g, 0, 0, W, H, (BADGE.faceR / FACE_CSS_W) * W); g.clip();
+  const [img] = await Promise.all([photo ? loadPhoto(photo) : null, fontsReady()]);
+  g.setTransform(c.width / FACE.w, 0, 0, c.height / FACE.h, 0, 0);
+  const W = FACE.w, H = FACE.h, cx = W / 2;
+  roundRect(g, 0, 0, W, H, FACE.r); g.clip();
   g.textAlign = 'center';
 
-  // Paper: global.css .badge-face linear-gradient(170deg, #fcfcff, #ececf5).
+  // Paper: global.css .badge-face linear-gradient(170deg, #fcfcff, #ececf5) (the photo covers it between the bands).
   const paper = cssGradient(g, 170, 0, 0, W, H);
   paper.addColorStop(0, '#fcfcff'); paper.addColorStop(1, '#ececf5');
   g.fillStyle = paper; g.fillRect(0, 0, W, H);
 
   // Header: ink band with the punched slot the clip goes through and the two sides' marks; stripes under it.
-  g.fillStyle = INK; g.fillRect(0, 0, W, 200);
-  g.fillStyle = '#2a2a40'; roundRect(g, cx - 100, 36, 200, 36, 18); g.fill();
-  g.font = '700 64px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
-  g.fillStyle = SW; g.textAlign = 'left'; g.fillText('</>', 64, 136);
-  g.fillStyle = VIZ; g.textAlign = 'right'; g.fillText('◇', W - 64, 136);
+  g.fillStyle = INK; g.fillRect(0, 0, W, FACE.head);
+  g.fillStyle = '#2a2a40'; roundRect(g, cx - FACE.slot.w / 2, FACE.slot.top, FACE.slot.w, FACE.slot.h, FACE.slot.h / 2); g.fill();
+  g.font = `700 ${FACE.mark.size}px "Sora Variable", sans-serif`;
+  g.fillStyle = SW; g.textAlign = 'left'; lineText(g, '</>', FACE.mark.inset, FACE.mark.top, FACE.mark.size);
+  g.fillStyle = VIZ; g.textAlign = 'right'; lineText(g, '◇', W - FACE.mark.inset, FACE.mark.top, FACE.mark.size);
   g.textAlign = 'center';
-  g.fillStyle = SW; g.fillRect(0, 200, W / 2, 16);
-  g.fillStyle = VIZ; g.fillRect(W / 2, 200, W / 2, 16);
+  stripes(g, FACE.head);
 
-  // Photo or monogram, in a ring.
-  const cy = 440, r = 165;
-  g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
-  let drewPhoto = false;
-  if (photo) {
-    try {
-      const img = new Image(); img.src = photo; await img.decode();
-      const s = Math.max((2 * r) / img.width, (2 * r) / img.height);
-      g.drawImage(img, cx - (img.width * s) / 2, cy - (img.height * s) / 2, img.width * s, img.height * s);
-      drewPhoto = true;
-    } catch { /* fall through to monogram */ }
-  }
-  if (!drewPhoto) {
-    const mg = g.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+  // The photo, full-bleed between the stripes (object-fit: cover, centred), or the monogram on the site's gradient.
+  const top = FACE.photo.top, bh = FACE.photo.bottom - top;
+  if (img) {
+    const s = Math.max(W / img.naturalWidth, bh / img.naturalHeight), dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+    g.save(); g.beginPath(); g.rect(0, top, W, bh); g.clip();
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(img, (W - dw) / 2, top + (bh - dh) / 2, dw, dh);
+    g.restore();
+  } else {
+    const mg = cssGradient(g, 135, 0, top, W, bh);
     mg.addColorStop(0, '#3b2a7a'); mg.addColorStop(1, '#0e4a5a');
-    g.fillStyle = mg; g.fillRect(cx - r, cy - r, 2 * r, 2 * r);
-    g.fillStyle = '#f5f5ff'; g.font = '800 120px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
-    g.fillText(initials(name), cx, cy + 6);
+    g.fillStyle = mg; g.fillRect(0, top, W, bh);
+    g.fillStyle = '#f5f5ff'; g.font = `800 ${FACE.mono.size}px "Sora Variable", sans-serif`;
+    lineText(g, initials(name), cx, FACE.mono.top, FACE.mono.size);
   }
-  g.restore();
-  g.lineWidth = 10; g.strokeStyle = '#ffffff'; g.beginPath(); g.arc(cx, cy, r + 5, 0, Math.PI * 2); g.stroke();
-  g.lineWidth = 3; g.strokeStyle = 'rgba(11,11,20,.16)'; g.beginPath(); g.arc(cx, cy, r + 12, 0, Math.PI * 2); g.stroke();
 
-  // Name: given names large on two lines, the patronymic smaller and spaced; a hairline; the role on two lines.
-  g.textBaseline = 'alphabetic'; g.fillStyle = INK;
-  lines.name.forEach((t, i) => { g.font = '800 92px "Sora Variable", sans-serif'; fit(g, t, 880); g.fillText(t, cx, 742 + i * 98); });
-  let y = 742 + (lines.name.length - 1) * 98;
-  if (lines.sub) {
-    g.font = '700 56px "Sora Variable", sans-serif'; g.fillStyle = '#33364f';
-    y += 84; spaced(g, lines.sub, cx, y, 6);
-  }
-  y += 52; g.fillStyle = 'rgba(11,11,20,.22)'; g.fillRect(cx - 60, y, 120, 5);
-  g.font = '650 60px "Inter Variable", sans-serif'; g.fillStyle = '#2a1f6b';
-  lines.role.forEach((t, i) => { fit(g, t, 920); g.fillText(t, cx, y + 92 + i * 74); });
+  // White fade rising over the lower photo, and the role on it.
+  const fadeTop = FACE.photo.bottom - FACE.fade.h;
+  const fade = g.createLinearGradient(0, fadeTop, 0, FACE.photo.bottom);
+  for (const [at, a] of FACE.fade.stops) fade.addColorStop(at, `rgba(255,255,255,${a})`);
+  g.fillStyle = fade; g.fillRect(0, fadeTop, W, FACE.fade.h);
+  g.font = `650 ${FACE.role.size}px "Inter Variable", sans-serif`; g.fillStyle = FACE.role.color;
+  roleLines(role).forEach((t, i) => lineText(g, t, cx, FACE.role.top + i * FACE.role.lh, FACE.role.lh));
 
   // Footer: stripes over an ink band with the strap's label.
-  g.fillStyle = SW; g.fillRect(0, 1262, W / 2, 16);
-  g.fillStyle = VIZ; g.fillRect(W / 2, 1262, W / 2, 16);
-  g.fillStyle = INK; g.fillRect(0, 1278, W, H - 1278);
-  g.fillStyle = '#d6d8ee'; g.font = '700 56px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
-  spaced(g, label.toUpperCase(), cx, 1380, 10);
+  stripes(g, FACE.foot.top);
+  g.fillStyle = INK; g.fillRect(0, FACE.foot.top + FACE.stripe, W, H - FACE.foot.top - FACE.stripe);
+  g.fillStyle = FACE.label.color; g.font = `700 ${FACE.label.size}px "Sora Variable", sans-serif`;
+  spacedLine(g, label.toUpperCase(), cx, FACE.label.top, FACE.label.size, FACE.label.spacing);
 
   return screenTexture(c);
+}
+
+/** The blue/amber accent stripe (global.css border-image: linear-gradient(90deg, --sw 50%, --viz 50%)). */
+function stripes(g: CanvasRenderingContext2D, y: number) {
+  g.fillStyle = SW; g.fillRect(0, y, FACE.w / 2, FACE.stripe);
+  g.fillStyle = VIZ; g.fillRect(FACE.w / 2, y, FACE.w / 2, FACE.stripe);
+}
+
+/** Baseline of a line box `lh` tall whose top is `top`, as CSS places it: half the leading below the top plus the
+ *  font's ascent (Blink rounds the ascent and descent to whole px). */
+function baseline(g: CanvasRenderingContext2D, text: string, top: number, lh: number) {
+  const m = g.measureText(text);
+  const A = Math.round(m.fontBoundingBoxAscent), D = Math.round(m.fontBoundingBoxDescent);
+  return top + (lh - (A + D)) / 2 + A;
+}
+/** Draws text where CSS puts it in that line box. */
+function lineText(g: CanvasRenderingContext2D, text: string, x: number, top: number, lh: number) {
+  g.textBaseline = 'alphabetic';
+  g.fillText(text, x, baseline(g, text, top, lh));
+}
+
+/** Letter-spaced, centred line. CSS letter-spacing also spaces after the last letter, so the visible text sits half a
+ *  gap left of centre; canvas letterSpacing does the same. Without it, the letters are placed one by one. */
+function spacedLine(g: CanvasRenderingContext2D, text: string, x: number, top: number, lh: number, gap: number) {
+  if (typeof (g as Partial<CanvasRenderingContext2D>).letterSpacing === 'string') {
+    g.letterSpacing = `${gap}px`;
+    lineText(g, text, x, top, lh);
+    g.letterSpacing = '0px';
+    return;
+  }
+  const y = baseline(g, text, top, lh), chars = [...text], widths = chars.map((ch) => g.measureText(ch).width);
+  let cur = x - (widths.reduce((s, w) => s + w, 0) + gap * chars.length) / 2;
+  const align = g.textAlign; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+  chars.forEach((ch, i) => { g.fillText(ch, cur, y); cur += widths[i]! + gap; });
+  g.textAlign = align;
 }
 
 /** Strap canvas: one tile of the repeating woven band. Width:height must match STRAP_TILE_ASPECT so the text keeps its
@@ -155,7 +175,7 @@ function drawStrap(c: HTMLCanvasElement, label: string) {
 }
 
 /**
- * The clear sleeve's front, drawn from global.css .badge-card at `scale` canvas px per CSS px (210 × 294 CSS px): the
+ * The clear sleeve's front, drawn from global.css .badge-card at `scale` canvas px per CSS px (BADGE: 182 × 294 CSS px): the
  * faint glossy frame around the face (its background gradients, translucent so the dark page shows through, as it
  * does around the static card), the 1px light edge and inner top highlight, and the glare over the face's top-left
  * (.badge-card::after).
@@ -241,9 +261,4 @@ function spaced(g: CanvasRenderingContext2D, text: string, x: number, y: number,
   let cur = x - total / 2;
   chars.forEach((ch, i) => { g.fillText(ch, cur, y); cur += widths[i]! + gap; });
   g.textAlign = align;
-}
-/** Shrinks the current font until text fits maxW. */
-function fit(g: CanvasRenderingContext2D, text: string, maxW: number) {
-  let m = /(\d+)px/.exec(g.font), size = m ? +m[1]! : 40;
-  while (g.measureText(text).width > maxW && size > 20) { size -= 2; g.font = g.font.replace(/\d+px/, `${size}px`); }
 }
