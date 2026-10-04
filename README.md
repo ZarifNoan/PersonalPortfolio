@@ -48,6 +48,8 @@ npm run check      # type and template checks
    optional facts on the page.
 7. `course` is optional: leave it out for work that was not coursework (e.g. a client project). The eyebrow then
    shows the `type` instead ("Freelance client project · Individual") and the facts card has no Course row.
+   `clientName` is optional too: when set, it adds a "Client" row to the facts panel (right after Type), naming who
+   the project was built for.
 8. `url` (optional) is the project's live website. When set, the listing shows a "Visit website ↗" link beside
    Learn More and the detail page shows one under the title; both open in a new tab (`rel="noopener noreferrer"`)
    and are named "Visit the <name> website (opens in a new tab)", where <name> is the title up to the en dash.
@@ -56,7 +58,10 @@ npm run check      # type and template checks
 ## Add a 3D project
 Same as above, under `src/content/visualization/` (page: `/3d/<slug>`). `category` is `Architectural Visualization`
 or `Product Visualization`; `client: true` shows "Client Project" on the listing; `clientName` is shown as "Client"
-on the detail page, linked to the client's site when `clientUrl` is set (opens in a new tab); `details` is the long description. Every render (cover included) appears in the page's mosaic.
+on the detail page, linked to the client's site when `clientUrl` is set (opens in a new tab); `details` is the long description. Every render (cover included) appears in the page's mosaic. For a personal project covering more than
+one subject (e.g. two different booth designs), tag each image's `group` with a short label (e.g. "Razova booth"):
+renders sharing a group become their own captioned mosaic section on the detail page; without `group`, every project
+renders one plain mosaic as before.
 
 ## Publish JOHEX
 Add renders to `src/content/visualization/johex/images/`, list them in `index.yaml`, set `draft: false`.

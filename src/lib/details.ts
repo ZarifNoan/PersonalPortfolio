@@ -35,6 +35,24 @@ export function groupImages<T>(items: readonly T[], max: number): T[][] {
   return out;
 }
 
+/**
+ * Splits a render list into labelled sections by its items' optional `group` (e.g. one render mosaic per booth in a
+ * multi-subject 3D project). Consecutive items sharing a group stay together; when no item carries a group, the
+ * whole list comes back as a single unlabelled section (so the gallery renders exactly as before). Empty input
+ * yields no sections.
+ */
+export function groupSections<T extends { group?: string }>(items: readonly T[]): { label: string | undefined; items: T[] }[] {
+  if (items.length === 0) return [];
+  if (items.every((i) => !i.group)) return [{ label: undefined, items: [...items] }];
+  const out: { label: string | undefined; items: T[] }[] = [];
+  for (const it of items) {
+    const last = out[out.length - 1];
+    if (last && last.label === it.group) last.items.push(it);
+    else out.push({ label: it.group, items: [it] });
+  }
+  return out;
+}
+
 export type MosaicTile = 'feature' | 'feature-end' | 'side' | 'half' | 'full';
 
 /**
@@ -81,14 +99,16 @@ export function metaDescription(text: string, max = 160): string {
 export interface Member { name: string; linkedin?: string; photo?: unknown }
 
 /**
- * The facts card on a software project page: type, course, platform and year (the type is skipped when the
- * course name already contains it; the course is omitted for work that was not coursework). Team size is shown in
- * the header eyebrow instead, not here.
+ * The facts card on a software project page: type, client, course, platform and year (the type is skipped when the
+ * course name already contains it; the course is omitted for work that was not coursework; the client is shown only
+ * when `clientName` is set, e.g. a freelance client project naming who it was built for). Team size is shown in the
+ * header eyebrow instead, not here.
  */
-export function projectFacts(d: { type?: string; course?: string; members: readonly Member[]; platform?: string; year?: number }): { label: string; value: string }[] {
+export function projectFacts(d: { type?: string; clientName?: string; course?: string; members: readonly Member[]; platform?: string; year?: number }): { label: string; value: string }[] {
   const typeIsInCourse = !!d.type && !!d.course && d.course.toLowerCase().includes(d.type.toLowerCase());
   return [
     d.type && !typeIsInCourse ? { label: 'Type', value: d.type } : null,
+    d.clientName ? { label: 'Client', value: d.clientName } : null,
     d.course ? { label: 'Course', value: d.course } : null,
     d.platform ? { label: 'Platform', value: d.platform } : null,
     d.year ? { label: 'Year', value: String(d.year) } : null,

@@ -6,8 +6,10 @@ import { LANGUAGES, CATEGORIES } from './lib/taxonomy';
 type ImageFn = SchemaContext['image'];
 
 /** The first image is the cover (it opens first in the image viewer). `framed` is a pre-rendered device picture of
- * the screenshot (scripts/make-phone-frames.py) that the gallery shows instead; the image viewer keeps `src`. */
-const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8), framed: image().optional() })).default([]);
+ * the screenshot (scripts/make-phone-frames.py) that the gallery shows instead; the image viewer keeps `src`. `group`
+ * labels which subject a render belongs to (e.g. a multi-subject 3D project): consecutive renders sharing a group
+ * get their own captioned mosaic section on the detail page. */
+const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8), framed: image().optional(), group: z.string().optional() })).default([]);
 const hex = z.string().regex(/^#[0-9a-f]{6}$/i, 'Use a 6-digit hex colour like #1a2b3c');
 /** Long description: paragraphs separated by blank lines (rendered as <p>s on the detail page). */
 const details = z.string().min(40);
@@ -25,6 +27,8 @@ const software = defineCollection({
     course: z.string().optional(),
     /** Optional facts for the detail page, e.g. type "Final Year Project" or "Freelance client project". */
     type: z.string().optional(),
+    /** Shown as "Client" on the detail page facts panel, e.g. for a freelance client project. */
+    clientName: z.string().optional(),
     platform: z.string().optional(),
     year: z.number().int().optional(),
     /** The live website: adds a "Visit website" link (new tab) on the listing and the detail page. */

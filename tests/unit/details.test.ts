@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials, clientFact, softwareEyebrow, websiteLink } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, groupSections, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials, clientFact, softwareEyebrow, websiteLink } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -52,6 +52,23 @@ describe('groupImages', () => {
   });
   it('is empty for no images', () => {
     expect(groupImages([], 3)).toEqual([]);
+  });
+});
+
+describe('groupSections', () => {
+  it('is one unlabelled section when no item carries a group', () => {
+    const items: { id: string; group?: string }[] = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+    expect(groupSections(items)).toEqual([{ label: undefined, items }]);
+  });
+  it('splits consecutive items with the same group label into their own sections, in order', () => {
+    const items = [{ id: 'a', group: 'Razova booth' }, { id: 'b', group: 'Razova booth' }, { id: 'c', group: 'Example booth' }, { id: 'd', group: 'Example booth' }];
+    expect(groupSections(items)).toEqual([
+      { label: 'Razova booth', items: [items[0], items[1]] },
+      { label: 'Example booth', items: [items[2], items[3]] },
+    ]);
+  });
+  it('is empty for no items', () => {
+    expect(groupSections([])).toEqual([]);
   });
 });
 
@@ -125,6 +142,20 @@ describe('projectFacts without a course (non-coursework)', () => {
   });
   it('is empty when there is nothing to show', () => {
     expect(projectFacts({ members: [] })).toEqual([]);
+  });
+});
+
+describe('projectFacts with a client', () => {
+  it('shows a Client row, right after Type, when clientName is set', () => {
+    expect(projectFacts({ type: 'Freelance client project', clientName: 'Primo Pinnacle', platform: 'Website', year: 2026, members: [] })).toEqual([
+      { label: 'Type', value: 'Freelance client project' },
+      { label: 'Client', value: 'Primo Pinnacle' },
+      { label: 'Platform', value: 'Website' },
+      { label: 'Year', value: '2026' },
+    ]);
+  });
+  it('omits the Client row without a clientName', () => {
+    expect(projectFacts({ type: 'Freelance client project', members: [] }).map((f) => f.label)).not.toContain('Client');
   });
 });
 
