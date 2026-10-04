@@ -1,7 +1,8 @@
 title: Primo Pinnacle – Government Relations Company Website
 # Not coursework, so there is no `course`: the eyebrow shows the type instead.
 type: Freelance client project
-platform: Website (static export on Netlify)
+clientName: Primo Pinnacle
+platform: Website
 # From the site's footer (© 2026) and the source repository's history (August to September 2026).
 year: 2026
 url: https://primopinnacle.co
