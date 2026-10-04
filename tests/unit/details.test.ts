@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, mosaicLayout } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -70,5 +70,26 @@ describe('mosaicLayout', () => {
   });
   it('covers every image', () => {
     for (let k = 0; k < 12; k++) expect(mosaicLayout(k)).toHaveLength(k);
+  });
+});
+
+describe('metaDescription', () => {
+  it('keeps short text whole', () => {
+    expect(metaDescription('A short line.', 160)).toBe('A short line.');
+  });
+  it('cuts at the last full sentence that fits', () => {
+    expect(metaDescription('First sentence here. Second sentence is longer than the limit allows.', 30)).toBe('First sentence here.');
+  });
+  it('falls back to a word boundary with an ellipsis', () => {
+    expect(metaDescription('One very long sentence without any stop at all in it', 20)).toBe('One very long…');
+  });
+  it('collapses whitespace', () => {
+    expect(metaDescription('A\n  B', 160)).toBe('A B');
+  });
+});
+
+describe('metaDescription with decimals', () => {
+  it('does not treat a decimal point as a sentence end', () => {
+    expect(metaDescription('Accuracy rose from 41.7% to 72.9% overall. Then more text follows here.', 50)).toBe('Accuracy rose from 41.7% to 72.9% overall.');
   });
 });

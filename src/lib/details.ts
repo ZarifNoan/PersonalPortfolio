@@ -62,3 +62,18 @@ export function mosaicLayout(n: number): MosaicTile[] {
   }
   return out;
 }
+
+/** A meta description of at most `max` characters: whole sentences if any fit, else whole words plus "…". */
+export function metaDescription(text: string, max = 160): string {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  let out = '';
+  for (const s of t.split(/(?<=[.!?])\s+/)) {
+    const next = out ? `${out} ${s}` : s;
+    if (next.length > max) break;
+    out = next;
+  }
+  if (out) return out;
+  const cut = t.slice(0, max - 1);
+  return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:–-]+$/, '')}…`;
+}
