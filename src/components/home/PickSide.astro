@@ -23,7 +23,8 @@ const photo = { widths: [480, 800, 1200, 1600], sizes: '(min-width: 900px) 50vw,
   </a>
 </section>
 <style>
-  .split { position: relative; display: grid; grid-template-columns: 1fr 1fr; min-height: 70vh; margin-top: 36px; border-block: 1px solid var(--border); }
+  /* 48px here + About's 48px bottom padding = a ~96px gap from the About text to pick-a-side. */
+  .split { position: relative; display: grid; grid-template-columns: 1fr 1fr; min-height: 70vh; margin-top: 48px; border-block: 1px solid var(--border); }
   .divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--border); z-index: 1; }
   /* Layers, back to front: photo (.bg), colour wash + dark fade (::before), hover tint (::after), text. */
   .half { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: clamp(28px, 5vw, 64px); text-decoration: none; background: var(--bg); }
@@ -57,7 +58,9 @@ const photo = { widths: [480, 800, 1200, 1600], sizes: '(min-width: 900px) 50vw,
   .go { font-weight: 700; margin-top: 8px; }
   .arr-r { display: none; }
   @media (max-width: 899px) {
-    .split { grid-template-columns: 1fr; min-height: auto; }
+    /* ~67% of the desktop 48px, matching About's scaled-down bottom padding: the CR's "roughly 60-70% on mobile"
+       guideline. */
+    .split { grid-template-columns: 1fr; min-height: auto; margin-top: 32px; }
     .divider { display: none; }
     /* Stacked, the text fills most of each half, so the fade reaches higher. */
     .half { min-height: 40vh; --fade: linear-gradient(to top, rgba(11,11,20,.9) 0%, rgba(11,11,20,.74) 50%, rgba(11,11,20,.42) 100%); }

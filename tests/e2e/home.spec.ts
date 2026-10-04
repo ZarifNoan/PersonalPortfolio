@@ -39,22 +39,67 @@ test('project media lifts on hover', async ({ page }, info) => {
   await expect.poll(() => main.evaluate((el) => getComputedStyle(el).translate)).not.toMatch(/^(none|0px)$/);
 });
 
-test('desktop: the name starts 48-64px below the nav and About follows the headline closely', async ({ page }, info) => {
+test('desktop: the name starts 84-108px below the nav and About follows the headline with a comfortable gap', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.goto('/');
   const navBottom = (await page.locator('header.nav-wrap').boundingBox())!;
   const h1 = (await page.locator('h1').boundingBox())!;
   const gap = h1.y - (navBottom.y + navBottom.height);
-  expect(gap).toBeGreaterThanOrEqual(44);
-  expect(gap).toBeLessThanOrEqual(68);
+  expect(gap).toBeGreaterThanOrEqual(84);
+  expect(gap).toBeLessThanOrEqual(108);
   // The hanging badge is out of the hero's flow, so the headline, not the badge, sets where About starts.
   const headline = (await page.locator('.hero .headline').boundingBox())!;
   const aboutTop = await page.evaluate(() => {
     let y = 0; for (let el = document.querySelector<HTMLElement>('[data-badge-release]'); el; el = el.offsetParent as HTMLElement | null) y += el.offsetTop;
     return y - scrollY;
   });
-  expect(aboutTop - (headline.y + headline.height)).toBeLessThanOrEqual(96);
+  const headlineAboutGap = aboutTop - (headline.y + headline.height);
+  expect(headlineAboutGap).toBeGreaterThanOrEqual(80);
+  expect(headlineAboutGap).toBeLessThanOrEqual(128);
 });
+
+test('desktop: About Me text has a comfortable gap to pick-a-side', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  const gap = await page.evaluate(() => {
+    const topOf = (el: HTMLElement) => { let y = 0; for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) y += e.offsetTop; return y; };
+    const p = document.querySelector<HTMLElement>('[data-badge-avoid] p:last-child')!;
+    const aboutBottom = topOf(p) + p.offsetHeight;
+    const splitTop = topOf(document.querySelector<HTMLElement>('[data-split]')!);
+    return splitTop - aboutBottom;
+  });
+  expect(gap).toBeGreaterThanOrEqual(80);
+  expect(gap).toBeLessThanOrEqual(112);
+});
+
+for (const width of [900, 1024, 1280, 1440]) {
+  test(`desktop ${width}px: the name renders on exactly 2 lines, clear of the badge`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'desktop');
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const h1 = page.locator('h1');
+    const { height, lineHeight, right } = await h1.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return { height: r.height, lineHeight: parseFloat(cs.lineHeight), right: r.right };
+    });
+    const lines = Math.round(height / lineHeight);
+    expect(lines, `h1 should wrap to exactly 2 lines at ${width}px`).toBe(2);
+    // Worst case over the whole CSS sway: pause the animation and seek it through one 6s cycle, as the per-width
+    // About-clearance test above does, reading the rotated card's left edge at each step.
+    const boxes = await page.locator('.badge-hang').evaluate((hang) => {
+      const sway = hang.getAnimations().find((a) => (a as CSSAnimation).animationName === 'badge-sway');
+      if (!sway) return null;
+      sway.pause();
+      const card = hang.querySelector('.badge-card')!;
+      const out: number[] = [];
+      for (let t = 0; t <= 6000; t += 250) { sway.currentTime = t; out.push(card.getBoundingClientRect().left); }
+      return out;
+    });
+    expect(boxes, 'the sway animation runs').not.toBeNull();
+    expect(Math.min(...boxes!)).toBeGreaterThanOrEqual(right + 24);
+  });
+}
 
 for (const width of [900, 940, 980, 1024, 1280, 1440]) {
   test(`desktop ${width}px: the static badge hangs right of the About text without covering it`, async ({ page }, info) => {

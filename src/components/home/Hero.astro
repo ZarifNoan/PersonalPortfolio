@@ -9,13 +9,35 @@ import { site } from '../../data/site';
   <div class="slot" data-badge-slot data-badge-anchor="hero"><slot /></div>
 </section>
 <style>
-  /* The name starts 56px under the nav. The hero is as tall as the name and headline only: on desktop the badge is out
-     of flow (the 3D one is a fixed overlay; the static one is absolutely positioned in the slot below), hanging down
-     beside About Me in the right margin that About's limited column leaves free. Nothing in flow depends on the
-     badge, so the static→3D swap can't move the page. No transform/filter/contain on the slot's ancestors. */
-  .hero { display: grid; grid-template-columns: 1.3fr 1fr; align-items: start; gap: 32px; padding-block: 56px 32px; }
+  /* The name starts 96px under the nav, and the hero's own 104px bottom padding gives About Me a comfortable gap
+     below the headline. The hero is as tall as the name and headline only: on desktop the badge is out of flow (the
+     3D one is a fixed overlay; the static one is absolutely positioned in the slot below), hanging down beside About
+     Me in the right margin that About's limited column leaves free. Nothing in flow depends on the badge, so the
+     static→3D swap can't move the page. No transform/filter/contain on the slot's ancestors.
+     The intro column takes most of the row (3.5fr of 4.5) so there's room to fit the name on 2 lines at a large
+     size: the slot's RIGHT edge (and so the badge's position, via --badge-right) stays put regardless of this ratio,
+     because the two columns plus the gap always fill the row, so the last column is always flush with the row's
+     right edge. */
+  .hero { display: grid; grid-template-columns: 3.5fr 1fr; align-items: start; gap: 32px; padding-block: 96px 104px; }
   h1 { font-size: clamp(2.2rem, 5.2vw, 4.2rem); font-weight: 800; letter-spacing: -.01em; }
   .headline { font-size: clamp(1.05rem, 1.6vw, 1.3rem); color: var(--muted); margin: 18px 0 0; max-width: 34ch; }
+  /* Desktop: the name ("Muhammad Zarif Nurhan" / "Bin Mohd Arifin") breaks onto exactly 2 lines at 900–1440px. Each
+     step's max-width and font-size were chosen (tests/e2e/home.spec.ts, "renders on exactly 2 lines") so
+     "Muhammad Zarif Nurhan" fits the column, "…Nurhan Bin" doesn't, and the column's right edge (.intro's max-width)
+     stays ≥ 24px left of the static badge's worst-case sway box at the narrowest width of each bracket, where the
+     clearance is tightest (badge position is unaffected by max-width or by the grid ratio above). */
+  @media (min-width: 900px) {
+    .intro { max-width: 540px; }
+    h1 { font-size: 40px; }
+  }
+  @media (min-width: 1024px) {
+    .intro { max-width: 650px; }
+    h1 { font-size: 48px; }
+  }
+  @media (min-width: 1280px) {
+    .intro { max-width: 800px; }
+    h1 { font-size: 58px; }
+  }
   /* A zero-height anchor box at the top of the right column, pulled up to the nav's bottom edge. The static badge
      hangs from it with a long strap in the margin beside About Me, exactly where the 3D card rests, so the swap to 3D
      doesn't visibly move the badge either. */
@@ -25,7 +47,7 @@ import { site } from '../../data/site';
      Floored at 24px: below ~666px tall the static strap stops shrinking. */
   .slot { --badge-rest-top: -24px; --badge-rest-vh: 41.464vh; --badge-right: 10px;
     --badge-strap: max(24px, calc(var(--badge-rest-top) + var(--badge-rest-vh) - 65px - 163px));
-    position: relative; height: 0; margin-top: -56px; }
+    position: relative; height: 0; margin-top: -96px; }
   /* --badge-right (10px) and the 210px card are mirrored in About.astro's column limit (its comment has the sway
      derivation). BadgeIsland reads --badge-right from the slot so the 3D card rests on the same centre line (anchor.ts
      restX).
@@ -33,7 +55,8 @@ import { site } from '../../data/site';
      gives it pointer-events: none, so it never blocks clicks or text selection on About underneath.) */
   .slot :global(.badge-static) { position: absolute; top: 0; right: var(--badge-right); z-index: 1; }
   @media (max-width: 899px) {
-    .hero { grid-template-columns: 1fr; text-align: center; padding-top: 0; }
+    /* ~65% of the desktop 104px bottom gap: the CR's "roughly 60-70% on mobile" guideline. */
+    .hero { grid-template-columns: 1fr; text-align: center; padding-top: 0; padding-bottom: 64px; }
     /* In flow, as tall as the static badge (= BadgeIsland's INLINE_H), so the static→3D swap doesn't shift the page. */
     .slot { --badge-strap: 100px; order: -1; height: auto; min-height: calc(var(--badge-strap) + var(--badge-body)); margin-top: 0; display: flex; justify-content: center; }
     .slot :global(.badge-static) { position: static; }

@@ -13,12 +13,14 @@ import { site } from '../../data/site';
      at the +2.5° keyframe it moves left by 105(1 − cos 2.5°) + 410 sin 2.5° ≈ 0.1 + 17.9 = 18px (at −3° the card
      leans away from the text). So the rotated card stays ≥ 24px clear at every width. 1440px keeps its 606px column
      (1100 − 494); at 900–1000px the column narrows so the card never covers it. */
-  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw, calc(100% - 494px))); gap: 32px; padding-block: 24px 32px; }
+  .about { display: grid; grid-template-columns: 200px minmax(0, min(60ch, 44vw, calc(100% - 494px))); gap: 32px; padding-block: 24px 48px; }
   h2 { font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--sw); padding-top: 6px; }
   p { margin: 0 0 16px; color: var(--muted); font-size: 1.08rem; }
   p:first-child { color: var(--text); font-size: 1.2rem; }
   p:last-child { margin-bottom: 0; }
   /* Justified only from 600px: at 390px the narrow column opened wide gaps between words (checked in screenshots). */
   @media (min-width: 600px) { p { text-align: justify; hyphens: auto; } }
-  @media (max-width: 899px) { .about { grid-template-columns: 1fr; gap: 12px; } }
+  /* ~67% of the desktop 48px bottom padding, matching PickSide's scaled-down split margin: the CR's "roughly 60-70%
+     on mobile" guideline. */
+  @media (max-width: 899px) { .about { grid-template-columns: 1fr; gap: 12px; padding-bottom: 32px; } }
 </style>
