@@ -212,7 +212,7 @@ test("the Moltech client name links to the client's website; clients without a w
 test('a client website project: no course, the type in the eyebrow and facts, and a prominent "Visit website" link', async ({ page }) => {
   await page.goto('/software/primo-pinnacle');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Primo Pinnacle – Government Relations Company Website');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Primo Pinnacle – Company Website');
   await expect(main.locator('.eyebrow')).toHaveText(/Freelance client project · Individual$/);
   const facts = main.getByRole('complementary', { name: 'Project facts' });
   expect(await facts.locator('dt').allTextContents()).toEqual(['Type', 'Client', 'Platform', 'Year']);

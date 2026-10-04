@@ -4,7 +4,7 @@ test('software page lists five projects in order, client work first, with descri
   await page.goto('/software');
   const titles = page.locator('section[data-filter-item] h2');
   await expect(titles).toHaveText([
-    'Primo Pinnacle – Government Relations Company Website',
+    'Primo Pinnacle – Company Website',
     'StockSense – AI Inventory Prediction System',
     'JomLah – Centralized Event Management Platform',
     'Student Performance Prediction using Fuzzy Logic',

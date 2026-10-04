@@ -162,7 +162,7 @@ The build fails with a clear error if a required field is missing, an image path
 
 | Order | Title | Course · Team | Languages | Stack |
 |---|---|---|---|---|
-| 0 | Primo Pinnacle – Government Relations Company Website | Freelance client project (no course) · Individual; live at https://primopinnacle.co | TypeScript | Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Vitest, Playwright, Netlify |
+| 0 | Primo Pinnacle – Company Website | Freelance client project (no course) · Individual; live at https://primopinnacle.co | TypeScript | Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Vitest, Playwright, Netlify |
 | 1 | StockSense – AI Inventory Prediction System | Final Year Project (Project Design and Implementation) · Individual | Python, JavaScript, SQL | Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL |
 | 2 | JomLah – Centralized Event Management Platform | Web Programming · Team of 3 | PHP, JavaScript, SQL | PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3 |
 | 3 | Student Performance Prediction using Fuzzy Logic | Intelligent Systems · Team of 5 | Python | Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter |

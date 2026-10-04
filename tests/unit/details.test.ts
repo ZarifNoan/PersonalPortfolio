@@ -176,7 +176,7 @@ describe('websiteLink', () => {
     expect(websiteLink({ title: 'StockSense – AI Inventory Prediction System' })).toBeNull();
   });
   it('opens the live site in a new tab safely, named after the project (the title before the dash)', () => {
-    expect(websiteLink({ title: 'Primo Pinnacle – Government Relations Company Website', url: 'https://primopinnacle.co' })).toEqual({
+    expect(websiteLink({ title: 'Primo Pinnacle – Company Website', url: 'https://primopinnacle.co' })).toEqual({
       href: 'https://primopinnacle.co',
       target: '_blank',
       rel: 'noopener noreferrer',
