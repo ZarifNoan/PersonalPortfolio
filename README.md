@@ -63,9 +63,6 @@ one subject (e.g. two different booth designs), tag each image's `group` with a 
 renders sharing a group become their own captioned mosaic section on the detail page; without `group`, every project
 renders one plain mosaic as before.
 
-## Publish JOHEX
-Add renders to `src/content/visualization/johex/images/`, list them in `index.yaml`, set `draft: false`.
-
 ## Add your photo
 The badge shows an "MZN" monogram until a photo is set. Two steps:
 1. Save the photo as `public/badge/photo.jpg` (square, at least 600×600).
