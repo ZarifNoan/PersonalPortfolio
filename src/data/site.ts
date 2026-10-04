@@ -13,5 +13,7 @@ export const site = {
   email: 'zrf.nurhan@gmail.com',
   phoneDisplay: '+60 11-5878 5830',
   phoneTel: '+601158785830',
+  /** null renders no LinkedIn link anywhere on the site (never a dead link), until this is set. */
+  linkedin: 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/' as string | null,
   badge: { photo: null as string | null, role: 'Computer Science · 3D Visualization' },
 } as const;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, groupSections, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials, clientFact, softwareEyebrow, websiteLink } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, groupSections, mosaicLayout, metaDescription, projectFacts, linkedinLink, siteLinkedinLink, initials, clientFact, softwareEyebrow, websiteLink } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -212,6 +212,20 @@ describe('linkedinLink', () => {
       target: '_blank',
       rel: 'noopener noreferrer',
       'aria-label': 'Jordan Septian on LinkedIn (opens in a new tab)',
+    });
+  });
+});
+
+describe('siteLinkedinLink', () => {
+  it('is null while site.linkedin is unset, so the site never shows a dead link', () => {
+    expect(siteLinkedinLink(null)).toBeNull();
+  });
+  it('links Zarif\'s profile in a new tab safely when a URL is set', () => {
+    expect(siteLinkedinLink('https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/')).toEqual({
+      href: 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      'aria-label': 'Muhammad Zarif Nurhan on LinkedIn (opens in a new tab)',
     });
   });
 });

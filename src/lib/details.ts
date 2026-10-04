@@ -138,6 +138,14 @@ export function linkedinLink(m: Member): { href: string; target: '_blank'; rel: 
 export interface ExternalLink { href: string; target: '_blank'; rel: 'noopener noreferrer'; 'aria-label': string }
 
 /**
+ * The site-wide LinkedIn contact (footer, Home's "Let's Connect"), or null while `site.linkedin` is unset so the
+ * site never shows a dead link. Named with Zarif's short form, distinct from a project team member's own link.
+ */
+export function siteLinkedinLink(url: string | null): ExternalLink | null {
+  return linkedinLink({ name: 'Muhammad Zarif Nurhan', linkedin: url ?? undefined });
+}
+
+/**
  * The "Client" fact on a 3D project page: the client's name (or "Client project"/"Personal project" without one), and
  * a link to the client's website when `clientUrl` is set (new tab, no opener or referrer).
  */
