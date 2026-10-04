@@ -7,16 +7,29 @@ test('software detail: name, team, stack, course, long description, screenshots 
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('JomLah – Centralized Event Management Platform');
   const team = main.getByRole('region', { name: 'Team' });
-  await expect(team.getByRole('listitem')).toHaveText([ZARIF, 'Jordan Septian', 'Hakim Bin Taufik']);
-  // No LinkedIn URLs yet, so names only.
-  await expect(team.getByRole('link')).toHaveCount(0);
+  const items = team.getByRole('listitem');
+  await expect(items.locator('.name')).toHaveText([ZARIF, 'Jordan Septian', 'Hakim Bin Taufik']);
+  // Jordan and Hakim have a LinkedIn URL; Zarif does not.
+  await expect(team.getByRole('link')).toHaveCount(2);
+  await expect(items.nth(0).getByRole('link')).toHaveCount(0);
+  await expect(items.nth(1).getByRole('link', { name: 'Jordan Septian on LinkedIn (opens in a new tab)' })).toHaveCount(1);
+  await expect(items.nth(2).getByRole('link', { name: 'Hakim Bin Taufik on LinkedIn (opens in a new tab)' })).toHaveCount(1);
+  // No photos yet: every member falls back to an initials avatar placeholder.
+  await expect(items.locator('.avatar-fallback')).toHaveText(['MA', 'JS', 'HT']);
   const facts = main.getByRole('complementary', { name: 'Project facts' });
   await expect(facts).toContainText('Web Programming');
-  await expect(facts).toContainText('Team of 3');
+  // The Team row was removed from the facts panel (it's redundant with the header eyebrow and the team list).
+  expect(await facts.locator('dt').allTextContents()).not.toContain('Team');
+  await expect(facts).not.toContainText('Team of');
   await expect(facts.getByRole('list', { name: 'Tech stack' }).getByRole('listitem')).toHaveText(['PHP 8', 'MySQL', 'JavaScript', 'jQuery/AJAX', 'HTML5', 'CSS3']);
+  // The header eyebrow still shows course and team size.
+  await expect(main.locator('.eyebrow')).toContainText('Team of 3');
   const paras = main.getByRole('region', { name: 'About the project' }).locator('p');
   expect(await paras.count()).toBeGreaterThanOrEqual(2);
   await expect(paras.first()).toContainText('team of three');
+  // The team work-split paragraph was removed entirely.
+  await expect(main.getByRole('region', { name: 'About the project' })).not.toContainText('We split the work by area');
+  await expect(main.getByRole('region', { name: 'About the project' })).not.toContainText('payment gateway');
   // Screenshots: the four non-cover images, as windows with chrome, and no "Gallery" heading anywhere.
   await expect(main.locator('.shots .win')).toHaveCount(4);
   await expect(main.locator('.shots .win .dots')).toHaveCount(4);
@@ -26,22 +39,31 @@ test('software detail: name, team, stack, course, long description, screenshots 
 
 test('team block lists the right members, and is omitted for an individual project', async ({ page }) => {
   await page.goto('/software/fixer');
-  await expect(page.getByRole('region', { name: 'Team' }).getByRole('listitem')).toHaveText([ZARIF, 'Yogesh Sandeep Jayavant', 'Hakim Bin Taufik', 'Jordan Septian']);
+  const fixerTeam = page.getByRole('region', { name: 'Team' });
+  await expect(fixerTeam.getByRole('listitem').locator('.name')).toHaveText([ZARIF, 'Yogesh Sandeep Jayavant', 'Hakim Bin Taufik', 'Jordan Septian']);
+  // Hakim and Jordan have a LinkedIn URL here too; Zarif and Yogesh do not.
+  await expect(fixerTeam.getByRole('link')).toHaveCount(2);
   await expect(page.locator('.phones .win.phone')).toHaveCount(4);
   await page.goto('/software/fuzzy-logic');
-  await expect(page.getByRole('region', { name: 'Team' }).getByRole('listitem')).toHaveCount(5);
-  await expect(page.getByRole('complementary', { name: 'Project facts' })).toContainText('Team of 5');
+  const fuzzyTeam = page.getByRole('region', { name: 'Team' });
+  await expect(fuzzyTeam.getByRole('listitem')).toHaveCount(5);
+  await expect(fuzzyTeam.getByRole('link')).toHaveCount(2);
+  await expect(page.getByRole('complementary', { name: 'Project facts' })).not.toContainText('Team of');
+  await expect(page.locator('.eyebrow')).toContainText('Team of 5');
   await page.goto('/software/stocksense');
   await expect(page.getByRole('region', { name: 'Team' })).toHaveCount(0);
-  await expect(page.getByRole('complementary', { name: 'Project facts' })).toContainText('Individual');
+  await expect(page.getByRole('complementary', { name: 'Project facts' })).not.toContainText('Individual');
+  await expect(page.locator('.eyebrow')).toContainText('Individual');
   await expect(page.getByRole('complementary', { name: 'Project facts' })).toContainText('Final Year Project');
 });
 
-test('fuzzy logic images are described as system results', async ({ page }) => {
+test('fuzzy logic images are described as system results, and the removed paragraphs are gone', async ({ page }) => {
   await page.goto('/software/fuzzy-logic');
   const alts = await page.locator('.shots img').evaluateAll((els) => els.map((e) => (e as HTMLImageElement).alt));
   expect(alts.filter((a) => a.startsWith('Result chart')).length).toBeGreaterThanOrEqual(3);
-  await expect(page.getByRole('region', { name: 'About the project' })).toContainText('outputs of the system, not its interface');
+  const about = page.getByRole('region', { name: 'About the project' });
+  await expect(about).not.toContainText('outputs of the system, not its interface');
+  await expect(about).not.toContainText('simulated cohort of 800 students');
 });
 
 test('3D detail: name, category, client, description and a mosaic of every render', async ({ page }) => {
