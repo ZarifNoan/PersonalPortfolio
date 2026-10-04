@@ -79,7 +79,7 @@ SCENES = {
         display=(0, 0, 1, 1), grow=1.2,
         cover='primo-pinnacle/images/01-home.jpg', fit='cover',
         gain=0.95, tint=(1.0, 1.0, 1.0), glare=0.04, glare_from='left', blur=0.5, grain=2.0,
-        crop=(200, 130, 2200, 1380), grade=dict(brightness=0.86, color=0.95, contrast=1.03),
+        crop=(318, 250, 2062, 1340), grade=dict(brightness=0.86, color=0.95, contrast=1.03),
     ),
 }
 

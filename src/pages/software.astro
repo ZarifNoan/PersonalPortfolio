@@ -10,11 +10,11 @@ import { softwareEyebrow, websiteLink } from '../lib/details';
 const projects = visibleSorted(await getCollection('software'));
 const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LANGUAGES);
 ---
-<Layout title="Software Development" description="Software projects by Muhammad Zarif Nurhan: AI systems, full-stack web apps and desktop software." page="software">
+<Layout title="Software Development" description="Software projects by Muhammad Zarif Nurhan: a client company website, AI systems, full-stack web apps and desktop software." page="software">
   <div class="container">
     <header class="page-title" data-reveal>
       <h1><span class="sym" style="color:var(--sw)" aria-hidden="true">&lt;/&gt; </span>Software Development</h1>
-      <p class="justify">AI systems, full-stack web applications and desktop software, built during my Computer Science degree.</p>
+      <p class="justify">Client websites, AI systems, full-stack web applications and desktop software, from freelance work to projects built during my Computer Science degree.</p>
     </header>
     <FilterBar param="lang" options={languageOptions} label="Filter by language" />
     {projects.map((p, i) => (
