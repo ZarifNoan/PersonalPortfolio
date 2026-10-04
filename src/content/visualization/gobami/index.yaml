@@ -1,11 +1,21 @@
 title: Gobami Product Visualization
 client: false
+clientName: "Personal project (for a friend's university assignment)"
 category: Product Visualization
 order: 3
 description: >-
   Product visualization of Gobami, a thermos-style container that keeps both food and drinks warm,
   created for a friend's university assignment. The product is shown in six patterned designs: Chinese New
   Year, Hari Raya, Deepavali, Earth Day, Breast Cancer Awareness and Autism Awareness.
+details: |
+  A product visualization of Gobami, a thermos-style container that keeps both food and drinks warm, made
+  in Blender for a friend's university assignment.
+
+  The product is shown in six patterned designs: Chinese New Year, Hari Raya, Deepavali, Earth Day, Breast
+  Cancer Awareness and Autism Awareness. The first render lines up the whole collection on two shelves, and
+  the close-ups show individual designs: a red and gold dragon pattern for Chinese New Year, a purple
+  Deepavali pattern with floral and diya motifs, pink Breast Cancer Awareness ribbons, and colourful puzzle
+  pieces on teal for Autism Awareness.
 images:
   - src: ./images/01-collection.png
     alt: Six Gobami food containers in different festive patterns arranged on two shelves

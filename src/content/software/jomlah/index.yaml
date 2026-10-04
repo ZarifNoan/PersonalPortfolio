@@ -1,7 +1,14 @@
 title: JomLah – Centralized Event Management Platform
 course: Web Programming
-team: Team of 3
+type: Course project
+platform: Web app
+year: 2026
+members:
+  - name: Muhammad Zarif Nurhan Bin Mohd Arifin
+  - name: Jordan Septian
+  - name: Hakim Bin Taufik
 order: 2
+device: laptop
 stack: [PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3]
 languages: [PHP, JavaScript, SQL]
 description: >-
@@ -12,14 +19,46 @@ description: >-
   secure with role-based access, prepared statements block SQL injection, and input is checked on both the
   browser and the server. jQuery/AJAX lets users search and book without reloading the page, and every main
   feature was checked against a written set of test cases.
+details: |
+  JomLah is a centralized event platform that our team of three built for the Web Programming course. Small
+  events in Malaysia are advertised across social media, ticketing sites, group chats and venue pages at
+  once, so people miss things and small organisers end up collecting names in a spreadsheet. JomLah puts
+  discovery, registration and attendance in one place: visitors search every organiser's events at once,
+  attendees book tickets that carry a QR code, organisers publish events with ticket tiers and scan tickets
+  at the door, and an administrator approves what goes live and keeps a shared venue directory.
+
+  It is a three-tier application: HTML, CSS, JavaScript and jQuery in the browser, PHP 8 on Apache, and
+  MySQL. The browser never talks to the database directly. The interface was designed in Figma first and
+  converted to HTML and CSS by hand, without a framework. Browsing works as a normal form even with
+  JavaScript switched off; with JavaScript, jQuery calls a JSON endpoint and swaps only the results, so
+  filtering never reloads the page.
+
+  The database has ten tables joined by eleven foreign keys, with one-to-one (users and organiser profiles),
+  one-to-many (events, ticket tiers and bookings) and many-to-many (events and tags) relationships, each
+  enforced by a constraint. Every query that takes user input uses a prepared statement, every form is
+  validated in the browser and again on the server, and buying the last ticket runs inside a transaction
+  that locks the ticket tier, so two people can't both get it. The team tested every area against the
+  running site with a written set of test cases, and all of them passed.
+
+  We split the work by area. I owned the database and server-side logic: the schema and its constraints,
+  authentication, sessions and role guards, the booking transaction, and the organiser console with its
+  event builder and door check-in. Jordan Septian designed the interface and built the front end and
+  client-side validation, and Hakim Bin Taufik handled the seed data, the ER diagram, the admin console, the
+  attendee account pages, the test-case document and the report. Payment is simulated; no real payment
+  gateway is connected.
 images:
   - src: ./images/01-home.png
     alt: JomLah home page listing upcoming events and a featured ticket card
+    caption: Home
   - src: ./images/02-browse.png
     alt: Browse events page with category filters and a grid of event cards
+    caption: Browse events
   - src: ./images/03-checkout.png
     alt: Checkout screen for confirming attendee details and paying for a ticket
+    caption: Checkout
   - src: ./images/04-organiser-dashboard.png
     alt: Organiser dashboard showing live events, tickets sold, revenue and recent bookings
+    caption: Organiser dashboard
   - src: ./images/05-check-in.png
     alt: Door check-in screen for scanning or typing a ticket reference code
+    caption: Door check-in

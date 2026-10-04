@@ -1,10 +1,20 @@
 title: Moltech Johor Warehouse
 client: true
+clientName: "Moltech"
 category: Architectural Visualization
 order: 1
 description: >-
   Interior visualization of an industrial warehouse, featuring ISO tank containers, forklifts, safety
   barriers and hazard labelling, with realistic materials and lighting.
+details: |
+  An interior visualization of an industrial warehouse for Moltech, modelled, lit and rendered in Blender.
+  The scene features ISO tank containers, forklifts, safety barriers and hazard labelling, with realistic
+  materials and lighting.
+
+  The renders move from a wide isometric overview of the whole floor, showing the ISO tank, forklift, drum
+  and charging zones, to closer views: the ISO tank container beside two forklifts, the storage area with
+  its charging station, blue drums and white IBC totes, and the filtration room with its concrete tank and
+  red pipework. A top-down view shows how the ISO tank rack and the filtration equipment are laid out.
 images:
   - src: ./images/01-iso-tank-forklifts.png
     alt: Warehouse interior with a blue-framed ISO tank container beside two forklifts

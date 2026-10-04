@@ -1,7 +1,15 @@
 title: Fixer – On-Demand Home Repair Service App
 course: Business Case Project
-team: Team of 3
+type: Business case and prototype
+platform: Mobile app prototype (JavaFX)
+year: 2025
+members:
+  - name: Muhammad Zarif Nurhan Bin Mohd Arifin
+  - name: Yogesh Sandeep Jayavant
+  - name: Hakim Bin Taufik
+  - name: Jordan Septian
 order: 4
+device: phone
 stack: [Java, JavaFX, Maven, PostgreSQL]
 languages: [Java, SQL]
 description: >-
@@ -11,14 +19,38 @@ description: >-
   workers, service listings, bookings and in-app chat. The result is a clickable JavaFX prototype with 13
   screens, including sign-up and login, browsing services, booking, wallet top-up, ratings and activity
   history.
+details: |
+  Fixer is a Grab-style home repair app that our team of four designed for the Business Case Project course.
+  In Malaysia, finding a handyman usually depends on recommendations from family and friends or on social
+  media posts, which leads to unpredictable pricing, timing and quality, and makes it hard for skilled
+  workers to find steady jobs. Fixer connects customers with verified repair workers nearby.
+
+  The business case compared four options: partnering with existing service apps, building a dedicated
+  handyman app, a simple job-listing website, and a full ecosystem with AI features. It weighed each one's
+  benefits, risks and estimated costs, and recommended the dedicated app as the best balance of cost, time,
+  control and growth. The core features it set out are online payment, GPS tracking with Google Maps and
+  Waze, service history, an advertising board for vendors, photo attachments so a worker can see the
+  problem before arriving, ratings and reviews, and verification of every worker.
+
+  The team then wrote the requirements and designed the system with use case, sequence, class and activity
+  diagrams, and an 8-table PostgreSQL database for users, repair workers, service listings, bookings and
+  in-app chat. The result is a clickable JavaFX prototype with 13 screens, including sign-up and login,
+  browsing services, booking, wallet top-up, order tracking, ratings and activity history, along with a
+  user manual that walks through setting up a profile, booking a service, tracking an order and messaging
+  the worker.
 images:
   - src: ./images/01-home.png
     alt: Fixer prototype home screen with a promo banner and service category icons
+    caption: Home
   - src: ./images/02-services.png
     alt: Services screen listing repair categories including cleaning, plumbing and air-con
+    caption: Services
   - src: ./images/03-tracking.png
     alt: Order tracking screen with a map showing the fixer's route to the customer
+    caption: Tracking
   - src: ./images/04-booking-confirmed.png
     alt: Booking confirmation popup showing a success message and booking ID
+    caption: Booking confirmed
   - src: ./images/05-rating.png
     alt: Rating screen for leaving a star rating and comment for a completed job
+    caption: Rating

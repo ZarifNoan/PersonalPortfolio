@@ -1,9 +1,13 @@
 title: JOHEX Halal Expo
 client: true
+clientName: "JOHEX"
 category: Architectural Visualization
 order: 4
 draft: true
 description: >-
+  Exhibition venue visualization for JOHEX, a halal expo showcasing all kinds of halal products, not just
+  food.
+details: |
   Exhibition venue visualization for JOHEX, a halal expo showcasing all kinds of halal products, not just
   food.
 images: []

@@ -1,7 +1,11 @@
 title: StockSense – AI Inventory Prediction System
 course: Final Year Project (Project Design and Implementation)
-team: Individual
+type: Final Year Project
+platform: Desktop app (Electron)
+year: 2026
+members: []
 order: 1
+device: laptop
 stack: [Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL]
 languages: [Python, JavaScript, SQL]
 description: >-
@@ -10,14 +14,43 @@ description: >-
   from 5 years of sales data, and an NLP chatbot that answers stock questions typed in plain language.
   The app also handles stock management, low-stock alerts and a timestamped change history, with
   interactive Chart.js charts comparing past sales against predicted demand.
+details: |
+  StockSense is the desktop inventory system I built on my own as my Final Year Project at UCSI University.
+  It is aimed at small and medium businesses whose tools record what has already happened but cannot say
+  what stock they will need next, which leads to overstocking and stockouts. The goal was to make demand
+  forecasting and a conversational assistant usable by someone without a data science background, using
+  only free and open-source tools.
+
+  The interface is written in HTML, CSS and JavaScript and packaged as a desktop app with Electron: a dark
+  dashboard, a sidebar for switching between modules, and interactive Chart.js charts. The inventory module
+  covers adding, editing and deleting products (name, SKU, category, quantity, price and supplier), search
+  and filters, low-stock alerts against a configurable threshold, and a timestamped history of every stock
+  change, all stored in PostgreSQL.
+
+  Forecasting uses an LSTM network in TensorFlow and Keras. Sales history is normalised and turned into
+  sequences, the model is trained on 80% of a five-year generated sales dataset and tested on the other 20%,
+  and its forecasts are charted against past sales with the MAPE and RMSE shown alongside. The results are a
+  working baseline rather than production-grade accuracy, especially for products with volatile demand, and
+  retraining on real business data is the clear next step.
+
+  The chatbot uses NLTK to tokenise, stem and lemmatise each question, then pattern-based intent detection
+  to answer things like "What products are running low?": stock levels, low-stock lists, sales trends,
+  reorder suggestions and reports. Its intent detection went through three iterations. The system was
+  checked with unit and integration tests and a user acceptance test in which five participants added and
+  updated stock, viewed forecasts, asked the chatbot questions and generated reports.
 images:
   - src: ./images/01-dashboard.png
     alt: StockSense dashboard showing inventory levels, stock alerts and a demand forecast chart
+    caption: Dashboard
   - src: ./images/02-inventory.png
     alt: Inventory management table listing products, stock levels and status badges
+    caption: Inventory
   - src: ./images/03-ml-forecasting.png
     alt: ML forecasting screen with a line chart comparing actual sales to predicted demand
+    caption: ML forecasting
   - src: ./images/04-ai-chatbot.png
     alt: AI chatbot panel answering a natural-language question about low-stock items
+    caption: AI chatbot
   - src: ./images/05-reports.png
     alt: Reports and analytics screen with revenue, units sold and a monthly revenue chart
+    caption: Reports
