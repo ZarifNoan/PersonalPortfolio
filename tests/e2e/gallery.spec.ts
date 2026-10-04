@@ -1,19 +1,23 @@
 import { test, expect } from '@playwright/test';
 
-test('software page lists four projects in order with descriptions visible', async ({ page }) => {
+test('software page lists five projects in order, client work first, with descriptions visible', async ({ page }) => {
   await page.goto('/software');
   const titles = page.locator('section[data-filter-item] h2');
   await expect(titles).toHaveText([
+    'Primo Pinnacle – Government Relations Company Website',
     'StockSense – AI Inventory Prediction System',
     'JomLah – Centralized Event Management Platform',
     'Student Performance Prediction using Fuzzy Logic',
     'Fixer – On-Demand Home Repair Service App',
   ]);
-  await expect(page.locator('section[data-filter-item]').first()).toContainText('LSTM model');
+  await expect(page.locator('section#stocksense')).toContainText('LSTM model');
+  await expect(page.locator('section[data-filter-item]').first()).toContainText('government relations');
 });
 
 test('team wording on the listing eyebrows', async ({ page }) => {
   await page.goto('/software');
+  // Not coursework: the type replaces the course.
+  await expect(page.locator('#primo-pinnacle .eyebrow')).toHaveText('Freelance client project · Individual');
   await expect(page.locator('#stocksense .eyebrow')).toHaveText(/· Individual$/);
   await expect(page.locator('#jomlah .eyebrow')).toHaveText(/· Team of 3$/);
   await expect(page.locator('#fuzzy-logic .eyebrow')).toHaveText(/· Team of 5$/);
@@ -21,7 +25,7 @@ test('team wording on the listing eyebrows', async ({ page }) => {
 });
 
 for (const [listing, slugs] of [
-  ['/software', ['stocksense', 'jomlah', 'fuzzy-logic', 'fixer']],
+  ['/software', ['primo-pinnacle', 'stocksense', 'jomlah', 'fuzzy-logic', 'fixer']],
   ['/3d', ['moltech-johor-warehouse', 'slice-2025', 'gobami']],
 ] as const) {
   test(`${listing}: each project shows exactly one picture and no thumbnail strip`, async ({ page }) => {
@@ -54,7 +58,7 @@ for (const [listing, slugs] of [
 test('software listing pictures are photographs of real devices showing each app, each in its own scene', async ({ page }) => {
   await page.goto('/software');
   const srcs: string[] = [];
-  for (const slug of ['stocksense', 'jomlah', 'fuzzy-logic', 'fixer']) {
+  for (const slug of ['primo-pinnacle', 'stocksense', 'jomlah', 'fuzzy-logic', 'fixer']) {
     const img = page.locator(`#${slug} [data-cover] img`);
     await expect(img).toHaveCount(1);
     // One pre-rendered composite per project, served responsively.
@@ -62,7 +66,7 @@ test('software listing pictures are photographs of real devices showing each app
     srcs.push((await img.getAttribute('src'))!);
     expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(30);
   }
-  expect(new Set(srcs).size).toBe(4);
+  expect(new Set(srcs).size).toBe(5);
   expect(srcs.every((s) => /00-mockup/.test(s))).toBe(true);
   // The CSS-drawn laptop and the SVG phone overlay are gone.
   await expect(page.locator('.laptop-scene, .phone-scene, .laptop, svg.overlay')).toHaveCount(0);
@@ -113,3 +117,22 @@ for (const width of [1440, 390]) {
     }
   });
 }
+
+test('a live client website gets a "Visit website" link next to Learn More; other projects do not', async ({ page }) => {
+  await page.goto('/software');
+  const primo = page.locator('section#primo-pinnacle');
+  const visit = primo.getByRole('link', { name: 'Visit the Primo Pinnacle website (opens in a new tab)' });
+  await expect(visit).toHaveCount(1);
+  await expect(visit).toHaveAttribute('href', 'https://primopinnacle.co');
+  await expect(visit).toHaveAttribute('target', '_blank');
+  await expect(visit).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(visit).toContainText('Visit website');
+  await expect(visit).toBeVisible();
+  // It sits beside Learn More, on the same row.
+  const more = primo.getByRole('link', { name: /^Learn More/ });
+  const [a, b] = [(await more.boundingBox())!, (await visit.boundingBox())!];
+  expect(Math.abs(a.y + a.height / 2 - (b.y + b.height / 2))).toBeLessThan(a.height / 2);
+  for (const slug of ['stocksense', 'jomlah', 'fuzzy-logic', 'fixer']) {
+    await expect(page.locator(`section#${slug}`).getByRole('link', { name: /Visit/ })).toHaveCount(0);
+  }
+});

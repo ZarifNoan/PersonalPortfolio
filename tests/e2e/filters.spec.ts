@@ -5,14 +5,19 @@ const titles = (page: Page) => page.locator('section[data-filter-item]:visible h
 test('Python shows StockSense and Fuzzy Logic and updates the URL', async ({ page }) => {
   await page.goto('/software');
   const bar = page.getByRole('group', { name: 'Filter by language' });
-  await expect(bar.getByRole('button')).toHaveText(['All', 'Python', 'JavaScript', 'PHP', 'Java', 'SQL']);
+  await expect(bar.getByRole('button')).toHaveText(['All', 'Python', 'JavaScript', 'TypeScript', 'PHP', 'Java', 'SQL']);
   await bar.getByRole('button', { name: 'Python' }).click();
   await expect(bar.getByRole('button', { name: 'Python' })).toHaveAttribute('aria-pressed', 'true');
   await expect(titles(page)).toHaveText([/^StockSense/, /^Student Performance/]);
   await expect(page).toHaveURL(/\?lang=python$/);
   await bar.getByRole('button', { name: 'All' }).click();
-  await expect(titles(page)).toHaveCount(4);
+  await expect(titles(page)).toHaveCount(5);
   await expect(page).toHaveURL(/\/software$/);
+});
+
+test('TypeScript shows only the Primo Pinnacle website', async ({ page }) => {
+  await page.goto('/software?lang=typescript');
+  await expect(titles(page)).toHaveText([/^Primo Pinnacle/]);
 });
 
 test('Java shows only Fixer', async ({ page }) => {
@@ -23,7 +28,7 @@ test('Java shows only Fixer', async ({ page }) => {
 for (const q of ['?lang=COBOL', '?lang=', '?lang=%20', '?type=python']) {
   test(`bad param ${q} falls back to All`, async ({ page }) => {
     await page.goto(`/software${q}`);
-    await expect(titles(page)).toHaveCount(4);
+    await expect(titles(page)).toHaveCount(5);
     await expect(page.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
   });
 }

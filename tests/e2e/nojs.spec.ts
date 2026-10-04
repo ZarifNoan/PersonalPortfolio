@@ -3,7 +3,7 @@ test.use({ javaScriptEnabled: false });
 
 test('all content is visible without JavaScript', async ({ page }) => {
   await page.goto('/software?lang=python');
-  await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(4);
+  await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(5);
   await expect(page.locator('[data-filter-group]')).toBeHidden();
   await page.goto('/3d');
   await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(3);

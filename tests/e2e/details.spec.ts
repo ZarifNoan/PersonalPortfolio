@@ -116,7 +116,7 @@ test('the JOHEX draft has no page', async ({ page }) => {
 for (const width of [390, 820, 1440]) {
   test(`no horizontal scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ['/software', '/3d', '/software/stocksense', '/software/jomlah', '/software/fixer', '/software/fuzzy-logic', '/3d/moltech-johor-warehouse', '/3d/gobami']) {
+    for (const path of ['/software', '/3d', '/software/primo-pinnacle', '/software/stocksense', '/software/jomlah', '/software/fixer', '/software/fuzzy-logic', '/3d/moltech-johor-warehouse', '/3d/gobami']) {
       await page.goto(path);
       expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(width);
     }
@@ -126,6 +126,7 @@ for (const width of [390, 820, 1440]) {
 test('each software gallery sits on a backdrop in the colours of its own app', async ({ page }) => {
   // [slug, theme.from as rgb] - sampled from each app's UI (see the project YAML).
   const cases = [
+    ['primo-pinnacle', 'rgb(27, 61, 130)'],
     ['stocksense', 'rgb(19, 37, 74)'],
     ['jomlah', 'rgb(91, 52, 214)'],
     ['fuzzy-logic', 'rgb(242, 207, 182)'],
@@ -141,7 +142,7 @@ test('each software gallery sits on a backdrop in the colours of its own app', a
     // No shared blue left over.
     expect(bg).not.toContain('rgb(36, 73, 216)');
   }
-  expect(seen.size).toBe(4);
+  expect(seen.size).toBe(5);
 });
 
 test("the Moltech client name links to the client's website; clients without a website stay plain text", async ({ page }) => {
@@ -157,5 +158,32 @@ test("the Moltech client name links to the client's website; clients without a w
   for (const path of ['/3d/slice-2025', '/3d/gobami']) {
     await page.goto(path);
     await expect(page.getByRole('main').locator('dt', { hasText: 'Client' }).locator('+ dd').getByRole('link')).toHaveCount(0);
+  }
+});
+
+test('a client website project: no course, the type in the eyebrow and facts, and a prominent "Visit website" link', async ({ page }) => {
+  await page.goto('/software/primo-pinnacle');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Primo Pinnacle – Government Relations Company Website');
+  await expect(main.locator('.eyebrow')).toHaveText(/Freelance client project · Individual$/);
+  const facts = main.getByRole('complementary', { name: 'Project facts' });
+  expect(await facts.locator('dt').allTextContents()).toEqual(['Type', 'Platform', 'Year']);
+  await expect(facts).toContainText('Freelance client project');
+  await expect(facts).toContainText('2026');
+  await expect(facts.getByRole('list', { name: 'Tech stack' }).getByRole('listitem')).toHaveText(['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Vitest', 'Playwright', 'Netlify']);
+  await expect(main.getByRole('region', { name: 'Team' })).toHaveCount(0);
+  // The link sits with the title, visible without scrolling past the header.
+  const visit = main.locator('.head').getByRole('link', { name: 'Visit the Primo Pinnacle website (opens in a new tab)' });
+  await expect(visit).toHaveAttribute('href', 'https://primopinnacle.co');
+  await expect(visit).toHaveAttribute('target', '_blank');
+  await expect(visit).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(visit).toContainText('Visit website');
+  await expect(main.getByRole('link', { name: /Visit the .* website/ })).toHaveCount(1);
+  await expect(main.locator('.shots .win')).toHaveCount(5);
+  await expect(main.locator('a.hero img')).toHaveAttribute('src', /00-mockup/);
+  for (const slug of ['stocksense', 'jomlah', 'fuzzy-logic', 'fixer']) {
+    await page.goto(`/software/${slug}`);
+    await expect(page.getByRole('main').getByRole('link', { name: /Visit the .* website/ })).toHaveCount(0);
+    expect(await page.getByRole('complementary', { name: 'Project facts' }).locator('dt').allTextContents()).toContain('Course');
   }
 });

@@ -1,0 +1,62 @@
+title: Primo Pinnacle – Government Relations Company Website
+# Not coursework, so there is no `course`: the eyebrow shows the type instead.
+type: Freelance client project
+platform: Website (static export on Netlify)
+# From the site's footer (© 2026) and the source repository's history (August to September 2026).
+year: 2026
+url: https://primopinnacle.co
+members: []
+order: 0
+device: laptop
+mockup:
+  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  alt: "Primo Pinnacle's home page, “Strategic Navigation Across Malaysia’s Institutional Landscape”, on a MacBook Pro on a white meeting-room table in front of bright windows"
+# Gallery colours from the site's own brand tokens (globals.css, sampled from the logo): navy-soft #1b3d82 to
+# navy-deep #081b41, with the crimson #c6192b of its buttons as the accent.
+theme: { from: '#1b3d82', to: '#081b41', accent: '#c6192b' }
+# Evidence: the source's package.json, next.config.ts and netlify.toml, and the live site's assets (Next.js chunks,
+# the Tailwind CSS v4 banner, Framer Motion code, Netlify headers).
+stack: [Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Vitest, Playwright, Netlify]
+languages: [TypeScript]
+description: >-
+  Designed and built, on my own, the company website for PRIMO Pinnacle, a boutique government relations
+  and strategic advisory firm in Kuala Lumpur. The site presents the firm across six pages: home, about
+  us with its leadership, its four service lines, its mandates (case studies), insights articles and
+  contact details with an embedded map. It is built with Next.js, React, TypeScript and Tailwind CSS,
+  animated with Framer Motion, works on screens from phones to wide desktops, and is published as a
+  static site on Netlify at primopinnacle.co.
+details: |
+  PRIMO Pinnacle Sdn Bhd is a boutique government relations and strategic advisory firm in Kuala Lumpur
+  that helps local and international investors work with Malaysia's federal and state institutions. I
+  designed and built its company website on my own as a freelance client project, from the design and the
+  brand colours, sampled from the company's logo, to the deployment, and it is live at primopinnacle.co.
+
+  The home page introduces the firm with a full-width hero, a row of headline figures, its four service
+  lines, a four-step engagement process, selected mandates and the latest insights. About Us covers the
+  firm's story, mission and vision, its leadership with photographs and biographies, what sets it apart
+  and its office. Our Expertise describes each service line with its key services and links to related
+  ones; Our Mandates and Our Insights list case studies and articles that each have their own page; and
+  Contact Us gives the email address, the LinkedIn page and the office address with an embedded Google
+  Map. All of the copy lives in typed content files, so the company's wording can be updated without
+  touching the components.
+
+  The site is written in TypeScript with Next.js (App Router) and React, styled with Tailwind CSS, and
+  uses Framer Motion for scroll-in reveals and counting figures, which are switched off for visitors who
+  prefer reduced motion. Next.js exports it as plain static pages that Netlify serves, with a sitemap,
+  robots.txt, canonical links, a share image and organisation structured data for search engines. I
+  tested it with Vitest and Testing Library for components and content, and Playwright for navigation,
+  accessibility checks (landmarks, image alt text, heading order) and layouts without horizontal
+  scrolling from 375px to 1920px wide.
+images:
+  - src: ./images/01-home.jpg
+    alt: Primo Pinnacle home page hero with the headline “Strategic Navigation Across Malaysia’s Institutional Landscape” over a night view of Kuala Lumpur
+  - src: ./images/02-services.png
+    alt: Home page section “Where We Make The Difference” with cards for the firm's four service lines
+  - src: ./images/03-process.png
+    alt: Home page section “From Objective To Approval” showing the four numbered steps of an engagement on navy
+  - src: ./images/04-mandates.jpg
+    alt: Our Mandates page with two renewable-energy case study cards, each with a photograph and its deliverables
+  - src: ./images/05-leadership.jpg
+    alt: About Us page leadership section with the Executive Chairman's photograph and biography
+  - src: ./images/06-contact.jpg
+    alt: Contact Us page hero “Talk To Us” above the direct channels section

@@ -11,6 +11,7 @@ scripts/mockup-photos/:
   jomlah-cafe.jpg        Alex Knight       https://unsplash.com/photos/j4uuKnN43_M
   fuzzy-study.jpg        Clay Banks        https://unsplash.com/photos/TQYTWfN1b7M
   fixer-hand.jpg         Jakub Zerdzicki   https://unsplash.com/photos/jSQCLQA99Og
+  primo-meeting-room.jpg Devin Pickell     https://unsplash.com/photos/1eRS74C-alQ
 
 Screen geometry is measured on those 2400px files (scripts zoomed in on each corner):
   `glass` is the quad of the screen glass (TL, TR, BR, BL; for a lit screen it is the lit area itself; for the phone it
@@ -68,6 +69,17 @@ SCENES = {
         cover='fixer/images/01-home.png', fit='cover',
         gain=0.93, tint=(1.0, 1.0, 1.0), glare=0.05, glare_from='left', blur=0.5, grain=2.4,
         crop=(400, 60, 2400, 1310), grade=dict(brightness=0.86, color=0.88, contrast=1.02),
+    ),
+    # Primo Pinnacle's home page on a space-grey 15" MacBook Pro, front view, on a white meeting-room table in front
+    # of daylit windows. The photo's screen is lit (a blank grey desktop), so `glass` is the lit area itself: edges
+    # found at half-maximum between the lit screen and the black border, fitted per side (residual < 0.1px).
+    'primo-pinnacle': dict(
+        photo='primo-meeting-room.jpg',
+        glass=[(692.4, 490.6), (1707.2, 489.0), (1713.3, 1124.3), (688.4, 1126.7)],
+        display=(0, 0, 1, 1), grow=1.2,
+        cover='primo-pinnacle/images/01-home.jpg', fit='cover',
+        gain=0.95, tint=(1.0, 1.0, 1.0), glare=0.04, glare_from='left', blur=0.5, grain=2.0,
+        crop=(200, 130, 2200, 1380), grade=dict(brightness=0.86, color=0.95, contrast=1.03),
     ),
 }
 
