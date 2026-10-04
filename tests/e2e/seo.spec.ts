@@ -14,10 +14,9 @@ for (const [path, title] of [['/', 'Muhammad Zarif Nurhan Bin Mohd Arifin | Port
 test('sitemap exists and lists the detail pages', async ({ request }) => {
   expect((await request.get('/sitemap-index.xml')).status()).toBe(200);
   const body = await (await request.get('/sitemap-0.xml')).text();
-  for (const p of ['software/primo-pinnacle', 'software/stocksense', 'software/jomlah', 'software/fuzzy-logic', 'software/fixer', '3d/moltech-johor-warehouse', '3d/slice-2025', '3d/gobami', '3d/exhibition-booths', '3d/perfume-renders']) {
+  for (const p of ['software/primo-pinnacle', 'software/stocksense', 'software/jomlah', 'software/fuzzy-logic', 'software/fixer', '3d/moltech-johor-warehouse', '3d/slice-2025', '3d/johex', '3d/gobami', '3d/exhibition-booths', '3d/perfume-renders']) {
     expect(body).toContain(`/${p}/</loc>`);
   }
-  expect(body).not.toContain('johex');
 });
 for (const [path, title] of [['/software/stocksense', 'StockSense – AI Inventory Prediction System'], ['/3d/slice-2025', 'SLICE 2025 – School Leavers Inspiration & Success Initiatives']]) {
   test(`${path} has its own title, description, canonical and cover OG image`, async ({ page, request }) => {

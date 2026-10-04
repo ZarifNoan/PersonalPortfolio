@@ -108,9 +108,18 @@ test('detail pages mark their section tab as current', async ({ page }) => {
   await expect(nav.getByRole('link', { name: '3D Visualization' })).toHaveAttribute('aria-current', 'true');
 });
 
-test('the JOHEX draft has no page', async ({ page }) => {
-  const res = await page.goto('/3d/johex');
-  expect(res!.status()).toBe(404);
+test('JOHEX detail: published with Client "JOHEX", every render in the mosaic and a working lightbox', async ({ page }) => {
+  await page.goto('/3d/johex');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('JOHEX Halal Expo');
+  await expect(main.locator('dt', { hasText: 'Category' }).locator('+ dd')).toHaveText('Architectural Visualization');
+  await expect(main.locator('dt', { hasText: 'Client' }).locator('+ dd')).toHaveText('JOHEX');
+  expect(await main.locator('.about p').count()).toBeGreaterThanOrEqual(2);
+  await expect(main.locator('.mosaic img')).toHaveCount(6);
+  const dlg = page.getByRole('dialog', { name: 'Image viewer' });
+  await main.locator('[data-open-lightbox]').first().click({ position: { x: 30, y: 40 } });
+  await expect(dlg).toBeVisible();
+  await expect(dlg.getByText('1 / 6')).toBeVisible();
 });
 
 test('exhibition booths detail: two personal projects grouped into their own captioned mosaic sections', async ({ page }) => {
@@ -155,7 +164,7 @@ test('perfume renders detail: a personal product visualization project with all 
 for (const width of [390, 820, 1440]) {
   test(`no horizontal scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ['/software', '/3d', '/software/primo-pinnacle', '/software/stocksense', '/software/jomlah', '/software/fixer', '/software/fuzzy-logic', '/3d/moltech-johor-warehouse', '/3d/gobami', '/3d/exhibition-booths', '/3d/perfume-renders']) {
+    for (const path of ['/software', '/3d', '/software/primo-pinnacle', '/software/stocksense', '/software/jomlah', '/software/fixer', '/software/fuzzy-logic', '/3d/moltech-johor-warehouse', '/3d/johex', '/3d/gobami', '/3d/exhibition-booths', '/3d/perfume-renders']) {
       await page.goto(path);
       expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(width);
     }
