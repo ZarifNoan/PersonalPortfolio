@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -91,5 +91,38 @@ describe('metaDescription', () => {
 describe('metaDescription with decimals', () => {
   it('does not treat a decimal point as a sentence end', () => {
     expect(metaDescription('Accuracy rose from 41.7% to 72.9% overall. Then more text follows here.', 50)).toBe('Accuracy rose from 41.7% to 72.9% overall.');
+  });
+});
+
+describe('projectFacts', () => {
+  const base = { course: 'Web Programming', members: [{ name: 'A' }, { name: 'B' }, { name: 'C' }] };
+  it('lists type, course, team, platform and year in order, skipping missing ones', () => {
+    expect(projectFacts({ ...base, type: 'Course project', platform: 'Web app', year: 2026 })).toEqual([
+      { label: 'Type', value: 'Course project' },
+      { label: 'Course', value: 'Web Programming' },
+      { label: 'Team', value: 'Team of 3' },
+      { label: 'Platform', value: 'Web app' },
+      { label: 'Year', value: '2026' },
+    ]);
+    expect(projectFacts({ course: 'X', members: [] })).toEqual([{ label: 'Course', value: 'X' }, { label: 'Team', value: 'Individual' }]);
+  });
+  it('drops the type when the course already says it', () => {
+    const f = projectFacts({ course: 'Final Year Project (Project Design and Implementation)', type: 'Final Year Project', members: [] });
+    expect(f.map((x) => x.label)).toEqual(['Course', 'Team']);
+    expect(f.filter((x) => /final year project/i.test(x.value))).toHaveLength(1);
+  });
+});
+
+describe('linkedinLink', () => {
+  it('is null without a URL', () => {
+    expect(linkedinLink({ name: 'Jordan Septian' })).toBeNull();
+  });
+  it('opens the profile in a new tab safely, with a descriptive name', () => {
+    expect(linkedinLink({ name: 'Jordan Septian', linkedin: 'https://www.linkedin.com/in/example' })).toEqual({
+      href: 'https://www.linkedin.com/in/example',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      'aria-label': 'Jordan Septian on LinkedIn (opens in a new tab)',
+    });
   });
 });

@@ -77,3 +77,23 @@ export function metaDescription(text: string, max = 160): string {
   const cut = t.slice(0, max - 1);
   return `${cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:–-]+$/, '')}…`;
 }
+
+export interface Member { name: string; linkedin?: string }
+
+/** The facts card on a software project page. The type is skipped when the course name already contains it. */
+export function projectFacts(d: { type?: string; course: string; members: readonly Member[]; platform?: string; year?: number }): { label: string; value: string }[] {
+  const typeIsInCourse = !!d.type && d.course.toLowerCase().includes(d.type.toLowerCase());
+  return [
+    d.type && !typeIsInCourse ? { label: 'Type', value: d.type } : null,
+    { label: 'Course', value: d.course },
+    { label: 'Team', value: teamLabel(d.members) },
+    d.platform ? { label: 'Platform', value: d.platform } : null,
+    d.year ? { label: 'Year', value: String(d.year) } : null,
+  ].filter((f): f is { label: string; value: string } => f !== null);
+}
+
+/** Link attributes for a member's LinkedIn logo (new tab, no opener or referrer), or null without a URL. */
+export function linkedinLink(m: Member): { href: string; target: '_blank'; rel: 'noopener noreferrer'; 'aria-label': string } | null {
+  if (!m.linkedin) return null;
+  return { href: m.linkedin, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${m.name} on LinkedIn (opens in a new tab)` };
+}
