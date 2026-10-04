@@ -16,6 +16,11 @@ members:
     linkedin: https://www.linkedin.com/in/jordanseptian9/
 order: 4
 device: phone
+mockup:
+  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  alt: "The Fixer app's home screen, with its home-cleaning offer and service categories, on a phone held in a hand in front of plants"
+# Gallery colours sampled from the UI: the navy tab bar (#1a3856) and the blue arrow buttons (#4fa6eb).
+theme: { from: '#1d4f7a', to: '#0f2236', accent: '#4fa6eb' }
 stack: [Java, JavaFX, Maven, PostgreSQL]
 languages: [Java, SQL]
 description: >-
@@ -47,16 +52,11 @@ details: |
 images:
   - src: ./images/01-home.png
     alt: Fixer prototype home screen with a promo banner and service category icons
-    caption: Home
   - src: ./images/02-services.png
     alt: Services screen listing repair categories including cleaning, plumbing and air-con
-    caption: Services
   - src: ./images/03-tracking.png
     alt: Order tracking screen with a map showing the fixer's route to the customer
-    caption: Tracking
   - src: ./images/04-booking-confirmed.png
     alt: Booking confirmation popup showing a success message and booking ID
-    caption: Booking confirmed
   - src: ./images/05-rating.png
     alt: Rating screen for leaving a star rating and comment for a completed job
-    caption: Rating

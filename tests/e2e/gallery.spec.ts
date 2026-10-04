@@ -51,11 +51,19 @@ for (const [listing, slugs] of [
   });
 }
 
-test('software listing pictures are device mockups (laptop or phone in hand)', async ({ page }) => {
+test('software listing pictures are photographs of real devices showing each app, each in its own scene', async ({ page }) => {
   await page.goto('/software');
-  for (const slug of ['stocksense', 'jomlah', 'fuzzy-logic']) await expect(page.locator(`#${slug} .laptop-scene`)).toHaveCount(1);
-  await expect(page.locator('#fixer .phone-scene')).toHaveCount(1);
-  // The cover screenshot is a crisp responsive image on the laptop screen.
-  const img = page.locator('#stocksense .laptop-scene .screen img');
-  await expect(img).toHaveAttribute('srcset', /\d+w/);
+  const srcs: string[] = [];
+  for (const slug of ['stocksense', 'jomlah', 'fuzzy-logic', 'fixer']) {
+    const img = page.locator(`#${slug} [data-cover] img`);
+    await expect(img).toHaveCount(1);
+    // One pre-rendered composite per project, served responsively.
+    await expect(img).toHaveAttribute('srcset', /\d+w/);
+    srcs.push((await img.getAttribute('src'))!);
+    expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(30);
+  }
+  expect(new Set(srcs).size).toBe(4);
+  expect(srcs.every((s) => /00-mockup/.test(s))).toBe(true);
+  // The CSS-drawn laptop and the SVG phone overlay are gone.
+  await expect(page.locator('.laptop-scene, .phone-scene, .laptop, svg.overlay')).toHaveCount(0);
 });

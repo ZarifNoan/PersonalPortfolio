@@ -24,9 +24,7 @@ const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LAN
         eyebrow={`${p.data.course} · ${teamLabel(p.data.members)}`}
         tags={p.data.stack}
         description={p.data.description}
-        cover={p.data.images[0]!}
-        device={p.data.device}
-        screenFit={p.data.screenFit}
+        picture={p.data.mockup}
         href={`/software/${p.id.split('/')[0]}`}
         eager={i === 0}
         filterSlugs={p.data.languages.map(slugify)}

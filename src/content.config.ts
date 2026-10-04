@@ -5,8 +5,9 @@ import { LANGUAGES, CATEGORIES } from './lib/taxonomy';
 
 type ImageFn = SchemaContext['image'];
 
-/** The first image is the cover. `caption` is a short label shown in a gallery window's title bar. */
-const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8), caption: z.string().optional() })).default([]);
+/** The first image is the cover (it opens first in the image viewer). */
+const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8) })).default([]);
+const hex = z.string().regex(/^#[0-9a-f]{6}$/i, 'Use a 6-digit hex colour like #1a2b3c');
 /** Long description: paragraphs separated by blank lines (rendered as <p>s on the detail page). */
 const details = z.string().min(40);
 /** A team member for a software project. `photo` is a relative image path (project folder or a shared people folder); omitted until a photo exists. */
@@ -27,10 +28,15 @@ const software = defineCollection({
     /** Team members in display order; empty means an individual project (team size = members.length). */
     members: z.array(member(image)).default([]),
     order: z.number().int(),
-    /** Device frame for the mockup: a laptop for desktop/web apps, a hand-held phone for mobile apps. */
+    /** Device the app runs on: `phone` shows the gallery as phone screens, `laptop` as panels. */
     device: z.enum(['laptop', 'phone']).default('laptop'),
-    /** How the cover fills the mockup screen: crop from the top (UI screenshots) or fit whole (charts). */
+    /** `contain` for charts: the gallery lays them side by side without overlap, so nothing is hidden. */
     screenFit: z.enum(['cover', 'contain']).default('cover'),
+    /** The listing picture and detail hero: a photo of a real device showing the app, rendered by
+     * scripts/make-mockups.py (16:10). The alt describes the scene and the app. */
+    mockup: z.object({ src: image(), alt: z.string().min(20) }),
+    /** The app's own colours (sampled from its UI) for the gallery backdrop: a gradient and an accent. */
+    theme: z.object({ from: hex, to: hex, accent: hex }),
     stack: z.array(z.string()).min(1),
     languages: z.array(z.enum(LANGUAGES)).min(1),
     description: z.string().min(40),

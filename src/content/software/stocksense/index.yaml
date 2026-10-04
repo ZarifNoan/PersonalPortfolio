@@ -6,6 +6,11 @@ year: 2026
 members: []
 order: 1
 device: laptop
+mockup:
+  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  alt: "StockSense's dark inventory dashboard on a MacBook Pro, on a wooden desk in a bright office by a window"
+# Gallery colours sampled from the UI: navy panels (#101720), the blue 'Add Product' button (#2f6dea), the green value text (#0a8569).
+theme: { from: '#13254a', to: '#0e4a52', accent: '#2f6dea' }
 stack: [Python, TensorFlow, Keras, NLTK, Electron, JavaScript, Chart.js, PostgreSQL]
 languages: [Python, JavaScript, SQL]
 description: >-
@@ -41,16 +46,11 @@ details: |
 images:
   - src: ./images/01-dashboard.png
     alt: StockSense dashboard showing inventory levels, stock alerts and a demand forecast chart
-    caption: Dashboard
   - src: ./images/02-inventory.png
     alt: Inventory management table listing products, stock levels and status badges
-    caption: Inventory
   - src: ./images/03-ml-forecasting.png
     alt: ML forecasting screen with a line chart comparing actual sales to predicted demand
-    caption: ML forecasting
   - src: ./images/04-ai-chatbot.png
     alt: AI chatbot panel answering a natural-language question about low-stock items
-    caption: AI chatbot
   - src: ./images/05-reports.png
     alt: Reports and analytics screen with revenue, units sold and a monthly revenue chart
-    caption: Reports

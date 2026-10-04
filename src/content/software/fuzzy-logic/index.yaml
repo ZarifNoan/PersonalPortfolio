@@ -18,6 +18,11 @@ members:
 order: 3
 device: laptop
 screenFit: contain
+mockup:
+  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  alt: "The membership-function calibration result chart (accuracy 41.7% to 72.9%) on an iMac on a study desk lit by a desk lamp"
+# Gallery colours sampled from the Matplotlib charts: the 'Low' orange (#d94801) and its light fill, and the 'High' blue's light fill.
+theme: { from: '#f2cfb6', to: '#bcd3ea', accent: '#d94801' }
 stack: [Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter]
 languages: [Python]
 description: >-
@@ -44,16 +49,11 @@ details: |
 images:
   - src: ./images/02-calibration.png
     alt: "Result chart: membership-function calibration, raising test accuracy from 41.7% to 72.9%"
-    caption: "Result: calibration"
   - src: ./images/03-rules-fired.png
     alt: "Result chart: the fuzzy rules fired, and how strongly, for one student's performance prediction"
-    caption: "Result: rules fired"
   - src: ./images/04-confusion-matrix.png
     alt: "Result chart: confusion matrix comparing predicted and actual performance classes on the test set"
-    caption: "Result: confusion matrix"
   - src: ./images/05-predicted-vs-actual.png
     alt: "Result chart: scatter plot of predicted versus actual performance scores with MAE and RMSE"
-    caption: "Result: predicted vs actual"
   - src: ./images/01-architecture.png
     alt: System architecture diagram showing the fuzzy inference layer feeding a rule-based expert system
-    caption: Architecture

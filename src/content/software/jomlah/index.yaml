@@ -14,6 +14,11 @@ members:
     linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
 order: 2
 device: laptop
+mockup:
+  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  alt: "JomLah's home page, “Jom, let’s find something fun-lah to do”, on a MacBook Pro on a café counter beside an espresso"
+# Gallery colours sampled from the UI: the purple brand (#7c4dff), the pink ticket card (#c23777) and the lime 'View details' button (#d9f06b).
+theme: { from: '#5b34d6', to: '#c23777', accent: '#d9f06b' }
 stack: [PHP 8, MySQL, JavaScript, jQuery/AJAX, HTML5, CSS3]
 languages: [PHP, JavaScript, SQL]
 description: >-
@@ -47,16 +52,11 @@ details: |
 images:
   - src: ./images/01-home.png
     alt: JomLah home page listing upcoming events and a featured ticket card
-    caption: Home
   - src: ./images/02-browse.png
     alt: Browse events page with category filters and a grid of event cards
-    caption: Browse events
   - src: ./images/03-checkout.png
     alt: Checkout screen for confirming attendee details and paying for a ticket
-    caption: Checkout
   - src: ./images/04-organiser-dashboard.png
     alt: Organiser dashboard showing live events, tickets sold, revenue and recent bookings
-    caption: Organiser dashboard
   - src: ./images/05-check-in.png
     alt: Door check-in screen for scanning or typing a ticket reference code
-    caption: Door check-in

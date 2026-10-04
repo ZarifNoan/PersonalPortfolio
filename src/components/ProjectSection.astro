@@ -1,26 +1,19 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import DeviceMockup from './DeviceMockup.astro';
 interface Props {
   id: string; title: string; eyebrow: string; tags: string[]; description: string;
-  /** The project's one listing picture (its cover image). */
-  cover: { src: ImageMetadata; alt: string };
-  /** Software covers are shown on a device; 3D covers are shown as the render itself. */
-  device?: 'laptop' | 'phone'; screenFit?: 'cover' | 'contain';
+  /** The project's one listing picture: a photo of a device showing the app (software) or the render itself (3D). */
+  picture: { src: ImageMetadata; alt: string };
   href: string; filterSlugs: string[]; reverse: boolean; accent: 'sw' | 'viz'; eager?: boolean;
 }
-const { id, title, eyebrow, tags, description, cover, device, screenFit, href, filterSlugs, reverse, accent, eager = false } = Astro.props;
+const { id, title, eyebrow, tags, description, picture, href, filterSlugs, reverse, accent, eager = false } = Astro.props;
 const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
 ---
 <section id={id} class:list={['project', `accent-${accent}`, { reverse }]} data-filter-item data-filter-values={filterSlugs.join(' ')} data-reveal aria-labelledby={`${id}-title`}>
   {/* The picture repeats the "Learn More" link for pointer users; it is hidden from keyboard and screen readers. */}
   <a class="media" href={href} tabindex="-1" aria-hidden="true" data-cover>
-    {device ? (
-      <DeviceMockup src={cover.src} alt={cover.alt} device={device} fit={screenFit} sizes={sizes} eager={eager} />
-    ) : (
-      <span class="render"><Image src={cover.src} alt={cover.alt} widths={[480, 800, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} /></span>
-    )}
+    <span class="render"><Image src={picture.src} alt={picture.alt} widths={[480, 800, 1200, 1600].filter((w) => w <= picture.src.width)} sizes={sizes} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} /></span>
   </a>
   <div class="text">
     <p class="eyebrow">{eyebrow}</p>

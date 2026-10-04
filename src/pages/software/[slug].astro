@@ -3,10 +3,10 @@ import type { GetStaticPaths } from 'astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { getImage, Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
-import DeviceMockup from '../../components/DeviceMockup.astro';
 import WindowStack from '../../components/WindowStack.astro';
 import { visibleSorted } from '../../lib/projects';
 import { paragraphs, teamLabel, metaDescription, projectFacts, linkedinLink, initials } from '../../lib/details';
+import { themeStyle } from '../../lib/theme';
 
 export const getStaticPaths = (async () => {
   const projects = visibleSorted(await getCollection('software'));
@@ -18,18 +18,18 @@ const { project } = Astro.props;
 const d = project.data;
 const full = await Promise.all(d.images.map((i) => getImage({ src: i.src, width: Math.min(i.src.width, 2000), format: 'webp' })));
 const gallery = JSON.stringify(full.map((f, k) => ({ src: f.src, alt: d.images[k]!.alt })));
-const og = await getImage({ src: d.images[0]!.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg' });
+const og = await getImage({ src: d.mockup.src, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const cover = d.images[0]!;
 const rest = d.images.slice(1).map((img, k) => ({ ...img, full: full[k + 1]!.src, index: k + 1 }));
 const team = teamLabel(d.members);
 const facts = projectFacts(d);
 ---
 <Layout title={d.title} description={metaDescription(d.description)} page="software" sub ogImage={og.src}>
-  <div class="container detail" data-gallery={gallery}>
+  <div class="container detail" data-gallery={gallery} style={themeStyle(d.theme)}>
     <a class="back" href="/software"><span aria-hidden="true">← </span>All software projects</a>
 
     <a class="hero" href={full[0]!.src} data-open-lightbox data-index="0" aria-label={`View larger: ${cover.alt}`}>
-      <DeviceMockup src={cover.src} alt={cover.alt} device={d.device} fit={d.screenFit} sizes="(max-width: 1100px) calc(100vw - 32px), 1040px" size="hero" eager />
+      <Image src={d.mockup.src} alt={d.mockup.alt} widths={[640, 960, 1280, 1600, 2000].filter((w) => w <= d.mockup.src.width)} sizes="(max-width: 1100px) calc(100vw - 32px), 1040px" loading="eager" fetchpriority="high" />
     </a>
 
     <div class="body">
@@ -89,7 +89,10 @@ const facts = projectFacts(d);
   .detail { padding-block: clamp(20px, 4vw, 40px) clamp(48px, 8vw, 96px); --accent: var(--sw); }
   .back { display: inline-flex; gap: 4px; color: var(--muted); text-decoration: none; font-weight: 600; font-size: .92rem; padding: 6px 0; }
   .back:hover { color: var(--text); }
-  .hero { display: block; max-width: 1040px; margin: 16px auto 0; border-radius: var(--radius); box-shadow: 0 0 0 1px var(--border), 0 30px 80px -30px rgba(0, 0, 0, .8); cursor: zoom-in; }
+  /* The hero photo, with a faint glow in the app's own accent colour (a shadow, so it never adds scroll width). */
+  .hero { display: block; max-width: 1040px; margin: 16px auto 0; border-radius: var(--radius); cursor: zoom-in;
+    box-shadow: 0 0 0 1px var(--border), 0 30px 80px -30px rgba(0, 0, 0, .8), 0 0 90px -10px color-mix(in srgb, var(--theme-accent) 28%, transparent); }
+  .hero img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius); }
   .body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'head head' 'team facts' 'about facts'; column-gap: clamp(32px, 5vw, 72px); align-items: start; max-width: 1040px; margin: clamp(32px, 5vw, 56px) auto clamp(40px, 6vw, 72px); }
   .head { grid-area: head; margin-bottom: 28px; }
   .team { grid-area: team; margin-bottom: 28px; }
