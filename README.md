@@ -20,9 +20,17 @@ npm run check      # type and template checks
    mockup on the listing (with a "Learn More →" button to the detail page) and at the top of the detail page; the
    others appear lower on the detail page.
 3. `languages` must use: Python, JavaScript, PHP, Java, SQL (add new ones to `src/lib/taxonomy.ts`).
-4. `members:` lists the team in display order, each with a `name` and an optional `linkedin` URL (adds a LinkedIn
-   logo that opens their profile in a new tab). Leave it as `members: []` for individual work: the page then says
-   "Individual" and has no team block. The team size ("Team of 4") is counted from the list.
+4. `members:` lists the team in display order, each with a `name`, an optional `linkedin` URL (adds a LinkedIn
+   badge after the name that opens their profile in a new tab) and an optional `photo`. Leave it as `members: []`
+   for individual work: the page then says "Individual" in the header eyebrow and has no team block. The team
+   size ("Team of 4") is counted from the list and shown in the header eyebrow (it is not repeated in the facts
+   card).
+   - **Photo:** without one, the team list shows a placeholder avatar (the member's initials in a circle). To add
+     a real photo, put the image either in the project's own `images/` folder or in the shared `src/assets/people/`
+     folder, then set `photo: ../../../assets/people/<file>.jpg` (or `./images/<file>.jpg` for a project-only
+     photo). **Prefer the shared `src/assets/people/` folder** for anyone who appears in more than one project
+     (e.g. Hakim, Jordan): one file there is reused across every project they're credited on, instead of
+     duplicating the image per project.
 5. `description` is the short text on the listing page; `details` is the long description on the detail page, with
    paragraphs separated by a blank line (use `details: |`).
 6. `device` is `laptop` (desktop and web apps) or `phone` (mobile apps; works best with a portrait ~395×805

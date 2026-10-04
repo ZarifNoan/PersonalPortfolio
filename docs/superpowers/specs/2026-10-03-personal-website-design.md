@@ -70,8 +70,12 @@ Generated from the collection (drafts get no page). In order:
 1. "← All software projects" back link.
 2. The large device mockup (same as the listing, bigger); it opens the cover in the viewer.
 3. Course · team line and the project name (h1).
-4. **Team**: each member's name, with a LinkedIn logo linking to their profile (new tab, `rel="noopener noreferrer"`) when a URL is set. Omitted for individual projects.
-5. A facts card: type, course, team ("Individual" / "Team of N"), platform, year, and the tech stack chips.
+4. **Team**: a vertical list, one member per row — a circular avatar (their photo, or an initials placeholder in the
+   site's colours when no photo is set yet) on the left, their name, and a LinkedIn badge (new tab,
+   `rel="noopener noreferrer"`, accessible via the link's `aria-label`; the badge SVG itself is `aria-hidden`) to
+   the right of the name only when a URL is set. Omitted for individual projects.
+5. A facts card: type, course, platform, year, and the tech stack chips. (Team size is not repeated here — it's
+   already in the header eyebrow and, for team projects, in the team list below it.)
 6. "About the project": the long description (2–4 paragraphs).
 7. The other screenshots, with no heading, as overlapping app windows (title bar with three dots and a short caption) on a solid blue backdrop, two or three per group; later groups mirror the composition. Mobile apps use a fanned row of phone frames instead. Every image opens the viewer. On phones the windows stack with a slight overlap (phones go two per row).
 
@@ -94,7 +98,9 @@ Generated from the collection (drafts get no page). In order:
 
 ### 3.5 Out of scope
 
-Blog, contact form, light theme, CMS, analytics. (Individual project pages were added by change request 6.)
+Blog, contact form, light theme, CMS, analytics. (Individual project pages were added by change request 6. The
+Team row was dropped from the facts card, and the team list became an avatar/name/LinkedIn-badge list, by change
+request 7.)
 
 ## 4. Visual style: "Studio glow"
 
@@ -143,7 +149,7 @@ src/content/visualization/moltech-johor-warehouse/images/*.png
 
 ### 6.1 Software schema
 
-`title`, `course`, `members[]` (`{ name, linkedin? }` in display order; empty = Individual; team size = number of members), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the mockup), `screenFit` (`cover`, the default, or `contain` for charts), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and an optional short `caption`), `draft` (optional boolean; drafts are hidden and get no page).
+`title`, `course`, `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the mockup), `screenFit` (`cover`, the default, or `contain` for charts), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and an optional short `caption`), `draft` (optional boolean; drafts are hidden and get no page).
 
 ### 6.2 Visualization schema
 
@@ -160,7 +166,10 @@ The build fails with a clear error if a required field is missing, an image path
 | 3 | Student Performance Prediction using Fuzzy Logic | Intelligent Systems · Team of 5 | Python | Python, scikit-fuzzy, NumPy, pandas, scikit-learn, Matplotlib, Tkinter |
 | 4 | Fixer – On-Demand Home Repair Service App | Business Case Project · Team of 4 | Java, SQL | Java, JavaFX, Maven, PostgreSQL |
 
-**Members** (display order, Zarif first; LinkedIn URLs to be added by Zarif):
+**Members** (display order, Zarif first). Hakim Bin Taufik
+(`https://www.linkedin.com/in/hakim-taufik-866622370/`) and Jordan Septian
+(`https://www.linkedin.com/in/jordanseptian9/`) have a LinkedIn URL on every project they appear on; everyone
+else has none for now. No photos exist yet for anyone (every member shows the initials placeholder):
 - StockSense: individual.
 - JomLah: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik.
 - Fuzzy Logic: Muhammad Zarif Nurhan Bin Mohd Arifin, Jordan Septian, Hakim Bin Taufik, Mior Ahmad Danial, Yeap Hsien Hong. Its images are result charts produced by the system (plus its architecture diagram), not its interface; the cover is the calibration result.
@@ -253,3 +262,4 @@ Clients shown on the project pages: Moltech (Moltech Johor Warehouse), DASEM (SL
 - A profile photo, for the lanyard badge and link preview.
 - Johex renders and a confirmed description.
 - Optionally, replacements for any auto-selected render or extracted screenshot.
+- Team member photos (see §6.1 and the README): until supplied, every team list shows an initials placeholder.
