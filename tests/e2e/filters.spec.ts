@@ -36,9 +36,13 @@ test('param is case-insensitive', async ({ page }) => {
 test('non-matching projects fade out before they are hidden', async ({ page }) => {
   await page.goto('/software');
   const stocksense = page.locator('section#stocksense');
-  await page.getByRole('group', { name: 'Filter by language' }).getByRole('button', { name: 'Java', exact: true }).click();
-  // Straight after the click it is still laid out, running an opacity animation...
-  const fading = await stocksense.evaluate((el: HTMLElement) => !el.hidden && el.getAnimations().some((a) => a.playState === 'running'));
+  await expect(page.getByRole('group', { name: 'Filter by language' }).getByRole('button', { name: 'Java', exact: true })).toBeVisible();
+  // Straight after the click it is still laid out, running an opacity animation... (The click and the check run in
+  // one task, so a busy test machine can't let the 220ms fade finish in between.)
+  const fading = await stocksense.evaluate((el: HTMLElement) => {
+    document.querySelector<HTMLButtonElement>('[data-filter-option="java"]')!.click();
+    return !el.hidden && el.getAnimations().some((a) => a.playState === 'running');
+  });
   expect(fading).toBe(true);
   // ...and then it is hidden.
   await expect(stocksense).toBeHidden();
