@@ -41,13 +41,14 @@ test('team block lists the right members, and is omitted for an individual proje
   await page.goto('/software/fixer');
   const fixerTeam = page.getByRole('region', { name: 'Team' });
   await expect(fixerTeam.getByRole('listitem').locator('.name')).toHaveText([ZARIF, 'Yogesh Sandeep Jayavant', 'Hakim Bin Taufik', 'Jordan Septian']);
-  // Hakim and Jordan have a LinkedIn URL here too; Zarif and Yogesh do not.
+  // Hakim and Jordan have a LinkedIn URL here too (and Mior on Fuzzy Logic); Zarif, Yogesh and Yeap do not.
   await expect(fixerTeam.getByRole('link')).toHaveCount(2);
   await expect(page.locator('.phones .win.phone')).toHaveCount(4);
   await page.goto('/software/fuzzy-logic');
   const fuzzyTeam = page.getByRole('region', { name: 'Team' });
   await expect(fuzzyTeam.getByRole('listitem')).toHaveCount(5);
-  await expect(fuzzyTeam.getByRole('link')).toHaveCount(2);
+  await expect(fuzzyTeam.getByRole('link')).toHaveCount(3);
+  await expect(fuzzyTeam.getByRole('link', { name: 'Mior Ahmad Danial on LinkedIn (opens in a new tab)' })).toHaveAttribute('href', 'https://www.linkedin.com/in/miorahmaddanial/');
   await expect(page.getByRole('complementary', { name: 'Project facts' })).not.toContainText('Team of');
   await expect(page.locator('.eyebrow')).toContainText('Team of 5');
   await page.goto('/software/stocksense');
