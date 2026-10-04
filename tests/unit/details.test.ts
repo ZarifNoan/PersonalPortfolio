@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials, clientFact } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -139,6 +139,20 @@ describe('linkedinLink', () => {
       target: '_blank',
       rel: 'noopener noreferrer',
       'aria-label': 'Jordan Septian on LinkedIn (opens in a new tab)',
+    });
+  });
+});
+
+describe('clientFact', () => {
+  it('names the client, or says whose project it is when there is no client name', () => {
+    expect(clientFact({ client: true, clientName: 'DASEM' })).toEqual({ name: 'DASEM', link: null });
+    expect(clientFact({ client: true })).toEqual({ name: 'Client project', link: null });
+    expect(clientFact({ client: false })).toEqual({ name: 'Personal project', link: null });
+  });
+  it("links the client's website in a new tab safely, with a descriptive name", () => {
+    expect(clientFact({ client: true, clientName: 'Moltech', clientUrl: 'https://moltechglobal.com' })).toEqual({
+      name: 'Moltech',
+      link: { href: 'https://moltechglobal.com', target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Moltech (opens in a new tab)' },
     });
   });
 });

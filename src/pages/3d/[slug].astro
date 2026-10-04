@@ -5,7 +5,7 @@ import { getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import Mosaic from '../../components/Mosaic.astro';
 import { visibleSorted } from '../../lib/projects';
-import { paragraphs, metaDescription } from '../../lib/details';
+import { paragraphs, metaDescription, clientFact } from '../../lib/details';
 
 export const getStaticPaths = (async () => {
   const projects = visibleSorted(await getCollection('visualization'));
@@ -19,7 +19,7 @@ const full = await Promise.all(d.images.map((i) => getImage({ src: i.src, width:
 const gallery = JSON.stringify(full.map((f, k) => ({ src: f.src, alt: d.images[k]!.alt })));
 const og = await getImage({ src: d.images[0]!.src, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const items = d.images.map((img, k) => ({ ...img, full: full[k]!.src, index: k }));
-const client = d.clientName ?? (d.client ? 'Client project' : 'Personal project');
+const client = clientFact(d);
 ---
 <Layout title={d.title} description={metaDescription(d.description)} page="viz" sub ogImage={og.src}>
   <div class="container detail" data-gallery={gallery}>
@@ -28,7 +28,9 @@ const client = d.clientName ?? (d.client ? 'Client project' : 'Personal project'
       <h1>{d.title}</h1>
       <dl class="facts">
         <div><dt>Category</dt><dd>{d.category}</dd></div>
-        <div><dt>Client</dt><dd>{client}</dd></div>
+        <div><dt>Client</dt><dd>{client.link
+          ? <a class="ext" {...client.link}>{client.name}<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.5 2.5h4v4M13.5 2.5 7 9M12 9.5v3a1 1 0 0 1-1 1H3.5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3"/></svg></a>
+          : client.name}</dd></div>
         <div><dt>Tool</dt><dd>Blender</dd></div>
       </dl>
     </header>
@@ -50,6 +52,9 @@ const client = d.clientName ?? (d.client ? 'Client project' : 'Personal project'
   .facts { display: flex; flex-wrap: wrap; gap: 12px 40px; margin: 24px 0 0; padding: 18px 0 0; border-top: 1px solid var(--border); }
   dt { font: 700 .72rem/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--viz); margin-bottom: 6px; }
   dd { margin: 0; font-weight: 600; }
+  .ext { display: inline-flex; align-items: center; gap: 6px; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--viz) 60%, transparent); text-underline-offset: 3px; }
+  .ext svg { flex-shrink: 0; color: var(--viz); }
+  .ext:hover { color: var(--viz); }
   .about { max-width: 70ch; margin-bottom: clamp(32px, 5vw, 56px); }
   .about p { color: var(--muted); margin: 0 0 1.1em; font-size: 1.04rem; line-height: 1.75; }
   .about p:first-child { color: var(--text); font-size: clamp(1.08rem, 1.6vw, 1.2rem); line-height: 1.65; }

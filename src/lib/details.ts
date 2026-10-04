@@ -108,3 +108,17 @@ export function linkedinLink(m: Member): { href: string; target: '_blank'; rel: 
   if (!m.linkedin) return null;
   return { href: m.linkedin, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${m.name} on LinkedIn (opens in a new tab)` };
 }
+
+export interface ExternalLink { href: string; target: '_blank'; rel: 'noopener noreferrer'; 'aria-label': string }
+
+/**
+ * The "Client" fact on a 3D project page: the client's name (or "Client project"/"Personal project" without one), and
+ * a link to the client's website when `clientUrl` is set (new tab, no opener or referrer).
+ */
+export function clientFact(d: { client: boolean; clientName?: string; clientUrl?: string }): { name: string; link: ExternalLink | null } {
+  const name = d.clientName ?? (d.client ? 'Client project' : 'Personal project');
+  const link: ExternalLink | null = d.clientUrl
+    ? { href: d.clientUrl, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${name} (opens in a new tab)` }
+    : null;
+  return { name, link };
+}

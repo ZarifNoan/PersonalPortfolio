@@ -53,6 +53,8 @@ const visualization = defineCollection({
     client: z.boolean(),
     /** Shown as "Client" on the detail page. */
     clientName: z.string().optional(),
+    /** The client's website: the Client value on the detail page links to it (opens in a new tab). */
+    clientUrl: z.url().optional(),
     category: z.enum(CATEGORIES),
     order: z.number().int(),
     description: z.string().min(40),

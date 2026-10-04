@@ -1,6 +1,8 @@
 title: Moltech Johor Warehouse
 client: true
 clientName: "Moltech"
+# Client facts: https://moltechglobal.com/about-us and https://www.crunchbase.com/organization/moltech-global
+clientUrl: https://moltechglobal.com
 category: Architectural Visualization
 order: 1
 description: >-
@@ -10,6 +12,11 @@ details: |
   An interior visualization of an industrial warehouse for Moltech, modelled, lit and rendered in Blender.
   The scene features ISO tank containers, forklifts, safety barriers and hazard labelling, with realistic
   materials and lighting.
+
+  Moltech (Moltech Global) is a multinational headquartered in Singapore that produces sustainable bio-based
+  products, including biodiesel and chemical solutions. It operates across eight countries: Singapore,
+  Malaysia, Indonesia, Thailand, the United Arab Emirates, Saudi Arabia, the United Kingdom and the United
+  States, including an office in Pasir Gudang, Johor.
 
   The renders move from a wide isometric overview of the whole floor, showing the ISO tank, forklift, drum
   and charging zones, to closer views: the ISO tank container beside two forklifts, the storage area with

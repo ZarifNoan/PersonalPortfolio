@@ -143,3 +143,19 @@ test('each software gallery sits on a backdrop in the colours of its own app', a
   }
   expect(seen.size).toBe(4);
 });
+
+test("the Moltech client name links to the client's website; clients without a website stay plain text", async ({ page }) => {
+  await page.goto('/3d/moltech-johor-warehouse');
+  const dd = page.getByRole('main').locator('dt', { hasText: 'Client' }).locator('+ dd');
+  const link = dd.getByRole('link', { name: 'Moltech (opens in a new tab)' });
+  await expect(link).toHaveAttribute('href', 'https://moltechglobal.com');
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  // A visible external-link affordance next to the name.
+  await expect(link.locator('svg')).toBeVisible();
+  await expect(page.getByRole('main').locator('.about')).toContainText('headquartered in Singapore');
+  for (const path of ['/3d/slice-2025', '/3d/gobami']) {
+    await page.goto(path);
+    await expect(page.getByRole('main').locator('dt', { hasText: 'Client' }).locator('+ dd').getByRole('link')).toHaveCount(0);
+  }
+});
