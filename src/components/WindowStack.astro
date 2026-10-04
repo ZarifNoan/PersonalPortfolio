@@ -9,13 +9,18 @@ import type { ImageMetadata } from 'astro';
 import { groupImages } from '../lib/details';
 
 interface Item { src: ImageMetadata; alt: string; caption?: string; full: string; index: number }
-interface Props { items: Item[]; device: 'laptop' | 'phone' }
-const { items, device } = Astro.props;
+interface Props {
+  items: Item[]; device: 'laptop' | 'phone';
+  /** Charts and diagrams (screenFit: contain): two windows per group, staggered side by side without covering each
+   * other, so no axis, legend or data point is hidden. */
+  charts?: boolean;
+}
+const { items, device, charts = false } = Astro.props;
 const phone = device === 'phone';
-const groups = groupImages(items, phone ? 4 : 3);
+const groups = groupImages(items, phone ? 4 : charts ? 2 : 3);
 const sizes = phone ? '(max-width: 899px) 30vw, 240px' : '(max-width: 899px) 85vw, 720px';
 ---
-<div class:list={['stacks', { phones: phone }]}>
+<div class:list={['stacks', { phones: phone, charts }]}>
   {groups.map((g, gi) => (
     <div class:list={['panel', `n${g.length}`, { mirror: gi % 2 === 1 }]}>
       {g.map((it, k) => phone ? (
@@ -26,7 +31,7 @@ const sizes = phone ? '(max-width: 899px) 30vw, 240px' : '(max-width: 899px) 85v
           </span>
         </a>
       ) : (
-        <a class="win" style={`--k:${k}`} href={it.full} data-open-lightbox data-index={it.index} aria-label={`View larger: ${it.alt}`}>
+        <a class="win" style={`--k:${k};--ar:${(it.src.width / it.src.height).toFixed(3)}`} href={it.full} data-open-lightbox data-index={it.index} aria-label={`View larger: ${it.alt}`}>
           <span class="chrome" aria-hidden="true">
             <span class="dots"><i></i><i></i><i></i></span>
             {it.caption && <span class="title">{it.caption}</span>}
@@ -59,16 +64,24 @@ const sizes = phone ? '(max-width: 899px) 30vw, 240px' : '(max-width: 899px) 85v
   .title { flex: 1; min-width: 0; text-align: center; margin-right: 46px; font: 600 clamp(.62rem, .9vw, .76rem)/1 var(--font-body); color: #4a4f5c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Overlap: each window after the first sits lower and to the other side, covering part of the one before. */
-  .stacks:not(.phones) .win { width: 64%; }
-  .stacks:not(.phones) .win + .win { margin-top: -17%; }
-  .stacks:not(.phones) .win:nth-child(odd) { margin-right: auto; }
-  .stacks:not(.phones) .win:nth-child(even) { margin-left: auto; }
-  .stacks:not(.phones) .n3 .win { width: 56%; }
-  .stacks:not(.phones) .n3 .win + .win { margin-top: -16%; }
-  .stacks:not(.phones) .n3 .win:nth-child(3) { margin-inline: auto; }
-  .stacks:not(.phones) .mirror .win:nth-child(odd) { margin-left: auto; margin-right: 0; }
-  .stacks:not(.phones) .mirror .win:nth-child(even) { margin-right: auto; margin-left: 0; }
-  .stacks:not(.phones) .mirror.n3 .win:nth-child(3) { margin-inline: auto; }
+  .stacks:not(.phones):not(.charts) .win { width: 64%; }
+  .stacks:not(.phones):not(.charts) .win + .win { margin-top: -17%; }
+  .stacks:not(.phones):not(.charts) .win:nth-child(odd) { margin-right: auto; }
+  .stacks:not(.phones):not(.charts) .win:nth-child(even) { margin-left: auto; }
+  .stacks:not(.phones):not(.charts) .n3 .win { width: 56%; }
+  .stacks:not(.phones):not(.charts) .n3 .win + .win { margin-top: -16%; }
+  .stacks:not(.phones):not(.charts) .n3 .win:nth-child(3) { margin-inline: auto; }
+  .stacks:not(.phones):not(.charts) .mirror .win:nth-child(odd) { margin-left: auto; margin-right: 0; }
+  .stacks:not(.phones):not(.charts) .mirror .win:nth-child(even) { margin-right: auto; margin-left: 0; }
+  .stacks:not(.phones):not(.charts) .mirror.n3 .win:nth-child(3) { margin-inline: auto; }
+
+  /* Charts: a staggered pair that never overlaps. */
+  .stacks.charts .panel { display: flex; align-items: flex-start; gap: 3%; }
+  /* Widths in proportion to aspect ratio, so a pair of charts has about the same height. */
+  .stacks.charts .win { width: auto; flex: var(--ar, 1) 1 0; min-width: 0; margin: 0; }
+  .stacks.charts .win + .win { margin-top: 9%; }
+  .stacks.charts .mirror .win:first-child { margin-top: 9%; }
+  .stacks.charts .mirror .win + .win { margin-top: 0; }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .win { transition: translate .3s ease, box-shadow .3s ease; }
@@ -92,8 +105,12 @@ const sizes = phone ? '(max-width: 899px) 30vw, 240px' : '(max-width: 899px) 85v
   }
 
   @media (max-width: 899px) {
-    .stacks:not(.phones) .win, .stacks:not(.phones) .n3 .win { width: 86%; }
-    .stacks:not(.phones) .win + .win, .stacks:not(.phones) .n3 .win + .win { margin-top: -12%; }
+    .stacks:not(.phones):not(.charts) .win, .stacks:not(.phones):not(.charts) .n3 .win { width: 86%; }
+    .stacks:not(.phones):not(.charts) .win + .win, .stacks:not(.phones):not(.charts) .n3 .win + .win { margin-top: -12%; }
+    .stacks.charts .panel { flex-direction: column; gap: 14px; }
+    .stacks.charts .win { width: 88%; flex: none; }
+    .stacks.charts .win + .win, .stacks.charts .mirror .win:first-child, .stacks.charts .mirror .win + .win { margin-top: 0; }
+    .stacks.charts .win:nth-child(even) { align-self: flex-end; }
     .win.phone { flex-basis: 30%; margin-left: -6%; }
   }
   /* Narrow phones: two handsets per row, the second row tucked up behind the first. */

@@ -19,9 +19,11 @@ interface Props {
   fit?: 'cover' | 'contain';
   /** Rendered width hint for responsive images. */
   sizes: string;
+  /** `card` (listing, smaller box): the laptop fills more of the scene so its screen stays readable. */
+  size?: 'card' | 'hero';
   eager?: boolean;
 }
-const { src, alt, device, fit = 'cover', sizes, eager = false } = Astro.props;
+const { src, alt, device, fit = 'cover', sizes, eager = false, size = 'card' } = Astro.props;
 
 // Phone scene geometry, in the scene's 1400 × 875 design space (printed by scripts/make-phone-scene.py).
 const SCENE_W = 1400, SCENE_H = 875;
@@ -53,7 +55,7 @@ if (device === 'phone') {
 function hash(s: string): number { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return h; }
 ---
 {device === 'laptop' ? (
-  <div class="scene laptop-scene" role="img" aria-label={`${alt}, shown on a laptop`}>
+  <div class:list={['scene', 'laptop-scene', `size-${size}`]} role="img" aria-label={`${alt}, shown on a laptop`}>
     <div class="laptop" aria-hidden="true">
       <div class="lid">
         <span class="cam"></span>
@@ -116,6 +118,7 @@ function hash(s: string): number { let h = 0; for (const c of s) h = (h * 31 + c
   /* Vignette. */
   .laptop-scene::after { content: ''; position: absolute; inset: 0; background: radial-gradient(125% 100% at 50% 42%, transparent 52%, rgba(0, 0, 0, .5)); pointer-events: none; }
   .laptop { position: absolute; left: 50%; bottom: 23%; width: 63%; translate: -50% 0; }
+  .size-card .laptop { bottom: 15.5%; width: 73%; }
   .lid {
     position: relative; padding: 2.1% 2.1% 2.6%; border-radius: 3.4cqw 3.4cqw .6cqw .6cqw / 3.4cqw 3.4cqw .6cqw .6cqw;
     background: linear-gradient(180deg, #121214, #08080a);
