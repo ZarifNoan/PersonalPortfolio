@@ -19,11 +19,17 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
   margin: 0; min-height: 100vh; color: var(--text); font: 400 1rem/1.65 var(--font-body);
+  background: var(--bg);
+}
+/* The colour glows sit on a viewport-sized fixed layer behind everything. (As a body background with
+   background-attachment: fixed they tiled every viewport height, which showed as a hard horizontal edge on long
+   pages wherever fixed backgrounds are not supported or in full-page captures.) This is a sibling layer, not an
+   ancestor of the badge island, and it is static, so it costs one composited layer and no repaints on scroll. */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
     radial-gradient(circle at 85% 0%, var(--glow-a) 0, transparent 42%),
-    radial-gradient(circle at 0% 100%, var(--glow-b) 0, transparent 45%),
-    var(--bg);
-  background-attachment: fixed;
+    radial-gradient(circle at 0% 100%, var(--glow-b) 0, transparent 45%);
 }
 h1, h2, h3 { font-family: var(--font-head); line-height: 1.15; margin: 0; }
 a { color: inherit; }
