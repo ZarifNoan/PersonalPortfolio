@@ -10,8 +10,13 @@ export const HANG_WORLD = 3 * SEG + CLIP_H + CARD_H / 2; // rope + clip/ring + h
 export const pxPerWorld = (viewportH: number) => viewportH / (2 * CAMERA_Z * Math.tan((FOV / 2) * Math.PI / 180));
 /** Anchor → resting card centre, in px. */
 export const hangPx = (viewportH: number) => HANG_WORLD * pxPerWorld(viewportH);
-/** Anchor → resting card bottom edge, in px. */
-export const cardDropPx = (viewportH: number) => (HANG_WORLD + CARD_H / 2) * pxPerWorld(viewportH);
+/** The static badge's card in CSS px (global.css .badge-card: the clear sleeve). */
+export const STATIC_CARD_W = 210, STATIC_CARD_H = 294;
+/** The 3D card's visible size in world units: the static card's size on the reference 1440×900 screen (Lanyard.tsx
+ *  draws the sleeve and face at this size around the CARD_W × CARD_H physics body). */
+export const VIS_W = STATIC_CARD_W / pxPerWorld(900), VIS_H = STATIC_CARD_H / pxPerWorld(900);
+/** Anchor → resting card bottom edge (the visible sleeve's), in px. */
+export const cardDropPx = (viewportH: number) => (HANG_WORLD + VIS_H / 2) * pxPerWorld(viewportH);
 
 /**
  * The 3D card's resting centre y (viewport px) while it hangs beside the hero: TOP_OFFSET + hangPx(vh). It is linear in
@@ -20,8 +25,6 @@ export const cardDropPx = (viewportH: number) => (HANG_WORLD + CARD_H / 2) * pxP
 export const restCentreY = (viewportH: number) => TOP_OFFSET + hangPx(viewportH);
 /** px of resting drop per 1vh: hangPx(100). */
 export const REST_VH = hangPx(100);
-/** The static badge's card width in CSS px (global.css .badge-card). */
-export const STATIC_CARD_W = 210;
 /**
  * The badge's resting card-centre x (viewport px), shared by both badges so the static→3D swap doesn't move it: the
  * static badge hangs `rightOffset` px (Hero.astro's --badge-right on the slot) in from the hero slot's right edge, and

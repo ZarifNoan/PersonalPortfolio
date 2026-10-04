@@ -163,6 +163,56 @@ for (const [width, height] of swapSizes) {
   });
 }
 
+/** Ink in a horizontal band of a screenshot (decoded in the page): summed darkness of pixels darker than the paper, in
+ *  CSS px² units, and the darkest luminance. `y0`/`y1` are CSS px from the crop's centre. */
+const ink = (page: Page, png: Buffer, scale: number, y0: number, y1: number) => page.evaluate(async ({ b64, scale, y0, y1 }) => {
+  const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const g = c.getContext('2d')!; g.drawImage(img, 0, 0);
+  const cy = c.height / 2;
+  const d = g.getImageData(0, Math.round(cy + y0 * scale), c.width, Math.round((y1 - y0) * scale)).data;
+  let sum = 0, darkest = 255;
+  for (let i = 0; i < d.length; i += 4) { const l = 0.2126 * d[i]! + 0.7152 * d[i + 1]! + 0.0722 * d[i + 2]!; darkest = Math.min(darkest, l); if (l < 200) sum += 240 - l; }
+  return { sum: sum / scale / scale, darkest };
+}, { b64: png.toString('base64'), scale, y0, y1 });
+
+for (const dpr of [1, 2]) {
+  test(`desktop 1440×900 @${dpr}x: the 3D card looks like the static badge (size, ink weight and darkness)`, async ({ browser }, info) => {
+    test.skip(info.project.name !== 'desktop');
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: dpr });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    await page.waitForSelector('astro-island:not([ssr]) [data-badge-mode]', { state: 'attached' });
+    await page.evaluate(() => document.fonts.ready);
+    // The static card, held upright (the sway paused at 0°) for a like-for-like crop around its centre.
+    const st = await page.locator('.badge-hang').evaluate((hang) => {
+      (hang as HTMLElement).style.animation = 'none'; (hang as HTMLElement).style.transform = 'none';
+      const r = hang.querySelector('.badge-card')!.getBoundingClientRect();
+      return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+    });
+    const crop = (c: { cx: number; cy: number }) => ({ x: Math.round(c.cx - 100), y: Math.round(c.cy - 140), width: 200, height: 280 });
+    const before = await page.screenshot({ clip: crop(st) });
+    await engage(page);
+    await expect(page.locator('[data-badge-mode="3d-travel"] .badge-static')).toHaveCount(0, { timeout: 15_000 });
+    await page.mouse.move(5, 500);
+    const rest = await settledCard(page);
+    // Same size as the static card (the grab box adds 6px each side).
+    expect(Math.abs(rest.w - 12 - 210)).toBeLessThanOrEqual(3);
+    expect(Math.abs(rest.h - 12 - 294)).toBeLessThanOrEqual(3);
+    await page.waitForTimeout(4500); // asleep: the last frame is the resting one
+    const after = await page.screenshot({ clip: crop(await cardBox(page)) });
+    // The name and the role lines: as heavy (within 10%) and as dark as the static badge's DOM text. Blurred,
+    // mipmapped or washed-out face text (the CR 4 regression) loses ink and lifts the darkest pixel.
+    for (const [y0, y1] of [[-16, 30], [52, 86]] as const) {
+      const [s, t] = [await ink(page, before, dpr, y0, y1), await ink(page, after, dpr, y0, y1)];
+      expect(t.sum / s.sum, `ink ${y0}..${y1}`).toBeGreaterThan(0.9);
+      expect(t.sum / s.sum, `ink ${y0}..${y1}`).toBeLessThan(1.15);
+      expect(t.darkest - s.darkest, `darkest ${y0}..${y1}`).toBeLessThanOrEqual(4);
+    }
+    await ctx.close();
+  });
+}
+
 for (const width of [900, 940, 980, 1024, 1280, 1440]) {
   test(`desktop ${width}px: the 3D card at rest clears the About text`, async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop');

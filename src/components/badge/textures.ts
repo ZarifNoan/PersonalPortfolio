@@ -1,30 +1,52 @@
 import * as THREE from 'three';
 import { initials } from '../../lib/initials';
 import { faceLines } from '../../lib/badgeText';
+import { STATIC_CARD_H, STATIC_CARD_W } from './anchor';
 
 /** Site accents (global.css --sw / --viz): the card's stripes and the strap's marks use the two sides' colours. */
 const SW = '#60a5fa', VIZ = '#f59e0b', INK = '#0b0b14', NAVY = '#1b1838';
 
-/** Card face canvas size: CARD_W × CARD_H minus the rounded corners (1.08 × 1.56 world), at ~950 px per world unit.
- *  On a 1440×900 screen the face is ~168 CSS px wide, so 1 CSS px ≈ 6 canvas px: text below ~55px here is too small to
- *  read. BadgeStatic mirrors this layout in CSS (container units; 1cqw = 10.24 canvas px). */
-export const FACE_W = 1024, FACE_H = 1480;
+/** The static badge's card in CSS px (global.css .badge-card / .badge-face): a 210 × 294 clear sleeve (radius 16) with
+ *  the printed face inset 7px (radius 10). The 3D card reproduces these proportions exactly (Lanyard.tsx), so the
+ *  textures below are laid out in the same units. */
+export const BADGE = { w: STATIC_CARD_W, h: STATIC_CARD_H, r: 16, inset: 7, faceR: 10 } as const;
+const FACE_CSS_W = BADGE.w - 2 * BADGE.inset, FACE_CSS_H = BADGE.h - 2 * BADGE.inset; // 196 × 280
+
+/** Card face layout units: the face is 1024 units wide (BadgeStatic mirrors this layout in CSS container units,
+ *  1cqw = 10.24 units) and 1024 × 280 / 196 = 1463 tall, the static face's aspect. */
+export const FACE_W = 1024, FACE_H = Math.round((FACE_W * FACE_CSS_H) / FACE_CSS_W);
 
 /** Fonts the canvases use. Canvas text doesn't trigger font loading, so load the exact faces before drawing. */
 const FONTS = ['800 92px "Sora Variable"', '700 64px "Sora Variable"', '650 60px "Inter Variable"'];
 const fontsReady = () => (typeof document === 'undefined' ? Promise.resolve() : Promise.all(FONTS.map((f) => document.fonts.load(f))).then(() => undefined, () => undefined));
 
-export async function cardFaceTexture(name: string, role: string, photo: string | null, label: string): Promise<THREE.CanvasTexture> {
+/** A canvas texture shown 1:1 on screen: sampled without mipmaps, so text isn't averaged into the paper (6:1
+ *  minification through trilinear mipmaps is what thinned and greyed the face text). */
+function screenTexture(c: HTMLCanvasElement) {
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter;
+  return tex;
+}
+
+/**
+ * The printed card face, drawn at `scale` canvas px per static-badge CSS px (Lanyard passes the card's on-screen
+ * size × DPR, so the texture maps 1:1 to device pixels at rest, like the static badge's DOM text). Corners outside the
+ * face's rounded rect are transparent.
+ */
+export async function cardFaceTexture(name: string, role: string, photo: string | null, label: string, scale: number): Promise<THREE.CanvasTexture> {
   const c = document.createElement('canvas');
-  c.width = FACE_W; c.height = FACE_H;
+  c.width = Math.round(FACE_CSS_W * scale); c.height = Math.round(FACE_CSS_H * scale);
   const g = c.getContext('2d')!;
   await fontsReady();
+  g.setTransform(c.width / FACE_W, 0, 0, c.height / FACE_H, 0, 0);
   const W = FACE_W, H = FACE_H, cx = W / 2;
   const lines = faceLines(name, role);
+  roundRect(g, 0, 0, W, H, (BADGE.faceR / FACE_CSS_W) * W); g.clip();
   g.textAlign = 'center';
 
-  // Paper: a soft cool white.
-  const paper = g.createLinearGradient(0, 0, W, H);
+  // Paper: global.css .badge-face linear-gradient(170deg, #fcfcff, #ececf5).
+  const paper = cssGradient(g, 170, 0, 0, W, H);
   paper.addColorStop(0, '#fcfcff'); paper.addColorStop(1, '#ececf5');
   g.fillStyle = paper; g.fillRect(0, 0, W, H);
 
@@ -80,9 +102,7 @@ export async function cardFaceTexture(name: string, role: string, photo: string 
   g.fillStyle = '#d6d8ee'; g.font = '700 56px "Sora Variable", sans-serif'; g.textBaseline = 'middle';
   spaced(g, label.toUpperCase(), cx, 1380, 10);
 
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
-  return tex;
+  return screenTexture(c);
 }
 
 /** Strap canvas: one tile of the repeating woven band. Width:height must match STRAP_TILE_ASPECT so the text keeps its
@@ -134,33 +154,82 @@ function drawStrap(c: HTMLCanvasElement, label: string) {
   g.restore();
 }
 
-/** Glossy highlight for the clear sleeve's front: soft diagonal light bands, transparent elsewhere, inside the
- *  sleeve's rounded outline. */
-export function sheenTexture(aspect: number, radius: number): THREE.CanvasTexture {
-  const w = 512, h = Math.round(w * aspect);
+/**
+ * The clear sleeve's front, drawn from global.css .badge-card at `scale` canvas px per CSS px (210 × 294 CSS px): the
+ * faint glossy frame around the face (its background gradients, translucent so the dark page shows through, as it
+ * does around the static card), the 1px light edge and inner top highlight, and the glare over the face's top-left
+ * (.badge-card::after).
+ */
+export function sleeveTexture(scale: number): THREE.CanvasTexture {
   const c = document.createElement('canvas');
-  c.width = w; c.height = h;
+  c.width = Math.round(BADGE.w * scale); c.height = Math.round(BADGE.h * scale);
   const g = c.getContext('2d')!;
-  roundRect(g, 0, 0, w, h, radius * w); g.clip();
-  const band = g.createLinearGradient(0, 0, w, h * .55);
-  band.addColorStop(0, 'rgba(255,255,255,0)');
-  band.addColorStop(.28, 'rgba(255,255,255,.0)');
-  band.addColorStop(.36, 'rgba(255,255,255,.2)');
-  band.addColorStop(.46, 'rgba(255,255,255,.04)');
-  band.addColorStop(.52, 'rgba(255,255,255,.1)');
-  band.addColorStop(.58, 'rgba(255,255,255,0)');
-  g.fillStyle = band; g.fillRect(0, 0, w, h);
-  // A thin bright rim, as light catches the sleeve's edge.
-  g.lineWidth = 6; g.strokeStyle = 'rgba(255,255,255,.22)';
-  roundRect(g, 3, 3, w - 6, h - 6, radius * w - 3); g.stroke();
+  g.setTransform(c.width / BADGE.w, 0, 0, c.height / BADGE.h, 0, 0);
+  const { w, h, r, inset, faceR } = BADGE;
+  // background: linear-gradient(150deg, …), rgba(220,224,240,.08). Only the frame shows it (the face covers the rest).
+  g.save();
+  g.beginPath(); addRoundRect(g, 0, 0, w, h, r); addRoundRect(g, inset, inset, w - 2 * inset, h - 2 * inset, faceR);
+  g.clip('evenodd');
+  g.fillStyle = 'rgba(220,224,240,.08)'; g.fillRect(0, 0, w, h);
+  const bg = cssGradient(g, 150, 0, 0, w, h);
+  bg.addColorStop(0, 'rgba(255,255,255,.34)'); bg.addColorStop(.4, 'rgba(255,255,255,.08)'); bg.addColorStop(1, 'rgba(255,255,255,.18)');
+  g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  g.restore();
+  // border: 1px solid rgba(255,255,255,.35)
+  g.beginPath(); addRoundRect(g, 0, 0, w, h, r); addRoundRect(g, 1, 1, w - 2, h - 2, r - 1);
+  g.fillStyle = 'rgba(255,255,255,.35)'; g.fill('evenodd');
+  // box-shadow: inset 0 1px 0 rgba(255,255,255,.5): the padding box minus itself shifted down 1px.
+  g.save(); g.beginPath(); addRoundRect(g, 1, 1, w - 2, h - 2, r - 1); g.clip();
+  g.beginPath(); addRoundRect(g, 1, 1, w - 2, h - 2, r - 1); addRoundRect(g, 1, 2, w - 2, h - 2, r - 1);
+  g.fillStyle = 'rgba(255,255,255,.5)'; g.fill('evenodd');
+  g.restore();
+  // ::after: linear-gradient(115deg, rgba(255,255,255,.3) 0 16%, transparent 28%) over the face.
+  g.save(); roundRect(g, inset, inset, w - 2 * inset, h - 2 * inset, faceR); g.clip();
+  const glare = cssGradient(g, 115, inset, inset, w - 2 * inset, h - 2 * inset);
+  glare.addColorStop(0, 'rgba(255,255,255,.3)'); glare.addColorStop(.16, 'rgba(255,255,255,.3)'); glare.addColorStop(.28, 'rgba(255,255,255,0)');
+  g.fillStyle = glare; g.fillRect(0, 0, w, h);
+  g.restore();
+  return screenTexture(c);
+}
+
+/** CSS px the drop-shadow texture extends past the sleeve: left/right, top, bottom. */
+export const SHADOW_PAD = { side: 64, top: 40, bottom: 100 } as const;
+/** The static card's drop shadow (box-shadow: 0 30px 60px rgba(0,0,0,.55)), cut out under the card as CSS clips it.
+ *  Covers the sleeve plus SHADOW_PAD. */
+export function shadowTexture(scale: number): THREE.CanvasTexture {
+  const { w, h, r } = BADGE, { side, top, bottom } = SHADOW_PAD;
+  const W = w + 2 * side, H = h + top + bottom;
+  const c = document.createElement('canvas');
+  c.width = Math.round(W * scale); c.height = Math.round(H * scale);
+  const g = c.getContext('2d')!;
+  const s = c.width / W;
+  // Draw the shape off-canvas so only its shadow lands. Canvas shadows ignore the transform, so work in canvas px;
+  // shadowBlur, like the CSS blur radius, is 2σ.
+  const off = c.width + 1000;
+  g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 60 * s; g.shadowOffsetX = off; g.shadowOffsetY = 30 * s;
+  g.fillStyle = '#000';
+  g.beginPath(); addRoundRect(g, side * s - off, top * s, w * s, h * s, r * s); g.fill();
+  g.shadowColor = 'transparent';
+  g.globalCompositeOperation = 'destination-out';
+  g.beginPath(); addRoundRect(g, side * s, top * s, w * s, h * s, r * s); g.fill();
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
 function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.beginPath(); addRoundRect(g, x, y, w, h, r);
+}
+function addRoundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
   g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+/** A gradient matching CSS linear-gradient(<deg>) over the box: the gradient line passes through the box's centre at
+ *  that angle (0deg = to top, clockwise), just long enough that the far corners sit at 0% and 100%. */
+function cssGradient(g: CanvasRenderingContext2D, deg: number, x: number, y: number, w: number, h: number) {
+  const a = (deg * Math.PI) / 180, dx = Math.sin(a), dy = -Math.cos(a);
+  const half = (Math.abs(w * dx) + Math.abs(h * dy)) / 2, cx = x + w / 2, cy = y + h / 2;
+  return g.createLinearGradient(cx - dx * half, cy - dy * half, cx + dx * half, cy + dy * half);
 }
 /** Letter-spaced text centred on x (canvas letterSpacing isn't available everywhere). */
 function spaced(g: CanvasRenderingContext2D, text: string, x: number, y: number, gap: number) {

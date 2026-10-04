@@ -1,6 +1,6 @@
 import { Component, Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import BadgeStatic from './BadgeStatic';
-import { badgeAnchor, CARD_W, cardDropPx, pxPerWorld, restX, TOP_OFFSET } from './anchor';
+import { badgeAnchor, cardDropPx, pxPerWorld, restX, TOP_OFFSET, VIS_W } from './anchor';
 
 const Lanyard = lazy(() => import('./Lanyard'));
 type Mode = 'static' | '3d-travel' | '3d-inline';
@@ -106,7 +106,7 @@ export default function BadgeIsland(props: Props) {
     // Safety net only: About.astro's column already leaves ≥ 24px, so this binds only on very tall viewports, where
     // the 3D card (scaled by viewport height) is wider than the static one.
     const avoid = document.querySelector('[data-badge-avoid]')?.getBoundingClientRect();
-    const half = (CARD_W / 2) * pxPerWorld(innerHeight);
+    const half = (VIS_W / 2) * pxPerWorld(innerHeight);
     if (avoid) heroX = Math.max(heroX, avoid.right + half + 16);
     return badgeAnchor({ heroX, aboutBottom: about.bottom, drop: cardDropPx(innerHeight) });
   }, []);

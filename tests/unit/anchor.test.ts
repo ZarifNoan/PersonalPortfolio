@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import * as anchor from '../../src/components/badge/anchor';
-import { badgeAnchor, cardDropPx, hangPx, pxPerWorld, CARD_H, TOP_OFFSET } from '../../src/components/badge/anchor';
+import { badgeAnchor, cardDropPx, hangPx, pxPerWorld, TOP_OFFSET, VIS_H } from '../../src/components/badge/anchor';
 
 const vh = 900;
 const drop = cardDropPx(vh); // anchor → bottom edge of the resting card, in px
@@ -10,8 +10,9 @@ const base = { heroX: 1000, drop };
 const lock = TOP_OFFSET + drop;
 
 describe('badgeAnchor', () => {
-  it('drop is the rope plus the whole card', () => {
-    expect(drop).toBeCloseTo(hangPx(vh) + (CARD_H / 2) * pxPerWorld(vh));
+  it('drop is the rope plus the whole visible card (its bottom edge is what rides on About)', () => {
+    expect(drop).toBeCloseTo(hangPx(vh) + (VIS_H / 2) * pxPerWorld(vh));
+    expect((VIS_H / 2) * pxPerWorld(900)).toBeCloseTo(147); // half the static card's 294px on the reference screen
   });
   it('rests at the hero position while About Me is still below the card', () => {
     expect(badgeAnchor({ ...base, aboutBottom: 3000 })).toEqual({ x: 1000, y: TOP_OFFSET });
@@ -46,9 +47,10 @@ describe('restX', () => {
   it('is the static card centre: the slot edge minus the right offset and half the card', () => {
     expect(anchor.restX(1000, 10)).toBe(1000 - 10 - 105);
   });
-  it('STATIC_CARD_W mirrors the .badge-card width in global.css', () => {
+  it('STATIC_CARD_W and STATIC_CARD_H mirror the .badge-card size in global.css', () => {
     const css = readFileSync('src/styles/global.css', 'utf8');
     expect(css).toMatch(new RegExp(String.raw`\.badge-card \{[^}]*width: ${anchor.STATIC_CARD_W}px;`));
+    expect(css).toMatch(new RegExp(String.raw`\.badge-card \{[^}]*height: ${anchor.STATIC_CARD_H}px;`));
   });
 });
 

@@ -40,7 +40,7 @@ img { max-width: 100%; height: auto; display: block; }
 .page-title p { color: var(--muted); max-width: 60ch; margin: 12px 0 0; }
 [data-filter-item][hidden] { display: none !important; }
 
-/* Static badge (BadgeStatic.tsx), drawn to match the 3D one. Its height is var(--badge-strap) + var(--badge-body)
+/* Static badge (BadgeStatic.tsx); the 3D one reproduces it. Its height is var(--badge-strap) + var(--badge-body)
    (ring 22 − 3 overlap, card 294 − 3 overlap = 310): 410px by default = BadgeIsland's INLINE_H. Hero.astro sizes the
    slot from the same variables so removing the static badge (when the 3D one is ready) can't shift the page. */
 :root { --badge-strap: 100px; --badge-body: 310px; }
@@ -63,8 +63,10 @@ img { max-width: 100%; height: auto; display: block; }
 .badge-clip { position: absolute; top: -9px; left: 50%; translate: -50% 0; width: 42px; height: 22px; border-radius: 5px; z-index: 2;
   background: linear-gradient(180deg, #f1f3f7, #b8bdc8 55%, #8d93a1); box-shadow: 0 2px 4px rgba(0,0,0,.4), inset 0 1px 0 #fff; }
 .badge-clip::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; translate: -50% -50%; border-radius: 50%; background: #6b7080; }
-/* The printed face copies textures.ts cardFaceTexture (1024 × 1480 canvas px). Container units make it exact:
-   100cqw = the face width = 1024 canvas px, so a canvas value v px is v / 10.24 cqw (vertical positions too). */
+/* The printed face copies textures.ts cardFaceTexture (1024 × 1463 layout units, the face's 196 × 280 aspect).
+   Container units make it exact: 100cqw = the face width = 1024 units, so a canvas value v is v / 10.24 cqw (vertical
+   positions too). This static badge is the reference look: the 3D card draws its face, sleeve and shadow from these
+   rules (textures.ts BADGE, Lanyard.tsx), so keep the two in step. */
 .badge-face { position: absolute; inset: 7px; overflow: hidden; border-radius: 10px; container-type: inline-size; text-align: center;
   background: linear-gradient(170deg, #fcfcff, #ececf5); }
 .badge-face > * { position: absolute; left: 0; right: 0; }
