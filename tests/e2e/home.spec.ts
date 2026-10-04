@@ -34,7 +34,7 @@ test('project media lifts on hover', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/software');
-  const main = page.locator('section#stocksense [data-main-image]');
+  const main = page.locator('section#stocksense [data-cover]');
   await main.hover();
   await expect.poll(() => main.evaluate((el) => getComputedStyle(el).translate)).not.toMatch(/^(none|0px)$/);
 });

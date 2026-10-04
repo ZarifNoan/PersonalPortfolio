@@ -12,24 +12,50 @@ test('software page lists four projects in order with descriptions visible', asy
   await expect(page.locator('section[data-filter-item]').first()).toContainText('LSTM model');
 });
 
-test('thumbnail swaps the main image without changing its box height', async ({ page }) => {
+test('team wording on the listing eyebrows', async ({ page }) => {
   await page.goto('/software');
-  const section = page.locator('section[data-filter-item]').first();
-  const thumbs = section.locator('a[data-thumb]');
-  test.skip((await thumbs.count()) < 2, 'needs 2+ images');
-  const box = section.locator('[data-main-image]');
-  const before = (await box.boundingBox())!.height;
-  await thumbs.nth(1).click();
-  await expect(section.locator('[data-slide][data-index="1"]')).toBeVisible();
-  await expect(section.locator('[data-slide][data-index="0"]')).toBeHidden();
-  await expect(thumbs.nth(1)).toHaveAttribute('aria-current', 'true');
-  expect((await box.boundingBox())!.height).toBeCloseTo(before, 0);
+  await expect(page.locator('#stocksense .eyebrow')).toHaveText(/· Individual$/);
+  await expect(page.locator('#jomlah .eyebrow')).toHaveText(/· Team of 3$/);
+  await expect(page.locator('#fuzzy-logic .eyebrow')).toHaveText(/· Team of 5$/);
+  await expect(page.locator('#fixer .eyebrow')).toHaveText(/· Team of 4$/);
 });
 
-test('single-image projects render no thumbnail strip', async ({ page }) => {
+for (const [listing, slugs] of [
+  ['/software', ['stocksense', 'jomlah', 'fuzzy-logic', 'fixer']],
+  ['/3d', ['moltech-johor-warehouse', 'slice-2025', 'gobami']],
+] as const) {
+  test(`${listing}: each project shows exactly one picture and no thumbnail strip`, async ({ page }) => {
+    await page.goto(listing);
+    const sections = page.locator('section[data-filter-item]');
+    await expect(sections).toHaveCount(slugs.length);
+    for (const s of await sections.all()) {
+      await expect(s.locator('[data-cover]')).toHaveCount(1);
+      await expect(s.locator('[data-cover] img')).toHaveCount(listing === '/software' ? 1 : 1);
+      await expect(s.locator('[data-thumbs], [data-thumb], [data-slide]')).toHaveCount(0);
+    }
+  });
+
+  test(`${listing}: Learn more links open each detail page`, async ({ page }) => {
+    for (const slug of slugs) {
+      await page.goto(listing);
+      const section = page.locator(`section#${slug}`);
+      const title = (await section.locator('h2').textContent())!.trim();
+      const more = section.getByRole('link', { name: /^Learn more/ });
+      await expect(more).toHaveCount(1);
+      await expect(more).toHaveAccessibleName(`Learn more about ${title}`);
+      await expect(section.locator('[data-cover]')).toHaveAttribute('href', `${listing}/${slug}`);
+      await more.click();
+      await expect(page).toHaveURL(new RegExp(`${listing}/${slug}/?$`));
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
+    }
+  });
+}
+
+test('software listing pictures are device mockups (laptop or phone in hand)', async ({ page }) => {
   await page.goto('/software');
-  for (const s of await page.locator('section[data-filter-item]').all()) {
-    const n = JSON.parse((await s.locator('[data-gallery]').getAttribute('data-gallery'))!).length;
-    if (n === 1) await expect(s.locator('[data-thumbs]')).toHaveCount(0);
-  }
+  for (const slug of ['stocksense', 'jomlah', 'fuzzy-logic']) await expect(page.locator(`#${slug} .laptop-scene`)).toHaveCount(1);
+  await expect(page.locator('#fixer .phone-scene')).toHaveCount(1);
+  // The cover screenshot is a crisp responsive image on the laptop screen.
+  const img = page.locator('#stocksense .laptop-scene .screen img');
+  await expect(img).toHaveAttribute('srcset', /\d+w/);
 });

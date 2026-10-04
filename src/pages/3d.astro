@@ -23,7 +23,9 @@ const categoryOptions = deriveOptions(projects.map((p) => [p.data.category]), CA
         eyebrow={`${p.data.client ? 'Client Project' : 'Personal Project'} · ${p.data.category}`}
         tags={[p.data.category, 'Blender']}
         description={p.data.description}
-        images={p.data.images}
+        cover={p.data.images[0]!}
+        href={`/3d/${p.id.split('/')[0]}`}
+        eager={i === 0}
         filterSlugs={[slugify(p.data.category)]}
         reverse={i % 2 === 1}
         accent="viz"
@@ -31,7 +33,3 @@ const categoryOptions = deriveOptions(projects.map((p) => [p.data.category]), CA
     ))}
   </div>
 </Layout>
-<script>
-  import { initGalleries } from '../scripts/gallery';
-  initGalleries();
-</script>

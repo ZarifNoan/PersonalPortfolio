@@ -1,66 +1,55 @@
 ---
-import { Image, getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import DeviceMockup from './DeviceMockup.astro';
 interface Props {
   id: string; title: string; eyebrow: string; tags: string[]; description: string;
-  images: { src: ImageMetadata; alt: string }[]; filterSlugs: string[]; reverse: boolean; accent: 'sw' | 'viz';
+  /** The project's one listing picture (its cover image). */
+  cover: { src: ImageMetadata; alt: string };
+  /** Software covers are shown on a device; 3D covers are shown as the render itself. */
+  device?: 'laptop' | 'phone'; screenFit?: 'cover' | 'contain';
+  href: string; filterSlugs: string[]; reverse: boolean; accent: 'sw' | 'viz'; eager?: boolean;
 }
-const { id, title, eyebrow, tags, description, images, filterSlugs, reverse, accent } = Astro.props;
-const full = await Promise.all(images.map((i) => getImage({ src: i.src, width: Math.min(i.src.width, 2000), format: 'webp' })));
-const gallery = JSON.stringify(full.map((f, k) => ({ src: f.src, alt: images[k]!.alt })));
-const sizes = '(max-width: 899px) 100vw, 640px';
+const { id, title, eyebrow, tags, description, cover, device, screenFit, href, filterSlugs, reverse, accent, eager = false } = Astro.props;
+const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
 ---
 <section id={id} class:list={['project', `accent-${accent}`, { reverse }]} data-filter-item data-filter-values={filterSlugs.join(' ')} data-reveal aria-labelledby={`${id}-title`}>
-  <div class="media" data-gallery={gallery}>
-    <div class="main" data-main-image>
-      {images.map((img, k) => (
-        <a href={full[k]!.src} data-slide data-index={k} data-open-lightbox hidden={k !== 0} aria-label={`View larger: ${img.alt}`}>
-          <Image src={img.src} alt={img.alt} widths={[480, 800, 1200]} sizes={sizes} loading={k === 0 ? 'eager' : 'lazy'} />
-        </a>
-      ))}
-    </div>
-    {images.length > 1 && (
-      <ul class="thumbs" data-thumbs>
-        {images.map((img, k) => (
-          <li><a href={full[k]!.src} data-thumb data-index={k} aria-current={k === 0 ? 'true' : undefined} aria-label={`Show image ${k + 1}: ${img.alt}`}>
-            <Image src={img.src} alt="" width={160} loading="lazy" />
-          </a></li>
-        ))}
-      </ul>
+  <!-- The picture repeats the "Learn more" link for pointer users; it is hidden from keyboard and screen readers. -->
+  <a class="media" href={href} tabindex="-1" aria-hidden="true" data-cover>
+    {device ? (
+      <DeviceMockup src={cover.src} alt={cover.alt} device={device} fit={screenFit} sizes={sizes} eager={eager} />
+    ) : (
+      <span class="render"><Image src={cover.src} alt={cover.alt} widths={[480, 800, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} /></span>
     )}
-  </div>
+  </a>
   <div class="text">
     <p class="eyebrow">{eyebrow}</p>
     <h2 id={`${id}-title`}>{title}</h2>
     <p class="desc">{description}</p>
     <ul class="tags" aria-label="Tech and tags">{tags.map((t) => <li class="glass">{t}</li>)}</ul>
+    <a class="more" href={href}>Learn more<span class="visually-hidden"> about {title}</span> <span class="arrow" aria-hidden="true">→</span></a>
   </div>
 </section>
 
 <style>
   .project { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; padding-block: clamp(40px, 6vw, 72px); border-top: 1px solid var(--border); }
   .project.reverse .media { order: 2; }
-  /* Grid items default to min-width: auto, so a long thumbnail row (fixed-width, nowrap) could otherwise
-     force this column wider than the viewport instead of scrolling within .thumbs. */
-  .media { min-width: 0; }
-  .main { aspect-ratio: 16 / 10; border-radius: var(--radius); overflow: hidden; background: #05050b; border: 1px solid var(--border); }
-  /* Hover lift on the image box. It uses translate on .main, not the section, which the scroll reveal translates. */
+  .media { display: block; min-width: 0; border-radius: var(--radius); box-shadow: 0 0 0 1px var(--border); }
+  .render { display: block; aspect-ratio: 16 / 10; border-radius: var(--radius); overflow: hidden; background: #05050b; }
+  .render :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  /* Hover lift on the picture. It uses translate on .media, not the section, which the scroll reveal translates. */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .main { transition: translate .25s ease, box-shadow .25s ease, border-color .25s ease; }
-    .project:hover .main { translate: 0 -4px; box-shadow: 0 14px 32px rgba(0,0,0,.45); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+    .media { transition: translate .25s ease, box-shadow .25s ease; }
+    .project:hover .media { translate: 0 -4px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, var(--border)), 0 16px 36px rgba(0,0,0,.45); }
   }
-  .main a { display: block; width: 100%; height: 100%; cursor: zoom-in; }
-  .main a[hidden] { display: none; }
-  .main :global(img) { width: 100%; height: 100%; object-fit: contain; }
-  .thumbs { list-style: none; display: flex; gap: 8px; margin: 10px 0 0; padding: 0; overflow-x: auto; }
-  .thumbs a { display: block; width: 72px; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); opacity: .6; transition: opacity .2s; }
-  .thumbs a[aria-current='true'], .thumbs a:hover { opacity: 1; border-color: var(--accent); }
-  .thumbs :global(img) { width: 100%; height: 100%; object-fit: cover; }
   .accent-sw { --accent: var(--sw); } .accent-viz { --accent: var(--viz); }
   .eyebrow { margin: 0 0 8px; color: var(--accent); font-weight: 600; font-size: .85rem; letter-spacing: .04em; }
   h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); font-weight: 800; }
   .desc { color: var(--muted); margin: 14px 0 18px; }
   .tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
   .tags li { padding: 4px 12px; font-size: .8rem; color: var(--text); }
+  .more { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 10px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; color: #0b0b14; background: var(--accent); transition: background .2s, gap .2s; }
+  .more:hover { background: color-mix(in srgb, var(--accent) 82%, #fff); gap: 12px; }
+  .more:focus-visible { outline-color: var(--text); }
   @media (max-width: 899px) { .project { grid-template-columns: 1fr; } .project.reverse .media { order: 0; } }
 </style>
