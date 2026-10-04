@@ -116,10 +116,10 @@ request 7.)
 
 - A React Three Fiber scene with a Rapier rope-joint chain, hanging a 3D card from a fabric strap.
   - It swings under gravity and can be grabbed and dragged with mouse or touch, springing back on release.
-  - **Card:** a printed card in a clear glossy plastic sleeve, joined to the strap by a metal clip and split ring. Front: header with the `</>` and ◇ marks, blue/amber accent stripes, photo, full name (given names large, "BIN MOHD ARIFIN" smaller), "Computer Science · 3D Visualization".
+  - **Card:** a printed card (182 × 294 CSS px in a clear glossy plastic sleeve, the face inset 7px; narrowed from 210 by change request 18), joined to the strap by a metal clip and split ring. Front: dark header with the `</>` and ◇ marks and blue/amber accent stripes; Zarif's photo full-bleed between the stripes (head with headroom down to his folded arms); a white fade rising over his body with "Computer Science" / "3D Visualization" on two lines over it; then the stripes and dark footer with "NURHAN ARIFIN". No full name on the card. The static and 3D faces share one layout (`src/components/badge/face.ts`).
   - **Strap texture:** woven fabric with stitched edges and "NURHAN ARIFIN" plus the `</>` ◇ marks, at the correct aspect so the text is not stretched.
   - Lighting uses image-based light from three's procedural room environment (no HDR download).
-- **Photo placeholder:** until Zarif supplies a photo, the card shows an **MZN** monogram. Swapping it in means replacing one image file.
+- **Photo:** `src/assets/images/badge/zarif-badge.jpg`, set as `site.badge.photo` and served as a 504 px WebP to both badges. With `photo: null` (or if the photo fails to load in the 3D card) the photo area shows an **MZN** monogram instead.
 - **Scroll travel (desktop Home page only).**
   - The canvas is fixed-position and lets pointer events pass through to the page, except on the card itself.
   - The badge hangs on the right of the header and stays in place, in the right margin beside About Me, while About Me is read.
@@ -151,10 +151,10 @@ src/assets/images/moltech-johor-warehouse/*.png
 src/assets/images/people/                     (team photos shared across projects)
 src/assets/images/home/                       (pick-a-side backgrounds)
 src/assets/images/mockup-scenes/              (source device photos for scripts/make-mockups.py)
+src/assets/images/badge/                      (the lanyard card's photo)
 ```
 
-Only files that must keep a fixed public URL stay in `public/`: `og.jpg` (link previews) and `favicon.svg` (and
-`badge/photo.jpg` once the badge photo is added).
+Only files that must keep a fixed public URL stay in `public/`: `og.jpg` (link previews) and `favicon.svg`.
 
 ### 6.1 Software schema
 
