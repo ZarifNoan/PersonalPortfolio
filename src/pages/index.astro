@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/home/Hero.astro';
 import About from '../components/home/About.astro';
+import Connect from '../components/home/Connect.astro';
 import PickSide from '../components/home/PickSide.astro';
 import BadgeIsland from '../components/badge/BadgeIsland.tsx';
 import { site } from '../data/site';
@@ -9,5 +10,6 @@ import { site } from '../data/site';
 <Layout title="Home" description="Portfolio of Muhammad Zarif Nurhan Bin Mohd Arifin: software development and 3D visualization." page="home">
   <Hero><BadgeIsland client:idle name={site.name} role={site.badge.role} photo={site.badge.photo} label={site.brand} /></Hero>
   <About />
+  <Connect />
   <PickSide />
 </Layout>

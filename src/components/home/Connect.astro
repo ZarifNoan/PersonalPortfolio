@@ -1,0 +1,52 @@
+---
+import { site } from '../../data/site';
+import { siteLinkedinLink } from '../../lib/details';
+// Same site-wide contact as the footer's, monochrome to match the other two cards (not the team list's brand blue).
+const linkedin = siteLinkedinLink(site.linkedin);
+const whatsapp = `https://wa.me/${site.phoneTel.replace('+', '')}`;
+---
+<section class="connect container" aria-labelledby="connect-title" data-reveal data-connect>
+  <h2 id="connect-title">Let's Connect</h2>
+  <p class="invite">Open to internship opportunities — reach out through any of these.</p>
+  <ul class="cards">
+    {linkedin && (
+      <li>
+        <a class="card glass" href={linkedin.href} target={linkedin.target} rel={linkedin.rel} aria-label={linkedin['aria-label']}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+          <span>LinkedIn</span>
+        </a>
+      </li>
+    )}
+    <li>
+      <a class="card glass" href={`mailto:${site.email}`}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+        <span>{site.email}</span>
+      </a>
+    </li>
+    <li>
+      <a class="card glass" href={`tel:${site.phoneTel}`}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4h3.2l1.6 4.2-2.3 1.6a10.8 10.8 0 0 0 5.2 5.2l1.6-2.3L18 14v3.2a1.8 1.8 0 0 1-2 1.8A14.5 14.5 0 0 1 2.7 6a1.8 1.8 0 0 1 1.8-2z"/></svg>
+        <span>{site.phoneDisplay}</span>
+      </a>
+      <a class="whatsapp" href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label="Message Muhammad Zarif Nurhan on WhatsApp (opens in a new tab)">WhatsApp →</a>
+    </li>
+  </ul>
+</section>
+<style>
+  /* Eyebrow styled exactly like About.astro's "About me" h2: the same small-caps label treatment ties the two
+     sections together as one visual rhythm. Margin-top/the cards' bottom padding each echo About's 48px bottom
+     padding, so About → Connect and Connect → pick-a-side both read as the same ~96px breathing room
+     (PickSide.astro's own 48px margin-top stacks onto this section's bottom padding, unchanged). */
+  .connect { margin-top: 48px; padding-bottom: 48px; }
+  h2 { font-size: .85rem; letter-spacing: .16em; text-transform: uppercase; color: var(--sw); margin-bottom: 10px; }
+  .invite { margin: 0 0 24px; color: var(--muted); font-size: 1.05rem; max-width: 56ch; }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { display: flex; align-items: center; gap: 12px; padding: 20px 22px; border-radius: var(--radius); color: var(--text); text-decoration: none; font-weight: 600; transition: background .2s, border-color .2s; }
+  .card:hover { background: var(--glass-strong); border-color: color-mix(in srgb, var(--sw) 40%, var(--border)); }
+  .card svg { flex-shrink: 0; color: var(--sw); }
+  .card span { overflow-wrap: anywhere; }
+  .whatsapp { display: inline-block; margin: 8px 0 0 2px; color: var(--muted); font-size: .88rem; font-weight: 600; text-decoration: none; }
+  .whatsapp:hover { color: var(--text); text-decoration: underline; }
+  @media (max-width: 699px) { .cards { grid-template-columns: 1fr; } }
+  @media (max-width: 899px) { .connect { margin-top: 32px; padding-bottom: 32px; } }
+</style>

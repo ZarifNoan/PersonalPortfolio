@@ -58,18 +58,67 @@ test('desktop: the name starts 149-173px below the nav and About follows the hea
   expect(headlineAboutGap).toBeLessThanOrEqual(128);
 });
 
-test('desktop: About Me text has a comfortable gap to pick-a-side', async ({ page }, info) => {
+test('desktop: About Me text has a comfortable gap to Let\'s Connect', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop');
   await page.goto('/');
   const gap = await page.evaluate(() => {
     const topOf = (el: HTMLElement) => { let y = 0; for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) y += e.offsetTop; return y; };
     const p = document.querySelector<HTMLElement>('[data-badge-avoid] p:last-child')!;
     const aboutBottom = topOf(p) + p.offsetHeight;
-    const splitTop = topOf(document.querySelector<HTMLElement>('[data-split]')!);
-    return splitTop - aboutBottom;
+    const connectTop = topOf(document.querySelector<HTMLElement>('[data-connect]')!);
+    return connectTop - aboutBottom;
   });
   expect(gap).toBeGreaterThanOrEqual(80);
   expect(gap).toBeLessThanOrEqual(112);
+});
+
+test("desktop: Let's Connect has a comfortable gap to pick-a-side", async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop');
+  await page.goto('/');
+  const gap = await page.evaluate(() => {
+    const topOf = (el: HTMLElement) => { let y = 0; for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) y += e.offsetTop; return y; };
+    // The cards' own bottom (not the section box, whose padding-bottom is already part of its offsetHeight): this
+    // mirrors the About -> Connect measurement above, which reads from the last paragraph, not About's own box.
+    const cards = document.querySelector<HTMLElement>('[data-connect] .cards')!;
+    const cardsBottom = topOf(cards) + cards.offsetHeight;
+    const splitTop = topOf(document.querySelector<HTMLElement>('[data-split]')!);
+    return splitTop - cardsBottom;
+  });
+  expect(gap).toBeGreaterThanOrEqual(80);
+  expect(gap).toBeLessThanOrEqual(112);
+});
+
+test("Let's Connect sits below About and above pick-a-side, with mailto/tel/LinkedIn links", async ({ page }) => {
+  await page.goto('/');
+  const connect = page.locator('[data-connect]');
+  await expect(page.getByRole('heading', { name: "Let's Connect" })).toBeVisible();
+  const order = await page.evaluate(() => {
+    const topOf = (el: HTMLElement) => { let y = 0; for (let e: HTMLElement | null = el; e; e = e.offsetParent as HTMLElement | null) y += e.offsetTop; return y; };
+    return {
+      about: topOf(document.querySelector('[data-badge-release]')!),
+      connect: topOf(document.querySelector('[data-connect]')!),
+      split: topOf(document.querySelector('[data-split]')!),
+    };
+  });
+  expect(order.connect).toBeGreaterThan(order.about);
+  expect(order.split).toBeGreaterThan(order.connect);
+  await expect(connect.getByRole('link', { name: /zrf\.nurhan@gmail\.com/ })).toHaveAttribute('href', 'mailto:zrf.nurhan@gmail.com');
+  await expect(connect.getByRole('link', { name: /\+60 11-5878 5830/ })).toHaveAttribute('href', 'tel:+601158785830');
+  await expect(connect.getByRole('link', { name: /linkedin/i })).toHaveAttribute('href', 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/');
+});
+
+test("Let's Connect cards stack on mobile and keep visible focus", async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile');
+  await page.goto('/');
+  const cards = page.locator('[data-connect] .cards > li');
+  await expect(cards).toHaveCount(3); // LinkedIn, Email, Phone
+  const count = 3;
+  const boxes = await Promise.all(Array.from({ length: count }, (_, i) => cards.nth(i).boundingBox()));
+  for (let i = 1; i < boxes.length; i++) expect(boxes[i]!.y).toBeGreaterThan(boxes[i - 1]!.y + boxes[i - 1]!.height - 1);
+  const email = page.locator('[data-connect]').getByRole('link', { name: /zrf\.nurhan@gmail\.com/ });
+  await email.focus();
+  await expect(email).toBeFocused();
+  expect(await email.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe('none');
 });
 
 for (const width of [900, 1024, 1280, 1440]) {
