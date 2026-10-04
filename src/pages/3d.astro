@@ -13,7 +13,7 @@ const categoryOptions = deriveOptions(projects.map((p) => [p.data.category]), CA
   <div class="container">
     <header class="page-title" data-reveal>
       <h1><span class="sym" style="color:var(--viz)" aria-hidden="true">◇ </span>3D Visualization</h1>
-      <p>Architectural and product visualization created in Blender, mostly for real clients.</p>
+      <p class="justify">Architectural and product visualization created in Blender, mostly for real clients.</p>
     </header>
     <FilterBar param="type" options={categoryOptions} label="Filter by type" />
     {projects.map((p, i) => (

@@ -3,7 +3,7 @@ import { site } from '../../data/site';
 ---
 <section class="about container" aria-labelledby="about-title" data-reveal data-badge-release>
   <h2 id="about-title">About me</h2>
-  <div class="body" data-badge-avoid>{site.about.map((p) => <p>{p}</p>)}</div>
+  <div class="body" data-badge-avoid>{site.about.map((p) => <p class="justify">{p}</p>)}</div>
 </section>
 <style>
   /* The text column is the smallest of 60ch, 44vw and the room left of the hanging badge, 100% − 494px, where
@@ -18,8 +18,6 @@ import { site } from '../../data/site';
   p { margin: 0 0 16px; color: var(--muted); font-size: 1.08rem; }
   p:first-child { color: var(--text); font-size: 1.2rem; }
   p:last-child { margin-bottom: 0; }
-  /* Justified only from 600px: at 390px the narrow column opened wide gaps between words (checked in screenshots). */
-  @media (min-width: 600px) { p { text-align: justify; hyphens: auto; } }
   /* ~67% of the desktop 48px bottom padding, matching PickSide's scaled-down split margin: the CR's "roughly 60-70%
      on mobile" guideline. */
   @media (max-width: 899px) { .about { grid-template-columns: 1fr; gap: 12px; padding-bottom: 32px; } }

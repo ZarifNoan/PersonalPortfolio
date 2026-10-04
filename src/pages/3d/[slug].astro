@@ -35,7 +35,7 @@ const client = clientFact(d);
       </dl>
     </header>
     <div class="about">
-      {paragraphs(d.details).map((p) => <p>{p}</p>)}
+      {paragraphs(d.details).map((p) => <p class="justify">{p}</p>)}
     </div>
     <section class="renders" aria-label="Renders">
       <Mosaic items={items} />

@@ -14,7 +14,7 @@ const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LAN
   <div class="container">
     <header class="page-title" data-reveal>
       <h1><span class="sym" style="color:var(--sw)" aria-hidden="true">&lt;/&gt; </span>Software Development</h1>
-      <p>AI systems, full-stack web applications and desktop software, built during my Computer Science degree.</p>
+      <p class="justify">AI systems, full-stack web applications and desktop software, built during my Computer Science degree.</p>
     </header>
     <FilterBar param="lang" options={languageOptions} label="Filter by language" />
     {projects.map((p, i) => (
