@@ -40,7 +40,7 @@ test('every screenshot and render opens the lightbox on its own image', async ({
     for (let i = 0; i < n; i++) {
       const o = openers.nth(i);
       await o.scrollIntoViewIfNeeded();
-      // Windows overlap lower down, so click near the top-left; fanned phones only overlap at their sides.
+      // Windows overlap lower down, so click near the top-left; phones never overlap, so click their centre.
       const isPhone = await o.evaluate((el) => el.classList.contains('phone'));
       await o.click(isPhone ? undefined : { position: { x: 30, y: 40 } });
       await expect(dlg).toBeVisible();

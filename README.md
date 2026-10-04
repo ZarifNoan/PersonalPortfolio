@@ -38,14 +38,19 @@ npm run check      # type and template checks
      duplicating the image per project.
 5. `description` is the short text on the listing page; `details` is the long description on the detail page, with
    paragraphs separated by a blank line (use `details: |`).
-6. `device` is `laptop` (desktop and web apps: overlapping panels) or `phone` (mobile apps: a fanned row of phones).
+6. `device` is `laptop` (desktop and web apps: overlapping panels) or `phone` (mobile apps: a row of realistic
+   phones, alternately raised and lowered; a 2 x 2 grid on narrow screens). For `phone`, every gallery screenshot (all
+   but the cover) needs `framed:`, a phone render made by `scripts/make-phone-frames.py`: add the screenshot to its
+   `SCREENS` table (capture-border `crop`, and `trim`/`under` for fitting it below the status bar) and run
+   `python scripts/make-phone-frames.py`; it writes `<screenshot>.phone.png` next to it. The image viewer still opens
+   the plain screenshot.
    `screenFit: contain` is for charts: they sit side by side without overlapping. `type`, `platform` and `year` are
    optional facts on the page.
 
 ## Add a 3D project
 Same as above, under `src/content/visualization/` (page: `/3d/<slug>`). `category` is `Architectural Visualization`
 or `Product Visualization`; `client: true` shows "Client Project" on the listing; `clientName` is shown as "Client"
-on the detail page; `details` is the long description. Every render (cover included) appears in the page's mosaic.
+on the detail page, linked to the client's site when `clientUrl` is set (opens in a new tab); `details` is the long description. Every render (cover included) appears in the page's mosaic.
 
 ## Publish JOHEX
 Add renders to `src/content/visualization/johex/images/`, list them in `index.yaml`, set `draft: false`.
@@ -78,6 +83,8 @@ onto the screen by `scripts/make-mockups.py` (sources in `scripts/mockup-photos/
 - JomLah: "White cup and MacBook" by Alex Knight, https://unsplash.com/photos/j4uuKnN43_M
 - Fuzzy Logic: "A calm workspace" (silver iMac on a wooden table) by Clay Banks, https://unsplash.com/photos/TQYTWfN1b7M
 - Fixer: "Hand holding a smartphone with a blank screen" by Jakub Żerdzicki, https://unsplash.com/photos/jSQCLQA99Og
+
+The phones in the Fixer gallery are not photos: `scripts/make-phone-frames.py` draws them (no third-party asset).
 
 ## Deploy
 The site URL is set in one place: `site` in `astro.config.mjs` (canonical links, the sitemap and `robots.txt` all

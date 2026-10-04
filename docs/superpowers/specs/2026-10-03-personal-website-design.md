@@ -41,7 +41,7 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
 ### 3.1 Home (`/`)
 
 1. **Header.** Left: full name "Muhammad Zarif Nurhan Bin Mohd Arifin", with the headline below it: "Computer Science student who builds software and 3D spaces." The name starts about 56px below the nav (the header is as tall as its content, not a full screen). Right: the lanyard badge (section 5).
-2. **About Me** (compact top padding; paragraphs justified with hyphenation from 600px wide), using the approved text:
+2. **About Me** (compact top padding; paragraphs justified with hyphenation from 600px wide, like all running text — see §4), using the approved text:
    > Hi, I'm Zarif, a final-year Computer Science (Honours) student at UCSI University.
    >
    > I work in two worlds. On one side, I build software, from full-stack web applications to systems that use AI to make smarter decisions. On the other, I create 3D visualisations in Blender for real clients, bringing spaces to life before they're built.
@@ -77,7 +77,7 @@ Generated from the collection (drafts get no page). In order:
 5. A facts card: type, course, platform, year, and the tech stack chips. (Team size is not repeated here — it's
    already in the header eyebrow and, for team projects, in the team list below it.)
 6. "About the project": the long description (2–4 paragraphs).
-7. The other screenshots, with no heading, as overlapping clean panels (rounded corners, soft shadow, no window chrome) on a gradient backdrop in the app's own colours (`theme`), two or three per group; later groups mirror the composition. Mobile apps use a fanned row of phone frames instead. Every image opens the viewer. On phones the windows stack with a slight overlap (phones go two per row).
+7. The other screenshots, with no heading, as overlapping clean panels (rounded corners, soft shadow, no window chrome) on a gradient backdrop in the app's own colours (`theme`), two or three per group; later groups mirror the composition. Mobile apps show realistic phones instead: each screenshot pre-rendered inside a modern smartphone (titanium band, side keys, dynamic island, iOS status bar and home indicator, glass sheen, contact shadow) by `scripts/make-phone-frames.py` as a transparent PNG (`framed`), in a spaced row with no overlap, alternately raised and lowered (a 2 × 2 grid with a subtle offset on phones). Every image opens the viewer. On phones the windows stack with a slight overlap.
 
 ### 3.3 3D Visualization (`/3d`)
 
@@ -106,6 +106,7 @@ request 7.)
 
 - **Background:** near-black (`#0b0b14`) with soft radial colour glows. The glow is purple/teal on Home, blue on Software Development, and amber on 3D Visualization.
 - **Type:** Sora 600/800 for headings, Inter 400/600 for body text.
+- **Running text** (About Me, page intros, listing descriptions, detail-page long descriptions and 3D leads) is justified with `hyphens: auto` through one shared `.justify` class, from 600px wide; below that it stays left-aligned (justifying a ~350px column opened wide gaps in screenshots). Headings, eyebrows, chips, buttons, nav, footer, facts panels, team lists and captions are never justified.
 - **Controls:** rounded, glassy buttons and filter chips (translucent white fill with a hairline border).
 - **Side symbols:** **`</>`** for Software Development and **◇** for 3D Visualization, used on the pick-a-side halves, page titles and nav.
 - **Accent colours:** blue (`#60a5fa`) for software, amber (`#f59e0b`) for 3D.
@@ -149,11 +150,11 @@ src/content/visualization/moltech-johor-warehouse/images/*.png
 
 ### 6.1 Software schema
 
-`title`, `course`, `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src` and `alt`), `draft` (optional boolean; drafts are hidden and get no page).
+`title`, `course`, `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and, for `device: phone` gallery screenshots, a required `framed` phone render from `scripts/make-phone-frames.py`), `draft` (optional boolean; drafts are hidden and get no page).
 
 ### 6.2 Visualization schema
 
-`title`, `client` (boolean; true shows "Client Project", false shows "Personal Project"), `clientName` (shown as "Client" on the project page), `category` ("Architectural Visualization" or "Product Visualization"), `order`, `description`, `details` (long description), `images[]` (with `src` and `alt`), `draft`.
+`title`, `client` (boolean; true shows "Client Project", false shows "Personal Project"), `clientName` (shown as "Client" on the project page), `clientUrl` (optional; the Client value links to it in a new tab with an external-link icon), `category` ("Architectural Visualization" or "Product Visualization"), `order`, `description`, `details` (long description), `images[]` (with `src` and `alt`), `draft`.
 
 The build fails with a clear error if a required field is missing, an image path doesn't exist, or a language or category is not in the allowed list.
 
