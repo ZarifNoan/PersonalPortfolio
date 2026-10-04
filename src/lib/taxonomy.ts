@@ -1,4 +1,4 @@
-export const LANGUAGES = ['Python', 'JavaScript', 'PHP', 'Java', 'SQL'] as const;
+export const LANGUAGES = ['Python', 'JavaScript', 'TypeScript', 'PHP', 'Java', 'SQL'] as const;
 export const CATEGORIES = ['Architectural Visualization', 'Product Visualization'] as const;
 export type Language = (typeof LANGUAGES)[number];
 export type Category = (typeof CATEGORIES)[number];

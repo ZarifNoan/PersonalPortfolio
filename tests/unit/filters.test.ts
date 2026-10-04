@@ -14,6 +14,9 @@ describe('deriveOptions', () => {
   it('returns present values in taxonomy order, deduplicated', () => {
     expect(deriveOptions(projects, LANGUAGES)).toEqual(['Python', 'JavaScript', 'PHP', 'Java', 'SQL']);
   });
+  it('places TypeScript after JavaScript', () => {
+    expect(deriveOptions([['SQL', 'TypeScript'], ['JavaScript']], LANGUAGES)).toEqual(['JavaScript', 'TypeScript', 'SQL']);
+  });
   it('omits taxonomy values no project uses', () => {
     expect(deriveOptions([['Product Visualization']], CATEGORIES)).toEqual(['Product Visualization']);
   });

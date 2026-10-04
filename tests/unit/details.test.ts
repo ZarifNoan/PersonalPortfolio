@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials, clientFact } from '../../src/lib/details';
+import { paragraphs, teamLabel, groupImages, mosaicLayout, metaDescription, projectFacts, linkedinLink, initials, clientFact, softwareEyebrow, websiteLink } from '../../src/lib/details';
 
 describe('paragraphs', () => {
   it('splits on blank lines and joins wrapped lines', () => {
@@ -112,6 +112,48 @@ describe('projectFacts', () => {
   });
   it('never includes a Team row, regardless of member count', () => {
     expect(projectFacts(base).map((x) => x.label)).not.toContain('Team');
+  });
+});
+
+describe('projectFacts without a course (non-coursework)', () => {
+  it('omits the Course row and keeps the type', () => {
+    expect(projectFacts({ type: 'Freelance client project', members: [], platform: 'Website', year: 2026 })).toEqual([
+      { label: 'Type', value: 'Freelance client project' },
+      { label: 'Platform', value: 'Website' },
+      { label: 'Year', value: '2026' },
+    ]);
+  });
+  it('is empty when there is nothing to show', () => {
+    expect(projectFacts({ members: [] })).toEqual([]);
+  });
+});
+
+describe('softwareEyebrow', () => {
+  it('is the course and the team size for coursework', () => {
+    expect(softwareEyebrow({ course: 'Web Programming', type: 'Course project', members: [{ name: 'A' }, { name: 'B' }, { name: 'C' }] })).toBe('Web Programming · Team of 3');
+  });
+  it('falls back to the type when there is no course', () => {
+    expect(softwareEyebrow({ type: 'Freelance client project', members: [] })).toBe('Freelance client project · Individual');
+  });
+  it('is just the team size with neither', () => {
+    expect(softwareEyebrow({ members: [] })).toBe('Individual');
+  });
+});
+
+describe('websiteLink', () => {
+  it('is null without a URL', () => {
+    expect(websiteLink({ title: 'StockSense – AI Inventory Prediction System' })).toBeNull();
+  });
+  it('opens the live site in a new tab safely, named after the project (the title before the dash)', () => {
+    expect(websiteLink({ title: 'Primo Pinnacle – Government Relations Company Website', url: 'https://primopinnacle.co' })).toEqual({
+      href: 'https://primopinnacle.co',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      'aria-label': 'Visit the Primo Pinnacle website (opens in a new tab)',
+    });
+  });
+  it('uses the whole title when it has no dash', () => {
+    expect(websiteLink({ title: 'Acme', url: 'https://acme.test' })!['aria-label']).toBe('Visit the Acme website (opens in a new tab)');
   });
 });
 

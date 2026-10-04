@@ -82,16 +82,22 @@ export interface Member { name: string; linkedin?: string; photo?: unknown }
 
 /**
  * The facts card on a software project page: type, course, platform and year (the type is skipped when the
- * course name already contains it). Team size is shown in the header eyebrow instead, not here.
+ * course name already contains it; the course is omitted for work that was not coursework). Team size is shown in
+ * the header eyebrow instead, not here.
  */
-export function projectFacts(d: { type?: string; course: string; members: readonly Member[]; platform?: string; year?: number }): { label: string; value: string }[] {
-  const typeIsInCourse = !!d.type && d.course.toLowerCase().includes(d.type.toLowerCase());
+export function projectFacts(d: { type?: string; course?: string; members: readonly Member[]; platform?: string; year?: number }): { label: string; value: string }[] {
+  const typeIsInCourse = !!d.type && !!d.course && d.course.toLowerCase().includes(d.type.toLowerCase());
   return [
     d.type && !typeIsInCourse ? { label: 'Type', value: d.type } : null,
-    { label: 'Course', value: d.course },
+    d.course ? { label: 'Course', value: d.course } : null,
     d.platform ? { label: 'Platform', value: d.platform } : null,
     d.year ? { label: 'Year', value: String(d.year) } : null,
   ].filter((f): f is { label: string; value: string } => f !== null);
+}
+
+/** The eyebrow over a software project's title: the course (or, outside coursework, the type) and the team size. */
+export function softwareEyebrow(d: { course?: string; type?: string; members: readonly unknown[] }): string {
+  return [d.course ?? d.type, teamLabel(d.members)].filter(Boolean).join(' · ');
 }
 
 /** Initials for a placeholder avatar: the first letter of the first and last word, uppercased. */
@@ -121,4 +127,14 @@ export function clientFact(d: { client: boolean; clientName?: string; clientUrl?
     ? { href: d.clientUrl, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${name} (opens in a new tab)` }
     : null;
   return { name, link };
+}
+
+/**
+ * The "Visit website" link for a software project that is live on the web (new tab, no opener or referrer), or null
+ * without a `url`. The accessible name uses the project's name: its title up to the en dash.
+ */
+export function websiteLink(d: { title: string; url?: string }): ExternalLink | null {
+  if (!d.url) return null;
+  const name = d.title.split(' – ')[0]!.trim();
+  return { href: d.url, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `Visit the ${name} website (opens in a new tab)` };
 }
