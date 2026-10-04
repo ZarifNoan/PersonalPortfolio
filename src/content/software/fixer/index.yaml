@@ -54,9 +54,13 @@ images:
     alt: Fixer prototype home screen with a promo banner and service category icons
   - src: ./images/02-services.png
     alt: Services screen listing repair categories including cleaning, plumbing and air-con
+    framed: ./images/02-services.phone.png  # made by scripts/make-phone-frames.py
   - src: ./images/03-tracking.png
     alt: Order tracking screen with a map showing the fixer's route to the customer
+    framed: ./images/03-tracking.phone.png  # made by scripts/make-phone-frames.py
   - src: ./images/04-booking-confirmed.png
     alt: Booking confirmation popup showing a success message and booking ID
+    framed: ./images/04-booking-confirmed.phone.png  # made by scripts/make-phone-frames.py
   - src: ./images/05-rating.png
     alt: Rating screen for leaving a star rating and comment for a completed job
+    framed: ./images/05-rating.phone.png  # made by scripts/make-phone-frames.py

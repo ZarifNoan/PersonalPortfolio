@@ -5,8 +5,9 @@ import { LANGUAGES, CATEGORIES } from './lib/taxonomy';
 
 type ImageFn = SchemaContext['image'];
 
-/** The first image is the cover (it opens first in the image viewer). */
-const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8) })).default([]);
+/** The first image is the cover (it opens first in the image viewer). `framed` is a pre-rendered device picture of
+ * the screenshot (scripts/make-phone-frames.py) that the gallery shows instead; the image viewer keeps `src`. */
+const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8), framed: image().optional() })).default([]);
 const hex = z.string().regex(/^#[0-9a-f]{6}$/i, 'Use a 6-digit hex colour like #1a2b3c');
 /** Long description: paragraphs separated by blank lines (rendered as <p>s on the detail page). */
 const details = z.string().min(40);
@@ -43,7 +44,13 @@ const software = defineCollection({
     details,
     images: images(image),
     draft: z.boolean().default(false),
-  }).superRefine(needImagesUnlessDraft),
+  }).superRefine(needImagesUnlessDraft).superRefine((d, ctx) => {
+    // Phone galleries show realistic phone renders, so every gallery screenshot (all but the cover) needs one.
+    if (d.device !== 'phone') return;
+    d.images.forEach((img, k) => {
+      if (k > 0 && !img.framed) ctx.addIssue({ code: 'custom', message: 'Phone gallery screenshots need `framed` (run scripts/make-phone-frames.py)', path: ['images', k, 'framed'] });
+    });
+  }),
 });
 
 const visualization = defineCollection({

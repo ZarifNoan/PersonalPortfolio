@@ -67,3 +67,49 @@ test('software listing pictures are photographs of real devices showing each app
   // The CSS-drawn laptop and the SVG phone overlay are gone.
   await expect(page.locator('.laptop-scene, .phone-scene, .laptop, svg.overlay')).toHaveCount(0);
 });
+
+for (const width of [1440, 390]) {
+  test(`Fixer gallery at ${width}px: pre-rendered realistic phones, spaced apart, alternating up and down`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/software/fixer');
+    const phones = page.locator('.shots .win.phone');
+    await expect(phones).toHaveCount(4);
+    // Each phone is one pre-rendered device image (scripts/make-phone-frames.py), not a CSS-drawn frame.
+    await expect(page.locator('.shots .scr, .shots .island')).toHaveCount(0);
+    for (const img of await phones.locator('img').all()) {
+      await img.scrollIntoViewIfNeeded();
+      await expect(img).toHaveAttribute('src', /\.phone/);
+      await expect(img).toHaveAttribute('srcset', /\d+w/);
+      expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(20);
+      await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    }
+    const boxes = await phones.evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ x: r.x, y: r.y, w: r.width, h: r.height })));
+    // No two phones overlap.
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i]!, b = boxes[j]!;
+      const apart = a.x + a.w <= b.x + 0.5 || b.x + b.w <= a.x + 0.5 || a.y + a.h <= b.y + 0.5 || b.y + b.h <= a.y + 0.5;
+      expect(apart, `phones ${i} and ${j} overlap`).toBe(true);
+    }
+    const mid = (b: { y: number; h: number }) => b.y + b.h / 2;
+    if (width >= 900) {
+      // One row, smaller than before (230px), with the 2nd and 4th phones lower than the 1st and 3rd.
+      for (let i = 1; i < 4; i++) expect(boxes[i]!.x).toBeGreaterThan(boxes[i - 1]!.x + boxes[i - 1]!.w);
+      for (const b of boxes) expect(b.w).toBeLessThanOrEqual(215);
+      expect(mid(boxes[1]!)).toBeGreaterThan(mid(boxes[0]!) + 16);
+      expect(mid(boxes[1]!)).toBeGreaterThan(mid(boxes[2]!) + 16);
+      expect(mid(boxes[3]!)).toBeGreaterThan(mid(boxes[2]!) + 16);
+    } else {
+      // A 2 x 2 grid with a subtle offset: the right phone of each row sits a little lower.
+      expect(boxes[1]!.x).toBeGreaterThan(boxes[0]!.x + boxes[0]!.w);
+      expect(boxes[3]!.x).toBeGreaterThan(boxes[2]!.x + boxes[2]!.w);
+      expect(Math.abs(boxes[2]!.x - boxes[0]!.x)).toBeLessThan(2);
+      expect(boxes[2]!.y).toBeGreaterThan(boxes[0]!.y + boxes[0]!.h - 40);
+      for (const [a, b] of [[0, 1], [2, 3]] as const) {
+        const d = mid(boxes[b]!) - mid(boxes[a]!);
+        expect(d).toBeGreaterThan(4);
+        expect(d).toBeLessThan(40);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    }
+  });
+}
