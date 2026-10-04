@@ -13,7 +13,7 @@ const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.strin
 const hex = z.string().regex(/^#[0-9a-f]{6}$/i, 'Use a 6-digit hex colour like #1a2b3c');
 /** Long description: paragraphs separated by blank lines (rendered as <p>s on the detail page). */
 const details = z.string().min(40);
-/** A team member for a software project. `photo` is a relative image path (project folder or a shared people folder); omitted until a photo exists. */
+/** A team member for a software project. `photo` is a relative image path (src/assets/images/<slug>/ or the shared src/assets/images/people/); omitted until a photo exists. */
 const member = (image: ImageFn) => z.object({ name: z.string().min(2), linkedin: z.url().optional(), photo: image().optional() });
 const needImagesUnlessDraft = (d: { draft: boolean; images: unknown[] }, ctx: z.RefinementCtx) => {
   if (!d.draft && d.images.length === 0) ctx.addIssue({ code: 'custom', message: 'Published projects need at least one image', path: ['images'] });

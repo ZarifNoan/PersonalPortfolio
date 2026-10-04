@@ -5,17 +5,17 @@ platform: Web app
 year: 2026
 members:
   - name: Muhammad Zarif Nurhan Bin Mohd Arifin
-    photo: ../../../assets/people/zarif.jpg
+    photo: ../../../assets/images/people/zarif.jpg
   - name: Jordan Septian
-    photo: ../../../assets/people/jordan.jpg
+    photo: ../../../assets/images/people/jordan.jpg
     linkedin: https://www.linkedin.com/in/jordanseptian9/
   - name: Hakim Bin Taufik
-    photo: ../../../assets/people/hakim.jpg
+    photo: ../../../assets/images/people/hakim.jpg
     linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
 order: 2
 device: laptop
 mockup:
-  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  src: ../../../assets/images/jomlah/00-mockup.jpg  # made by scripts/make-mockups.py
   alt: "JomLah's home page, “Jom, let’s find something fun-lah to do”, on a MacBook Pro on a café counter beside an espresso"
 # Gallery colours sampled from the UI: the purple brand (#7c4dff), the pink ticket card (#c23777) and the lime 'View details' button (#d9f06b).
 theme: { from: '#5b34d6', to: '#c23777', accent: '#d9f06b' }
@@ -50,13 +50,13 @@ details: |
   that locks the ticket tier, so two people can't both get it. The team tested every area against the
   running site with a written set of test cases, and all of them passed.
 images:
-  - src: ./images/01-home.png
+  - src: ../../../assets/images/jomlah/01-home.png
     alt: JomLah home page listing upcoming events and a featured ticket card
-  - src: ./images/02-browse.png
+  - src: ../../../assets/images/jomlah/02-browse.png
     alt: Browse events page with category filters and a grid of event cards
-  - src: ./images/03-checkout.png
+  - src: ../../../assets/images/jomlah/03-checkout.png
     alt: Checkout screen for confirming attendee details and paying for a ticket
-  - src: ./images/04-organiser-dashboard.png
+  - src: ../../../assets/images/jomlah/04-organiser-dashboard.png
     alt: Organiser dashboard showing live events, tickets sold, revenue and recent bookings
-  - src: ./images/05-check-in.png
+  - src: ../../../assets/images/jomlah/05-check-in.png
     alt: Door check-in screen for scanning or typing a ticket reference code

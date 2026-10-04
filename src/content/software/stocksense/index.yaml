@@ -7,7 +7,7 @@ members: []
 order: 1
 device: laptop
 mockup:
-  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  src: ../../../assets/images/stocksense/00-mockup.jpg  # made by scripts/make-mockups.py
   alt: "StockSense's dark inventory dashboard on a MacBook Pro, on a wooden desk in a bright office by a window"
 # Gallery colours sampled from the UI: navy panels (#101720), the blue 'Add Product' button (#2f6dea), the green value text (#0a8569).
 theme: { from: '#13254a', to: '#0e4a52', accent: '#2f6dea' }
@@ -44,13 +44,13 @@ details: |
   checked with unit and integration tests and a user acceptance test in which five participants added and
   updated stock, viewed forecasts, asked the chatbot questions and generated reports.
 images:
-  - src: ./images/01-dashboard.png
+  - src: ../../../assets/images/stocksense/01-dashboard.png
     alt: StockSense dashboard showing inventory levels, stock alerts and a demand forecast chart
-  - src: ./images/02-inventory.png
+  - src: ../../../assets/images/stocksense/02-inventory.png
     alt: Inventory management table listing products, stock levels and status badges
-  - src: ./images/03-ml-forecasting.png
+  - src: ../../../assets/images/stocksense/03-ml-forecasting.png
     alt: ML forecasting screen with a line chart comparing actual sales to predicted demand
-  - src: ./images/04-ai-chatbot.png
+  - src: ../../../assets/images/stocksense/04-ai-chatbot.png
     alt: AI chatbot panel answering a natural-language question about low-stock items
-  - src: ./images/05-reports.png
+  - src: ../../../assets/images/stocksense/05-reports.png
     alt: Reports and analytics screen with revenue, units sold and a monthly revenue chart

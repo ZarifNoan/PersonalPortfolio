@@ -22,21 +22,21 @@ details: |
   look down a booth aisle under a mezzanine soffit, a close view of the columns beside a row of booths, and
   a wider angle through a curved wall nook showing the booths and columns beyond.
 images:
-  - src: ./images/01-hall-overview.png
+  - src: ../../../assets/images/johex/01-hall-overview.png
     alt: Exhibition hall with rows of modular booth stands facing a stage lit by a spotlight truss, with red auditorium chairs and patterned wallpaper walls
     group: Finished hall
-  - src: ./images/02-concourse-escalators.png
+  - src: ../../../assets/images/johex/02-concourse-escalators.png
     alt: Mezzanine concourse with a curved wood-slat balcony over an escalator bank, booth stands below and a blank placeholder signage panel
     group: Finished hall
-  - src: ./images/03-layout-study-overview.png
+  - src: ../../../assets/images/johex/03-layout-study-overview.png
     alt: Untextured grey massing study showing an overhead view of the booth grid laid out around the hall's structural columns
     group: Layout studies
-  - src: ./images/04-layout-study-aisle.png
+  - src: ../../../assets/images/johex/04-layout-study-aisle.png
     alt: Untextured grey massing study looking down a booth aisle beneath a mezzanine soffit, flanked by structural columns
     group: Layout studies
-  - src: ./images/05-layout-study-columns.png
+  - src: ../../../assets/images/johex/05-layout-study-columns.png
     alt: Untextured grey massing study with structural columns beside a row of booths and a mezzanine opening above
     group: Layout studies
-  - src: ./images/06-layout-study-nook.png
+  - src: ../../../assets/images/johex/06-layout-study-nook.png
     alt: Untextured grey massing study of booth rows and columns seen through a curved wall nook
     group: Layout studies

@@ -2,11 +2,11 @@
 
 Each project's cover screenshot is mapped onto the screen of a real photo with a perspective (homography) transform,
 then given the screen's lighting: a brightness/tint match to the room, slight edge falloff, a soft glare, the
-photo's focus blur and grain. The result is cropped to 16:10 and written to the project's images folder as
-`00-mockup.jpg` (referenced by `mockup:` in its index.yaml).
+photo's focus blur and grain. The result is cropped to 16:10 and written to the project's image folder
+(src/assets/images/<slug>/) as `00-mockup.jpg` (referenced by `mockup:` in its index.yaml).
 
 Photos (Unsplash License, free to use; credited in the README) are kept, resized to 2400px wide, in
-scripts/mockup-photos/:
+src/assets/images/mockup-scenes/:
   stocksense-office.jpg  Dillon Shook      https://unsplash.com/photos/xbFX7qCoAqI
   jomlah-cafe.jpg        Alex Knight       https://unsplash.com/photos/j4uuKnN43_M
   fuzzy-study.jpg        Clay Banks        https://unsplash.com/photos/TQYTWfN1b7M
@@ -28,7 +28,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-PHOTOS = ROOT / 'scripts' / 'mockup-photos'
+IMAGES = ROOT / 'src' / 'assets' / 'images'  # one subfolder per project
+PHOTOS = IMAGES / 'mockup-scenes'
 SS = 2  # supersampling factor for the warp and the screen mask
 
 SCENES = {
@@ -38,7 +39,7 @@ SCENES = {
         glass=[(912.3, 347.0), (1874.6, 378.5), (1745.0, 1189.0), (797.0, 1032.5)],
         # 15" MacBook Pro (2016-19): glass about 347 x 226 mm, display 331.2 x 207 mm, top bezel ~11 mm.
         display=(7.9 / 347, 11 / 226, 339.1 / 347, 218 / 226),
-        cover='stocksense/images/01-dashboard.png', fit='cover',
+        cover='stocksense/01-dashboard.png', fit='cover',
         gain=0.97, tint=(1.0, 1.0, 1.0), glare=0.07, glare_from='left', blur=0.55, grain=2.2,
         crop=(150, 150, 2310, 1500), grade=dict(brightness=0.86, color=0.9, contrast=1.02),
     ),
@@ -48,7 +49,7 @@ SCENES = {
         glass=[(789.0, 375.5), (1718.5, 378.0), (1720.0, 986.5), (786.0, 988.0)],
         # 13" MacBook Pro (Retina): glass about 312 x 208 mm, display 286.5 x 179 mm, top bezel ~11 mm.
         display=(12.75 / 312, 11 / 208, 299.25 / 312, 190 / 208),
-        cover='jomlah/images/01-home.png', fit='cover',
+        cover='jomlah/01-home.png', fit='cover',
         gain=0.9, tint=(1.0, 0.985, 0.95), glare=0.06, glare_from='left', blur=0.6, grain=2.6,
         crop=(160, 0, 2240, 1300), grade=dict(brightness=0.9, color=0.92, contrast=1.0),
     ),
@@ -57,7 +58,7 @@ SCENES = {
         photo='fuzzy-study.jpg',
         glass=[(626.6, 367.0), (1778.7, 367.0), (1769.3, 1014.0), (635.3, 1009.0)],
         display=(0, 0, 1, 1), grow=1.2,
-        cover='fuzzy-logic/images/02-calibration.png', fit='contain', pad=0.05,
+        cover='fuzzy-logic/02-calibration.png', fit='contain', pad=0.05,
         gain=0.86, tint=(1.0, 0.97, 0.9), glare=0.035, glare_from='right', blur=0.6, grain=2.4,
         crop=(160, 130, 2240, 1430), grade=dict(brightness=1.0, color=1.0, contrast=1.0),
     ),
@@ -66,7 +67,7 @@ SCENES = {
         photo='fixer-hand.jpg',
         glass=[(1191.2, 379.0), (1596.7, 368.6), (1559.7, 1282.8), (1140.1, 1229.7)],
         display=(0, 0, 1, 1), phone=True, tab_bar=727 / 805,
-        cover='fixer/images/01-home.png', fit='cover',
+        cover='fixer/01-home.png', fit='cover',
         gain=0.93, tint=(1.0, 1.0, 1.0), glare=0.05, glare_from='left', blur=0.5, grain=2.4,
         crop=(400, 60, 2400, 1310), grade=dict(brightness=0.86, color=0.88, contrast=1.02),
     ),
@@ -77,7 +78,7 @@ SCENES = {
         photo='primo-meeting-room.jpg',
         glass=[(692.4, 490.6), (1707.2, 489.0), (1713.3, 1124.3), (688.4, 1126.7)],
         display=(0, 0, 1, 1), grow=1.2,
-        cover='primo-pinnacle/images/01-home.jpg', fit='cover',
+        cover='primo-pinnacle/01-home.jpg', fit='cover',
         gain=0.95, tint=(1.0, 1.0, 1.0), glare=0.04, glare_from='left', blur=0.5, grain=2.0,
         crop=(318, 250, 2062, 1340), grade=dict(brightness=0.86, color=0.95, contrast=1.03),
     ),
@@ -146,7 +147,7 @@ def status_bar(w, h, bg):
 
 def screen_image(sc, aspect, width):
     """The screenshot as it appears on the display: cropped or fitted to the display's aspect, plus lighting."""
-    shot = Image.open(ROOT / 'src' / 'content' / 'software' / sc['cover']).convert('RGB')
+    shot = Image.open(IMAGES / sc['cover']).convert('RGB')
     W, H = width, int(round(width / aspect))
     if sc.get('phone'):
         bar_h = int(H * 0.062)
@@ -259,7 +260,7 @@ def build(name):
     out = out.crop(sc['crop'])
     if out.width > 2000:
         out = out.resize((2000, 1250), Image.LANCZOS)
-    dest = ROOT / 'src' / 'content' / 'software' / name / 'images' / '00-mockup.jpg'
+    dest = IMAGES / name / '00-mockup.jpg'
     out.save(dest, quality=84, optimize=True, progressive=True, subsampling='4:2:0')
     print(f'{name}: display quad {[(round(x, 1), round(y, 1)) for x, y in quad]} -> {dest.relative_to(ROOT)} {out.size}')
 

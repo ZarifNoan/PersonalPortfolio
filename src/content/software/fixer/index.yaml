@@ -5,19 +5,19 @@ platform: Mobile app prototype (JavaFX)
 year: 2025
 members:
   - name: Muhammad Zarif Nurhan Bin Mohd Arifin
-    photo: ../../../assets/people/zarif.jpg
+    photo: ../../../assets/images/people/zarif.jpg
   - name: Yogesh Sandeep Jayavant
-    photo: ../../../assets/people/yogesh.jpg
+    photo: ../../../assets/images/people/yogesh.jpg
   - name: Hakim Bin Taufik
-    photo: ../../../assets/people/hakim.jpg
+    photo: ../../../assets/images/people/hakim.jpg
     linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
   - name: Jordan Septian
-    photo: ../../../assets/people/jordan.jpg
+    photo: ../../../assets/images/people/jordan.jpg
     linkedin: https://www.linkedin.com/in/jordanseptian9/
 order: 4
 device: phone
 mockup:
-  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  src: ../../../assets/images/fixer/00-mockup.jpg  # made by scripts/make-mockups.py
   alt: "The Fixer app's home screen, with its home-cleaning offer and service categories, on a phone held in a hand in front of plants"
 # Gallery colours sampled from the UI: the navy tab bar (#1a3856) and the blue arrow buttons (#4fa6eb).
 theme: { from: '#1d4f7a', to: '#0f2236', accent: '#4fa6eb' }
@@ -50,17 +50,17 @@ details: |
   user manual that walks through setting up a profile, booking a service, tracking an order and messaging
   the worker.
 images:
-  - src: ./images/01-home.png
+  - src: ../../../assets/images/fixer/01-home.png
     alt: Fixer prototype home screen with a promo banner and service category icons
-  - src: ./images/02-services.png
+  - src: ../../../assets/images/fixer/02-services.png
     alt: Services screen listing repair categories including cleaning, plumbing and air-con
-    framed: ./images/02-services.phone.png  # made by scripts/make-phone-frames.py
-  - src: ./images/03-tracking.png
+    framed: ../../../assets/images/fixer/02-services.phone.png  # made by scripts/make-phone-frames.py
+  - src: ../../../assets/images/fixer/03-tracking.png
     alt: Order tracking screen with a map showing the fixer's route to the customer
-    framed: ./images/03-tracking.phone.png  # made by scripts/make-phone-frames.py
-  - src: ./images/04-booking-confirmed.png
+    framed: ../../../assets/images/fixer/03-tracking.phone.png  # made by scripts/make-phone-frames.py
+  - src: ../../../assets/images/fixer/04-booking-confirmed.png
     alt: Booking confirmation popup showing a success message and booking ID
-    framed: ./images/04-booking-confirmed.phone.png  # made by scripts/make-phone-frames.py
-  - src: ./images/05-rating.png
+    framed: ../../../assets/images/fixer/04-booking-confirmed.phone.png  # made by scripts/make-phone-frames.py
+  - src: ../../../assets/images/fixer/05-rating.png
     alt: Rating screen for leaving a star rating and comment for a completed job
-    framed: ./images/05-rating.phone.png  # made by scripts/make-phone-frames.py
+    framed: ../../../assets/images/fixer/05-rating.phone.png  # made by scripts/make-phone-frames.py

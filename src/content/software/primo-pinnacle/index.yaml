@@ -10,7 +10,7 @@ members: []
 order: 0
 device: laptop
 mockup:
-  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  src: ../../../assets/images/primo-pinnacle/00-mockup.jpg  # made by scripts/make-mockups.py
   alt: "Primo Pinnacle's home page, “Strategic Navigation Across Malaysia’s Institutional Landscape”, on a MacBook Pro on a white meeting-room table in front of bright windows"
 # Gallery colours from the site's own brand tokens (globals.css, sampled from the logo): navy-soft #1b3d82 to
 # navy-deep #081b41, with the crimson #c6192b of its buttons as the accent.
@@ -49,15 +49,15 @@ details: |
   accessibility checks (landmarks, image alt text, heading order) and layouts without horizontal
   scrolling from 375px to 1920px wide.
 images:
-  - src: ./images/01-home.jpg
+  - src: ../../../assets/images/primo-pinnacle/01-home.jpg
     alt: Primo Pinnacle home page hero with the headline “Strategic Navigation Across Malaysia’s Institutional Landscape” over a night view of Kuala Lumpur
-  - src: ./images/02-services.png
+  - src: ../../../assets/images/primo-pinnacle/02-services.png
     alt: Home page section “Where We Make The Difference” with cards for the firm's four service lines
-  - src: ./images/03-process.png
+  - src: ../../../assets/images/primo-pinnacle/03-process.png
     alt: Home page section “From Objective To Approval” showing the four numbered steps of an engagement on navy
-  - src: ./images/04-mandates.jpg
+  - src: ../../../assets/images/primo-pinnacle/04-mandates.jpg
     alt: Our Mandates page with two renewable-energy case study cards, each with a photograph and its deliverables
-  - src: ./images/05-leadership.jpg
+  - src: ../../../assets/images/primo-pinnacle/05-leadership.jpg
     alt: About Us page leadership section with the Executive Chairman's photograph and biography
-  - src: ./images/06-contact.jpg
+  - src: ../../../assets/images/primo-pinnacle/06-contact.jpg
     alt: Contact Us page hero “Talk To Us” above the direct channels section

@@ -21,9 +21,9 @@ details: |
   a pale violet liquid that catches the light through the facets, topped with a plain white cap and
   photographed with its silver sprayer resting loose beside it on a black backdrop.
 images:
-  - src: ./images/01-razova-eau-de-parfum-bottle.png
+  - src: ../../../assets/images/perfume-renders/01-razova-eau-de-parfum-bottle.png
     alt: Rectangular RAZOVA eau de parfum bottle with teal liquid, a dark monogram label and a chrome cap
-  - src: ./images/02-razova-limited-edition-box.png
+  - src: ../../../assets/images/perfume-renders/02-razova-limited-edition-box.png
     alt: Glossy dark-green RAZOVA Limited Edition parfum box with gold embossed lettering and a hanging R monogram medallion
-  - src: ./images/03-experimental-twist-bottle.png
+  - src: ../../../assets/images/perfume-renders/03-experimental-twist-bottle.png
     alt: Experimental faceted glass bottle with a twisting column and pale violet liquid, cap resting beside it

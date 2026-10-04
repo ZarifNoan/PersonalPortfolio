@@ -5,12 +5,12 @@ platform: Python pipeline and desktop app (Tkinter)
 year: 2026
 members:
   - name: Muhammad Zarif Nurhan Bin Mohd Arifin
-    photo: ../../../assets/people/zarif.jpg
+    photo: ../../../assets/images/people/zarif.jpg
   - name: Jordan Septian
-    photo: ../../../assets/people/jordan.jpg
+    photo: ../../../assets/images/people/jordan.jpg
     linkedin: https://www.linkedin.com/in/jordanseptian9/
   - name: Hakim Bin Taufik
-    photo: ../../../assets/people/hakim.jpg
+    photo: ../../../assets/images/people/hakim.jpg
     linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
   - name: Mior Ahmad Danial
     linkedin: https://www.linkedin.com/in/miorahmaddanial/
@@ -19,7 +19,7 @@ order: 3
 device: laptop
 screenFit: contain
 mockup:
-  src: ./images/00-mockup.jpg  # made by scripts/make-mockups.py
+  src: ../../../assets/images/fuzzy-logic/00-mockup.jpg  # made by scripts/make-mockups.py
   alt: "The membership-function calibration result chart (accuracy 41.7% to 72.9%) on an iMac on a study desk lit by a desk lamp"
 # Gallery colours sampled from the Matplotlib charts: the 'Low' orange (#d94801) and its light fill, and the 'High' blue's light fill.
 theme: { from: '#f2cfb6', to: '#bcd3ea', accent: '#d94801' }
@@ -47,13 +47,13 @@ details: |
   actions such as an exam-technique workshop or attendance counselling, and flags borderline cases for
   manual review. A Tkinter desktop app shows which rules fired for each student.
 images:
-  - src: ./images/02-calibration.png
+  - src: ../../../assets/images/fuzzy-logic/02-calibration.png
     alt: "Result chart: membership-function calibration, raising test accuracy from 41.7% to 72.9%"
-  - src: ./images/03-rules-fired.png
+  - src: ../../../assets/images/fuzzy-logic/03-rules-fired.png
     alt: "Result chart: the fuzzy rules fired, and how strongly, for one student's performance prediction"
-  - src: ./images/04-confusion-matrix.png
+  - src: ../../../assets/images/fuzzy-logic/04-confusion-matrix.png
     alt: "Result chart: confusion matrix comparing predicted and actual performance classes on the test set"
-  - src: ./images/05-predicted-vs-actual.png
+  - src: ../../../assets/images/fuzzy-logic/05-predicted-vs-actual.png
     alt: "Result chart: scatter plot of predicted versus actual performance scores with MAE and RMSE"
-  - src: ./images/01-architecture.png
+  - src: ../../../assets/images/fuzzy-logic/01-architecture.png
     alt: System architecture diagram showing the fuzzy inference layer feeding a rule-based expert system

@@ -60,7 +60,7 @@ Three main pages, with tabs labelled **Home · Software Development · 3D Visual
   - course (or, for work that was not coursework, the project type, e.g. "Freelance client project") and team type ("Individual" or "Team of N", counted from the members)
   - description (the short one)
   - tech stack tags
-  - **one picture**: a **photographic device mockup**: a real photo (Unsplash, credited in the README) of a device in its own setting with the project's cover screenshot composited onto the screen with a perspective transform and matched lighting (Primo Pinnacle: MacBook Pro on a white meeting-room table; StockSense: MacBook Pro in a bright office; JomLah: MacBook Pro on a café counter; Fuzzy Logic: iMac on a lamp-lit study desk; Fixer: phone in a hand by plants). Pre-rendered offline by `scripts/make-mockups.py` into `images/00-mockup.jpg` and served as a responsive `astro:assets` image.
+  - **one picture**: a **photographic device mockup**: a real photo (Unsplash, credited in the README) of a device in its own setting with the project's cover screenshot composited onto the screen with a perspective transform and matched lighting (Primo Pinnacle: MacBook Pro on a white meeting-room table; StockSense: MacBook Pro in a bright office; JomLah: MacBook Pro on a café counter; Fuzzy Logic: iMac on a lamp-lit study desk; Fixer: phone in a hand by plants). Pre-rendered offline by `scripts/make-mockups.py` into `src/assets/images/<slug>/00-mockup.jpg` and served as a responsive `astro:assets` image.
   - a **Learn More →** button, and beside it, only when the project has a live `url`, an outlined **Visit website ↗** link (new tab, `rel="noopener noreferrer"`, accessible name "Visit the <name> website (opens in a new tab)"). The picture links to the project page too (for pointer users; hidden from keyboard and screen readers so the link isn't announced twice).
 - Selecting a filter fades out non-matching projects. "All" is the default. The active filter is reflected in the URL (`?lang=python`) so filtered views can be shared.
 
@@ -139,18 +139,26 @@ request 7.)
 
 ## 6. Content model
 
-Two content collections, `software` and `visualization`. Each entry is a folder holding a data file plus its images:
+Two content collections, `software` and `visualization`. Each entry is a folder holding its data file; every image the
+site uses lives in one folder, `src/assets/images/`, with a subfolder per item (YAML image paths are relative to the
+data file, e.g. `src: ../../../assets/images/stocksense/01-dashboard.png`):
 
 ```
 src/content/software/stocksense/index.yaml
-src/content/software/stocksense/images/*.png
 src/content/visualization/moltech-johor-warehouse/index.yaml
-src/content/visualization/moltech-johor-warehouse/images/*.png
+src/assets/images/stocksense/*.png            (screenshots, 00-mockup.jpg; phone renders *.phone.png for Fixer)
+src/assets/images/moltech-johor-warehouse/*.png
+src/assets/images/people/                     (team photos shared across projects)
+src/assets/images/home/                       (pick-a-side backgrounds)
+src/assets/images/mockup-scenes/              (source device photos for scripts/make-mockups.py)
 ```
+
+Only files that must keep a fixed public URL stay in `public/`: `og.jpg` (link previews) and `favicon.svg` (and
+`badge/photo.jpg` once the badge photo is added).
 
 ### 6.1 Software schema
 
-`title`, `course` (optional: omitted for work that was not coursework, such as a client project; the eyebrow then shows `type`), `url` (optional: the live website, which adds the Visit website links), `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `images/` folder, or the shared `src/assets/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and, for `device: phone` gallery screenshots, a required `framed` phone render from `scripts/make-phone-frames.py`), `draft` (optional boolean; drafts are hidden and get no page).
+`title`, `course` (optional: omitted for work that was not coursework, such as a client project; the eyebrow then shows `type`), `url` (optional: the live website, which adds the Visit website links), `members[]` (`{ name, linkedin?, photo? }` in display order; empty = Individual; team size = number of members; `photo` is an optional relative image path — the project's own `src/assets/images/<slug>/` folder, or the shared `src/assets/images/people/` folder for someone credited on more than one project; without one the team list shows an initials placeholder), `order`, `stack[]`, `languages[]` (drives the filter; must be one of the known values), `description` (short, listing page), `details` (long description; paragraphs separated by blank lines), `device` (`laptop` or `phone`, for the gallery layout), `screenFit` (`cover`, the default, or `contain` for charts), `mockup` (`{ src, alt }`: a photo of a real device showing the app, rendered by `scripts/make-mockups.py`; the listing picture and detail hero), `theme` (`{ from, to, accent }` hex colours sampled from the app's UI, for the gallery backdrop), optional `type`, `platform`, `year`, `images[]` (the first image is the cover, each with `src`, `alt` and, for `device: phone` gallery screenshots, a required `framed` phone render from `scripts/make-phone-frames.py`), `draft` (optional boolean; drafts are hidden and get no page).
 
 ### 6.2 Visualization schema
 

@@ -17,13 +17,13 @@ details: |
   Deepavali pattern with floral and diya motifs, pink Breast Cancer Awareness ribbons, and colourful puzzle
   pieces on teal for Autism Awareness.
 images:
-  - src: ./images/01-collection.png
+  - src: ../../../assets/images/gobami/01-collection.png
     alt: Six Gobami food containers in different festive patterns arranged on two shelves
-  - src: ./images/02-chinese-new-year.png
+  - src: ../../../assets/images/gobami/02-chinese-new-year.png
     alt: Gobami container in a red and gold Chinese New Year dragon pattern
-  - src: ./images/03-deepavali.png
+  - src: ../../../assets/images/gobami/03-deepavali.png
     alt: Gobami container in a purple Deepavali pattern with floral and diya motifs
-  - src: ./images/04-breast-cancer-awareness.png
+  - src: ../../../assets/images/gobami/04-breast-cancer-awareness.png
     alt: Gobami container in a pink pattern with Breast Cancer Awareness ribbons
-  - src: ./images/05-autism-awareness.png
+  - src: ../../../assets/images/gobami/05-autism-awareness.png
     alt: Gobami container in a teal pattern with colourful Autism Awareness puzzle pieces

@@ -23,13 +23,13 @@ details: |
   its charging station, blue drums and white IBC totes, and the filtration room with its concrete tank and
   red pipework. A top-down view shows how the ISO tank rack and the filtration equipment are laid out.
 images:
-  - src: ./images/01-iso-tank-forklifts.png
+  - src: ../../../assets/images/moltech-johor-warehouse/01-iso-tank-forklifts.png
     alt: Warehouse interior with a blue-framed ISO tank container beside two forklifts
-  - src: ./images/02-overview.png
+  - src: ../../../assets/images/moltech-johor-warehouse/02-overview.png
     alt: Wide isometric overview of the warehouse showing the ISO tank, forklift, drum and charging zones
-  - src: ./images/03-storage-area.png
+  - src: ../../../assets/images/moltech-johor-warehouse/03-storage-area.png
     alt: Storage area with a forklift, charging station, blue drums and white IBC totes
-  - src: ./images/04-filtration-room.png
+  - src: ../../../assets/images/moltech-johor-warehouse/04-filtration-room.png
     alt: Filtration room with a concrete tank, red pipework and the corner of an ISO tank rack
-  - src: ./images/05-filtration-top-view.png
+  - src: ../../../assets/images/moltech-johor-warehouse/05-filtration-top-view.png
     alt: Top-down view of the ISO tank rack and filtration equipment layout with red pipework

@@ -20,13 +20,13 @@ details: |
   fenced seating area; the main tent set up for a talk, with rows of chairs facing a SLICE title screen; the
   canopy dining area beside the venue; and the branded exit gate.
 images:
-  - src: ./images/01-overview.png
+  - src: ../../../assets/images/slice-2025/01-overview.png
     alt: Daytime exterior of the community hall with a white event tent, canopies and the SLICE gated entrance
-  - src: ./images/02-entrance-sponsors.png
+  - src: ../../../assets/images/slice-2025/02-entrance-sponsors.png
     alt: Closer view of the SLICE entrance gate with Johor and national education-fund sponsor logos and a fenced seating area in front of the hall
-  - src: ./images/03-auditorium.png
+  - src: ../../../assets/images/slice-2025/03-auditorium.png
     alt: Main tent interior set up for a talk, with rows of chairs facing a SLICE title screen
-  - src: ./images/04-canopy-dining.png
+  - src: ../../../assets/images/slice-2025/04-canopy-dining.png
     alt: Outdoor canopy area with dining tables and chairs set up beside the venue
-  - src: ./images/05-exit-gate.png
+  - src: ../../../assets/images/slice-2025/05-exit-gate.png
     alt: Close-up of the SLICE-branded exit gate with sponsor and institution logos

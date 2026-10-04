@@ -23,33 +23,33 @@ details: |
   glass balustrade, lit by a cluster of circular gold ring pendants hanging over the ground floor below; a
   stylised green-and-gold "R" emblem sits on the upper feature wall.
 images:
-  - src: ./images/01-razova-overview.png
+  - src: ../../../assets/images/exhibition-booths/01-razova-overview.png
     alt: Full exterior view of the RAZOVA exhibition booth with its gold wordmark on the canopy, green walls, reception counter and entrance archway
     group: "Razova booth"
-  - src: ./images/02-razova-entrance-logo.png
+  - src: ../../../assets/images/exhibition-booths/02-razova-entrance-logo.png
     alt: RAZOVA booth entrance with a tall gold "R" monogram on a glass panel beside the reception counter and a barstool
     group: "Razova booth"
-  - src: ./images/03-razova-r-monogram.png
+  - src: ../../../assets/images/exhibition-booths/03-razova-r-monogram.png
     alt: Close view of the RAZOVA booth's gold "R" monogram panel beside the arched niche and shelving
     group: "Razova booth"
-  - src: ./images/04-razova-mirror-feature.png
+  - src: ../../../assets/images/exhibition-booths/04-razova-mirror-feature.png
     alt: RAZOVA booth alcove with a circular backlit mirror and amber pendant lights over a dark reception counter
     group: "Razova booth"
-  - src: ./images/05-razova-counter-wordmark.png
+  - src: ../../../assets/images/exhibition-booths/05-razova-counter-wordmark.png
     alt: RAZOVA booth interior with the circular mirror feature, a framed tree painting and the brand name in gold on a counter front
     group: "Razova booth"
-  - src: ./images/06-example-booth-overview.png
+  - src: ../../../assets/images/exhibition-booths/06-example-booth-overview.png
     alt: Full exterior view of the two-storey exhibition booth with its ground-floor reception and upstairs lounge
     group: "Example booth"
-  - src: ./images/07-example-booth-upper-lounge.png
+  - src: ../../../assets/images/exhibition-booths/07-example-booth-upper-lounge.png
     alt: Upstairs lounge of the two-storey booth with sofas, a coffee table and a glass balustrade over the ground floor
     group: "Example booth"
-  - src: ./images/08-example-booth-ground-floor.png
+  - src: ../../../assets/images/exhibition-booths/08-example-booth-ground-floor.png
     alt: Ground floor of the two-storey booth with rows of café-style dining tables, chairs and wall-mounted screens
     group: "Example booth"
-  - src: ./images/09-example-booth-pendant-lights.png
+  - src: ../../../assets/images/exhibition-booths/09-example-booth-pendant-lights.png
     alt: Cluster of circular gold ring pendant lights hanging over the two-storey booth's ground-floor seating
     group: "Example booth"
-  - src: ./images/10-example-booth-tv-display.png
+  - src: ../../../assets/images/exhibition-booths/10-example-booth-tv-display.png
     alt: Two-storey booth ground floor with a wall-mounted screen, framed pictures and a planter beside the dining tables
     group: "Example booth"

@@ -22,7 +22,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-SW = ROOT / 'src' / 'content' / 'software'
+SW = ROOT / 'src' / 'assets' / 'images'  # one subfolder per project
 
 K = 1.6        # output pixels per point (screen 629 px wide: ~1.6x the 395 px screenshots, sharp up to 3x DPR)
 SS = 3         # supersampling for the analytic geometry
@@ -42,10 +42,10 @@ TITANIUM = np.array([0.62, 0.60, 0.565], np.float32)  # natural titanium
 # status bar (a full-bleed map); `trim` is the screenshot row around which uniform empty rows are dropped when the
 # content is taller than the screen.
 SCREENS = {
-    'fixer/images/02-services.png': dict(crop=(0, 0, 0, 0), trim=420),
-    'fixer/images/03-tracking.png': dict(crop=(4, 0, 6, 4), under=True),
-    'fixer/images/04-booking-confirmed.png': dict(crop=(0, 0, 1, 0), trim=222),
-    'fixer/images/05-rating.png': dict(crop=(3, 0, 4, 8), trim=700),
+    'fixer/02-services.png': dict(crop=(0, 0, 0, 0), trim=420),
+    'fixer/03-tracking.png': dict(crop=(4, 0, 6, 4), under=True),
+    'fixer/04-booking-confirmed.png': dict(crop=(0, 0, 1, 0), trim=222),
+    'fixer/05-rating.png': dict(crop=(3, 0, 4, 8), trim=700),
 }
 
 
