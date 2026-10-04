@@ -21,11 +21,14 @@ const software = defineCollection({
   loader: glob({ pattern: '*/index.yaml', base: './src/content/software' }),
   schema: ({ image }) => z.object({
     title: z.string(),
-    course: z.string(),
-    /** Optional facts for the detail page, e.g. type "Final Year Project". */
+    /** The university course; omitted for work that was not coursework (the eyebrow then shows `type`). */
+    course: z.string().optional(),
+    /** Optional facts for the detail page, e.g. type "Final Year Project" or "Freelance client project". */
     type: z.string().optional(),
     platform: z.string().optional(),
     year: z.number().int().optional(),
+    /** The live website: adds a "Visit website" link (new tab) on the listing and the detail page. */
+    url: z.url().optional(),
     /** Team members in display order; empty means an individual project (team size = members.length). */
     members: z.array(member(image)).default([]),
     order: z.number().int(),

@@ -5,7 +5,7 @@ import { getImage, Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import WindowStack from '../../components/WindowStack.astro';
 import { visibleSorted } from '../../lib/projects';
-import { paragraphs, teamLabel, metaDescription, projectFacts, linkedinLink, initials } from '../../lib/details';
+import { paragraphs, metaDescription, projectFacts, linkedinLink, initials, softwareEyebrow, websiteLink } from '../../lib/details';
 import { themeStyle } from '../../lib/theme';
 
 export const getStaticPaths = (async () => {
@@ -21,7 +21,8 @@ const gallery = JSON.stringify(full.map((f, k) => ({ src: f.src, alt: d.images[k
 const og = await getImage({ src: d.mockup.src, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const cover = d.images[0]!;
 const rest = d.images.slice(1).map((img, k) => ({ ...img, full: full[k + 1]!.src, index: k + 1 }));
-const team = teamLabel(d.members);
+const eyebrow = softwareEyebrow(d);
+const visit = websiteLink(d);
 const facts = projectFacts(d);
 ---
 <Layout title={d.title} description={metaDescription(d.description)} page="software" sub ogImage={og.src}>
@@ -34,8 +35,14 @@ const facts = projectFacts(d);
 
     <div class="body">
       <header class="head">
-        <p class="eyebrow"><span class="sym" aria-hidden="true">&lt;/&gt; </span>{d.course} · {team}</p>
+        <p class="eyebrow"><span class="sym" aria-hidden="true">&lt;/&gt; </span>{eyebrow}</p>
         <h1>{d.title}</h1>
+        {visit && (
+          <a class="visit" {...visit}>
+            Visit website
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M9.5 2.5h4v4M13.5 2.5 7 9M12 9.5v3a1 1 0 0 1-1 1H3.5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3"/></svg>
+          </a>
+        )}
       </header>
 
       {d.members.length > 1 && (
@@ -100,6 +107,11 @@ const facts = projectFacts(d);
   .about { grid-area: about; }
   .eyebrow { margin: 0 0 10px; color: var(--accent); font-weight: 600; font-size: .9rem; letter-spacing: .04em; }
   h1 { font-size: clamp(1.8rem, 4.2vw, 3rem); font-weight: 800; letter-spacing: -.01em; max-width: 24ch; }
+  /* The live website, right under the title: a solid pill in the section accent. */
+  .visit { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 10px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; color: #0b0b14; background: var(--accent); transition: background .2s; }
+  .visit:hover { background: color-mix(in srgb, var(--accent) 82%, #fff); }
+  .visit:focus-visible { outline-color: var(--text); }
+  .visit svg { flex-shrink: 0; }
   .label { font: 700 .78rem/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
   .team ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
   .team li { display: flex; align-items: center; gap: 12px; }

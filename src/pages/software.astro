@@ -6,7 +6,7 @@ import { visibleSorted } from '../lib/projects';
 import { slugify, LANGUAGES } from '../lib/taxonomy';
 import FilterBar from '../components/FilterBar.astro';
 import { deriveOptions } from '../lib/filters';
-import { teamLabel } from '../lib/details';
+import { softwareEyebrow, websiteLink } from '../lib/details';
 const projects = visibleSorted(await getCollection('software'));
 const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LANGUAGES);
 ---
@@ -21,7 +21,7 @@ const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LAN
       <ProjectSection
         id={p.id.split('/')[0]!}
         title={p.data.title}
-        eyebrow={`${p.data.course} · ${teamLabel(p.data.members)}`}
+        eyebrow={softwareEyebrow(p.data)}
         tags={p.data.stack}
         description={p.data.description}
         picture={p.data.mockup}
@@ -30,6 +30,7 @@ const languageOptions = deriveOptions(projects.map((p) => p.data.languages), LAN
         filterSlugs={p.data.languages.map(slugify)}
         reverse={i % 2 === 1}
         accent="sw"
+        visit={websiteLink(p.data)}
       />
     ))}
   </div>

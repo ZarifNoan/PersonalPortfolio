@@ -1,13 +1,16 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import type { ExternalLink } from '../lib/details';
 interface Props {
   id: string; title: string; eyebrow: string; tags: string[]; description: string;
   /** The project's one listing picture: a photo of a device showing the app (software) or the render itself (3D). */
   picture: { src: ImageMetadata; alt: string };
   href: string; filterSlugs: string[]; reverse: boolean; accent: 'sw' | 'viz'; eager?: boolean;
+  /** The project's live website (see websiteLink): a "Visit website" link beside Learn More. */
+  visit?: ExternalLink | null;
 }
-const { id, title, eyebrow, tags, description, picture, href, filterSlugs, reverse, accent, eager = false } = Astro.props;
+const { id, title, eyebrow, tags, description, picture, href, filterSlugs, reverse, accent, eager = false, visit = null } = Astro.props;
 const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
 ---
 <section id={id} class:list={['project', `accent-${accent}`, { reverse }]} data-filter-item data-filter-values={filterSlugs.join(' ')} data-reveal aria-labelledby={`${id}-title`}>
@@ -20,7 +23,10 @@ const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
     <h2 id={`${id}-title`}>{title}</h2>
     <p class="desc justify">{description}</p>
     <ul class="tags" aria-label="Tech and tags">{tags.map((t) => <li class="glass">{t}</li>)}</ul>
-    <a class="more" href={href}>Learn More<span class="visually-hidden"> about {title}</span> <span class="arrow" aria-hidden="true">→</span></a>
+    <div class="actions">
+      <a class="more" href={href}>Learn More<span class="visually-hidden"> about {title}</span> <span class="arrow" aria-hidden="true">→</span></a>
+      {visit && <a class="visit" {...visit}>Visit website <span class="arrow" aria-hidden="true">↗</span></a>}
+    </div>
   </div>
 </section>
 
@@ -41,8 +47,12 @@ const sizes = '(max-width: 899px) calc(100vw - 32px), 640px';
   .desc { color: var(--muted); margin: 14px 0 18px; }
   .tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
   .tags li { padding: 4px 12px; font-size: .8rem; color: var(--text); }
-  .more { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 10px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; color: #0b0b14; background: var(--accent); transition: background .2s, gap .2s; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 22px; }
+  .more { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; color: #0b0b14; background: var(--accent); transition: background .2s, gap .2s; }
   .more:hover { background: color-mix(in srgb, var(--accent) 82%, #fff); gap: 12px; }
   .more:focus-visible { outline-color: var(--text); }
+  /* The live site: a quieter outlined pill, so Learn More stays the main action. */
+  .visit { display: inline-flex; align-items: center; gap: 8px; padding: 9px 19px; border-radius: 999px; font-weight: 600; text-decoration: none; color: var(--text); border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border)); transition: background .2s, border-color .2s; }
+  .visit:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); }
   @media (max-width: 899px) { .project { grid-template-columns: 1fr; } .project.reverse .media { order: 0; } }
 </style>
