@@ -113,10 +113,49 @@ test('the JOHEX draft has no page', async ({ page }) => {
   expect(res!.status()).toBe(404);
 });
 
+test('exhibition booths detail: two personal projects grouped into their own captioned mosaic sections', async ({ page }) => {
+  await page.goto('/3d/exhibition-booths');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Exhibition Booth Designs');
+  await expect(main.locator('dt', { hasText: 'Category' }).locator('+ dd')).toHaveText('Architectural Visualization');
+  await expect(main.locator('dt', { hasText: 'Client' }).locator('+ dd')).toHaveText('Personal project');
+  expect(await main.locator('.about p').count()).toBeGreaterThanOrEqual(2);
+  await expect(main.locator('.mosaic img')).toHaveCount(10);
+  // Two booths, each its own mosaic section with a caption (not a heading).
+  await expect(main.locator('.mosaic-section')).toHaveCount(2);
+  await expect(main.getByText('Razova booth')).toBeVisible();
+  await expect(main.getByText('Example booth')).toBeVisible();
+  await expect(main.getByRole('heading')).toHaveCount(1); // the h1 only: captions are not headings
+  // Every render opens the lightbox on its own image.
+  const gallery = JSON.parse((await page.locator('[data-gallery]').getAttribute('data-gallery'))!) as { src: string; alt: string }[];
+  expect(gallery).toHaveLength(10);
+  const openers = main.locator('[data-open-lightbox]');
+  await expect(openers).toHaveCount(10);
+  await openers.first().click({ position: { x: 30, y: 40 } });
+  const dlg = page.getByRole('dialog', { name: 'Image viewer' });
+  await expect(dlg).toBeVisible();
+  await expect(dlg.locator('img')).toHaveAttribute('src', gallery[0]!.src);
+});
+
+test('perfume renders detail: a personal product visualization project with all three renders', async ({ page }) => {
+  await page.goto('/3d/perfume-renders');
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Perfume Product Renders');
+  await expect(main.locator('dt', { hasText: 'Category' }).locator('+ dd')).toHaveText('Product Visualization');
+  await expect(main.locator('dt', { hasText: 'Client' }).locator('+ dd')).toHaveText('Personal project');
+  expect(await main.locator('.about p').count()).toBeGreaterThanOrEqual(2);
+  await expect(main.locator('.mosaic img')).toHaveCount(3);
+  await expect(main.getByRole('heading')).toHaveCount(1); // the h1 only: no gallery heading
+  const dlg = page.getByRole('dialog', { name: 'Image viewer' });
+  await main.locator('[data-open-lightbox]').first().click({ position: { x: 30, y: 40 } });
+  await expect(dlg).toBeVisible();
+  await expect(dlg.getByText('1 / 3')).toBeVisible();
+});
+
 for (const width of [390, 820, 1440]) {
   test(`no horizontal scroll at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ['/software', '/3d', '/software/primo-pinnacle', '/software/stocksense', '/software/jomlah', '/software/fixer', '/software/fuzzy-logic', '/3d/moltech-johor-warehouse', '/3d/gobami']) {
+    for (const path of ['/software', '/3d', '/software/primo-pinnacle', '/software/stocksense', '/software/jomlah', '/software/fixer', '/software/fuzzy-logic', '/3d/moltech-johor-warehouse', '/3d/gobami', '/3d/exhibition-booths', '/3d/perfume-renders']) {
       await page.goto(path);
       expect(await page.evaluate(() => document.documentElement.scrollWidth), path).toBeLessThanOrEqual(width);
     }
@@ -167,8 +206,10 @@ test('a client website project: no course, the type in the eyebrow and facts, an
   await expect(main.getByRole('heading', { level: 1 })).toHaveText('Primo Pinnacle – Government Relations Company Website');
   await expect(main.locator('.eyebrow')).toHaveText(/Freelance client project · Individual$/);
   const facts = main.getByRole('complementary', { name: 'Project facts' });
-  expect(await facts.locator('dt').allTextContents()).toEqual(['Type', 'Platform', 'Year']);
+  expect(await facts.locator('dt').allTextContents()).toEqual(['Type', 'Client', 'Platform', 'Year']);
   await expect(facts).toContainText('Freelance client project');
+  await expect(facts.locator('dt', { hasText: 'Client' }).locator('+ dd')).toHaveText('Primo Pinnacle');
+  await expect(facts.locator('dt', { hasText: 'Platform' }).locator('+ dd')).toHaveText('Website');
   await expect(facts).toContainText('2026');
   await expect(facts.getByRole('list', { name: 'Tech stack' }).getByRole('listitem')).toHaveText(['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Vitest', 'Playwright', 'Netlify']);
   await expect(main.getByRole('region', { name: 'Team' })).toHaveCount(0);

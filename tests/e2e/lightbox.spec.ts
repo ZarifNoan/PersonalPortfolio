@@ -30,7 +30,7 @@ test('the hero mockup opens the cover in the lightbox', async ({ page }) => {
 });
 
 test('every screenshot and render opens the lightbox on its own image', async ({ page }) => {
-  for (const path of ['/software/jomlah', '/software/fixer', '/3d/slice-2025']) {
+  for (const path of ['/software/jomlah', '/software/fixer', '/3d/slice-2025', '/3d/perfume-renders', '/3d/exhibition-booths']) {
     await page.goto(path);
     const items = await gallery(page);
     const openers = page.locator('[data-open-lightbox]');

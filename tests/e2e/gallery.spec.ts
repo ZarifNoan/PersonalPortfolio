@@ -26,7 +26,7 @@ test('team wording on the listing eyebrows', async ({ page }) => {
 
 for (const [listing, slugs] of [
   ['/software', ['primo-pinnacle', 'stocksense', 'jomlah', 'fuzzy-logic', 'fixer']],
-  ['/3d', ['moltech-johor-warehouse', 'slice-2025', 'gobami']],
+  ['/3d', ['moltech-johor-warehouse', 'slice-2025', 'gobami', 'exhibition-booths', 'perfume-renders']],
 ] as const) {
   test(`${listing}: each project shows exactly one picture and no thumbnail strip`, async ({ page }) => {
     await page.goto(listing);

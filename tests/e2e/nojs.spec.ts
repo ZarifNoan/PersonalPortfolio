@@ -6,7 +6,7 @@ test('all content is visible without JavaScript', async ({ page }) => {
   await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(5);
   await expect(page.locator('[data-filter-group]')).toBeHidden();
   await page.goto('/3d');
-  await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(3);
+  await expect(page.locator('section[data-filter-item]:visible')).toHaveCount(5);
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'About me' })).toBeVisible();
   await expect(page.locator('[data-badge-slot]')).toContainText('MZN');
