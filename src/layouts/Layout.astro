@@ -25,6 +25,7 @@ const og = new URL(ogImage ?? '/og.jpg', Astro.site).toString();
     <meta name="description" content={description} />
     {page === 'notfound' ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
