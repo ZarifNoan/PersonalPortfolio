@@ -1,0 +1,116 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import DeviceMockup from '../../components/DeviceMockup.astro';
+import WindowStack from '../../components/WindowStack.astro';
+import { visibleSorted } from '../../lib/projects';
+import { paragraphs, teamLabel, metaDescription } from '../../lib/details';
+
+export const getStaticPaths = (async () => {
+  const projects = visibleSorted(await getCollection('software'));
+  return projects.map((p) => ({ params: { slug: p.id.split('/')[0]! }, props: { project: p } }));
+}) satisfies GetStaticPaths;
+
+interface Props { project: CollectionEntry<'software'> }
+const { project } = Astro.props;
+const d = project.data;
+const full = await Promise.all(d.images.map((i) => getImage({ src: i.src, width: Math.min(i.src.width, 2000), format: 'webp' })));
+const gallery = JSON.stringify(full.map((f, k) => ({ src: f.src, alt: d.images[k]!.alt })));
+const og = await getImage({ src: d.images[0]!.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg' });
+const cover = d.images[0]!;
+const rest = d.images.slice(1).map((img, k) => ({ ...img, full: full[k + 1]!.src, index: k + 1 }));
+const team = teamLabel(d.members);
+const facts = [
+  d.type && { label: 'Type', value: d.type },
+  { label: 'Course', value: d.course },
+  { label: 'Team', value: team },
+  d.platform && { label: 'Platform', value: d.platform },
+  d.year && { label: 'Year', value: String(d.year) },
+].filter(Boolean) as { label: string; value: string }[];
+---
+<Layout title={d.title} description={metaDescription(d.description)} page="software" sub ogImage={og.src}>
+  <div class="container detail" data-gallery={gallery}>
+    <a class="back" href="/software"><span aria-hidden="true">← </span>All software projects</a>
+
+    <a class="hero" href={full[0]!.src} data-open-lightbox data-index="0" aria-label={`View larger: ${cover.alt}`}>
+      <DeviceMockup src={cover.src} alt={cover.alt} device={d.device} fit={d.screenFit} sizes="(max-width: 1100px) calc(100vw - 32px), 1040px" eager />
+    </a>
+
+    <div class="body">
+      <header class="head">
+        <p class="eyebrow"><span class="sym" aria-hidden="true">&lt;/&gt; </span>{d.course} · {team}</p>
+        <h1>{d.title}</h1>
+      </header>
+
+      {d.members.length > 1 && (
+        <section class="team" aria-labelledby="team-title">
+          <h2 id="team-title" class="label">Team</h2>
+          <ul>
+            {d.members.map((m) => (
+              <li>
+                <span>{m.name}</span>
+                {m.linkedin && (
+                  <a class="li" href={m.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${m.name} on LinkedIn (opens in a new tab)`}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <aside class="facts glass-card" aria-label="Project facts">
+        <dl>
+          {facts.map((f) => (<div><dt>{f.label}</dt><dd>{f.value}</dd></div>))}
+        </dl>
+        <ul class="chips" aria-label="Tech stack">{d.stack.map((s) => <li class="glass">{s}</li>)}</ul>
+      </aside>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title" class="label">About the project</h2>
+        {paragraphs(d.details).map((p) => <p>{p}</p>)}
+      </section>
+    </div>
+
+    {rest.length > 0 && (
+      <section class="shots" aria-label="More screenshots">
+        <WindowStack items={rest} device={d.device} />
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .detail { padding-block: clamp(20px, 4vw, 40px) clamp(48px, 8vw, 96px); --accent: var(--sw); }
+  .back { display: inline-flex; gap: 4px; color: var(--muted); text-decoration: none; font-weight: 600; font-size: .92rem; padding: 6px 0; }
+  .back:hover { color: var(--text); }
+  .hero { display: block; max-width: 1040px; margin: 16px auto 0; border-radius: var(--radius); box-shadow: 0 0 0 1px var(--border), 0 30px 80px -30px rgba(0, 0, 0, .8); cursor: zoom-in; }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'head head' 'team facts' 'about facts'; column-gap: clamp(32px, 5vw, 72px); align-items: start; max-width: 1040px; margin: clamp(32px, 5vw, 56px) auto clamp(40px, 6vw, 72px); }
+  .head { grid-area: head; margin-bottom: 28px; }
+  .team { grid-area: team; margin-bottom: 28px; }
+  .facts { grid-area: facts; position: sticky; top: 88px; }
+  .about { grid-area: about; }
+  .eyebrow { margin: 0 0 10px; color: var(--accent); font-weight: 600; font-size: .9rem; letter-spacing: .04em; }
+  h1 { font-size: clamp(1.8rem, 4.2vw, 3rem); font-weight: 800; letter-spacing: -.01em; max-width: 24ch; }
+  .label { font: 700 .78rem/1 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
+  .team ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .team li { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--glass); border: 1px solid var(--border); font-weight: 600; font-size: .92rem; }
+  .li { display: inline-grid; place-items: center; color: #0a66c2; background: #fff; border-radius: 4px; width: 20px; height: 20px; }
+  .li svg { width: 20px; height: 20px; }
+  .glass-card { background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; backdrop-filter: blur(8px); }
+  dl { margin: 0 0 18px; display: grid; gap: 14px; }
+  dt { font: 700 .72rem/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-bottom: 5px; }
+  dd { margin: 0; font-weight: 600; }
+  .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 16px 0 0; border-top: 1px solid var(--border); }
+  .chips li { padding: 3px 11px; font-size: .78rem; }
+  .about p { color: var(--muted); margin: 0 0 1.1em; max-width: 68ch; font-size: 1.04rem; line-height: 1.75; }
+  .about p:first-of-type { color: var(--text); }
+  .shots { max-width: 1040px; margin: 0 auto; }
+  @media (max-width: 899px) {
+    .body { grid-template-columns: 1fr; grid-template-areas: 'head' 'team' 'facts' 'about'; }
+    .facts { position: static; margin-bottom: 32px; }
+  }
+</style>

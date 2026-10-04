@@ -4,11 +4,17 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { site } from '../data/site';
-interface Props { title: string; description: string; page: 'home' | 'software' | 'viz' | 'notfound' }
-const { title, description, page } = Astro.props;
+interface Props {
+  title: string; description: string; page: 'home' | 'software' | 'viz' | 'notfound';
+  /** True on a project detail page: its section's tab is marked as current, not as this exact page. */
+  sub?: boolean;
+  /** Link-preview image (absolute or root-relative URL, 1200 × 630); defaults to the site's /og.jpg. */
+  ogImage?: string;
+}
+const { title, description, page, sub = false, ogImage } = Astro.props;
 const fullTitle = page === 'home' ? `${site.name} | Portfolio` : `${title} | ${site.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
-const og = new URL('/og.jpg', Astro.site).toString();
+const og = new URL(ogImage ?? '/og.jpg', Astro.site).toString();
 ---
 <!doctype html>
 <html lang="en">
@@ -33,7 +39,7 @@ const og = new URL('/og.jpg', Astro.site).toString();
   </head>
   <body class={`page-${page}`}>
     <a class="skip-link glass" href="#main">Skip to content</a>
-    <Nav page={page} />
+    <Nav page={page} sub={sub} />
     <main id="main"><slot /></main>
     <Footer />
     <Lightbox />
