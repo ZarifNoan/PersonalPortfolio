@@ -7,7 +7,9 @@ members:
   - name: Muhammad Zarif Nurhan Bin Mohd Arifin
   - name: Yogesh Sandeep Jayavant
   - name: Hakim Bin Taufik
+    linkedin: https://www.linkedin.com/in/hakim-taufik-866622370/
   - name: Jordan Septian
+    linkedin: https://www.linkedin.com/in/jordanseptian9/
 order: 4
 device: phone
 stack: [Java, JavaFX, Maven, PostgreSQL]
