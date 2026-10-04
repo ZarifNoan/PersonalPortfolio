@@ -40,12 +40,13 @@ details: |
   that locks the ticket tier, so two people can't both get it. The team tested every area against the
   running site with a written set of test cases, and all of them passed.
 
-  We split the work by area. I owned the database and server-side logic: the schema and its constraints,
-  authentication, sessions and role guards, the booking transaction, and the organiser console with its
-  event builder and door check-in. Jordan Septian designed the interface and built the front end and
-  client-side validation, and Hakim Bin Taufik handled the seed data, the ER diagram, the admin console, the
-  attendee account pages, the test-case document and the report. Payment is simulated; no real payment
-  gateway is connected.
+  We split the work by area, with the database and server-side code shared between two of us. My part
+  centred on the database schema and server-side logic: the schema and its constraints, the shared PHP
+  includes, authentication, sessions and role guards, the booking transaction, and the organiser console with
+  its event builder and door check-in. Hakim Bin Taufik shared the database side with the seed data and the
+  ER diagram, and built the admin console and the attendee account pages, as well as the test-case document
+  and the report. Jordan Septian designed the interface and built the front end and client-side validation.
+  Payment is simulated; no real payment gateway is connected.
 images:
   - src: ./images/01-home.png
     alt: JomLah home page listing upcoming events and a featured ticket card
