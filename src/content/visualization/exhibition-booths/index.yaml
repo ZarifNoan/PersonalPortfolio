@@ -1,0 +1,55 @@
+title: Exhibition Booth Designs
+client: false
+clientName: "Personal project"
+category: Architectural Visualization
+order: 4
+description: >-
+  Two exhibition booth concepts modelled, lit and rendered in Blender as a personal project: a single-level
+  branded "RAZOVA" booth in green, black and gold, and a two-storey booth with a ground-floor meeting area
+  and an upper lounge.
+details: |
+  Two exhibition booth concepts, modelled, lit and rendered in Blender as a personal design exercise: a
+  single-level branded booth and a two-storey booth with its own upstairs lounge.
+
+  The first booth is built around the "RAZOVA" brand: its name stands in tall brushed-gold letters on the
+  canopy above the entrance, and a matching gold "R" monogram is mounted on a glass panel at the front. Inside,
+  bright green walls hold an arched niche, a circular backlit mirror and a framed painting of a bare tree,
+  lit by spotlights, wall sconces and amber pendant lights. Dark fluted-wood service counters run along the
+  back wall, one of them stamped "RAZOVA" in gold, with a round table and barstool in front for visitors.
+
+  The second booth is a two-storey structure in white, pine green and gold. Downstairs holds a reception desk,
+  rows of café-style dining tables and chairs, wall-mounted screens and framed pictures, a freestanding digital
+  signage kiosk, and a staircase up to the mezzanine. Upstairs is a lounge of sofas and a coffee table behind a
+  glass balustrade, lit by a cluster of circular gold ring pendants hanging over the ground floor below; a
+  stylised green-and-gold "R" emblem sits on the upper feature wall.
+images:
+  - src: ./images/01-razova-overview.png
+    alt: Full exterior view of the RAZOVA exhibition booth with its gold wordmark on the canopy, green walls, reception counter and entrance archway
+    group: "Razova booth"
+  - src: ./images/02-razova-entrance-logo.png
+    alt: RAZOVA booth entrance with a tall gold "R" monogram on a glass panel beside the reception counter and a barstool
+    group: "Razova booth"
+  - src: ./images/03-razova-r-monogram.png
+    alt: Close view of the RAZOVA booth's gold "R" monogram panel beside the arched niche and shelving
+    group: "Razova booth"
+  - src: ./images/04-razova-mirror-feature.png
+    alt: RAZOVA booth alcove with a circular backlit mirror and amber pendant lights over a dark reception counter
+    group: "Razova booth"
+  - src: ./images/05-razova-counter-wordmark.png
+    alt: RAZOVA booth interior with the circular mirror feature, a framed tree painting and the brand name in gold on a counter front
+    group: "Razova booth"
+  - src: ./images/06-example-booth-overview.png
+    alt: Full exterior view of the two-storey exhibition booth with its ground-floor reception and upstairs lounge
+    group: "Example booth"
+  - src: ./images/07-example-booth-upper-lounge.png
+    alt: Upstairs lounge of the two-storey booth with sofas, a coffee table and a glass balustrade over the ground floor
+    group: "Example booth"
+  - src: ./images/08-example-booth-ground-floor.png
+    alt: Ground floor of the two-storey booth with rows of café-style dining tables, chairs and wall-mounted screens
+    group: "Example booth"
+  - src: ./images/09-example-booth-pendant-lights.png
+    alt: Cluster of circular gold ring pendant lights hanging over the two-storey booth's ground-floor seating
+    group: "Example booth"
+  - src: ./images/10-example-booth-tv-display.png
+    alt: Two-storey booth ground floor with a wall-mounted screen, framed pictures and a planter beside the dining tables
+    group: "Example booth"
