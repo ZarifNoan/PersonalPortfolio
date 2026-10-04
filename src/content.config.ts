@@ -9,7 +9,8 @@ type ImageFn = SchemaContext['image'];
 const images = (image: ImageFn) => z.array(z.object({ src: image(), alt: z.string().min(8), caption: z.string().optional() })).default([]);
 /** Long description: paragraphs separated by blank lines (rendered as <p>s on the detail page). */
 const details = z.string().min(40);
-const member = z.object({ name: z.string().min(2), linkedin: z.url().optional() });
+/** A team member for a software project. `photo` is a relative image path (project folder or a shared people folder); omitted until a photo exists. */
+const member = (image: ImageFn) => z.object({ name: z.string().min(2), linkedin: z.url().optional(), photo: image().optional() });
 const needImagesUnlessDraft = (d: { draft: boolean; images: unknown[] }, ctx: z.RefinementCtx) => {
   if (!d.draft && d.images.length === 0) ctx.addIssue({ code: 'custom', message: 'Published projects need at least one image', path: ['images'] });
 };
@@ -24,7 +25,7 @@ const software = defineCollection({
     platform: z.string().optional(),
     year: z.number().int().optional(),
     /** Team members in display order; empty means an individual project (team size = members.length). */
-    members: z.array(member).default([]),
+    members: z.array(member(image)).default([]),
     order: z.number().int(),
     /** Device frame for the mockup: a laptop for desktop/web apps, a hand-held phone for mobile apps. */
     device: z.enum(['laptop', 'phone']).default('laptop'),
