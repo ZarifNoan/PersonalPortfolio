@@ -20,7 +20,7 @@ for (const p of pages) {
     await expect(footer.getByRole('link', { name: 'zrf.nurhan@gmail.com' })).toHaveAttribute('href', 'mailto:zrf.nurhan@gmail.com');
     await expect(footer.getByRole('link', { name: '+60 11-5878 5830' })).toHaveAttribute('href', 'tel:+601158785830');
     await expect(footer).toContainText('© 2026 Muhammad Zarif Nurhan Bin Mohd Arifin');
-    await expect(footer.getByRole('link', { name: /linkedin/i })).toHaveAttribute('href', 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/');
+    await expect(footer.getByRole('link', { name: /linkedin/i })).toHaveAttribute('href', 'https://www.linkedin.com/in/nurhan-arifin-885782390/');
     expect(errors).toEqual([]);
   });
 }

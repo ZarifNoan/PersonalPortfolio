@@ -104,7 +104,7 @@ test("Let's Connect sits below About and above pick-a-side, with mailto/tel/Link
   expect(order.split).toBeGreaterThan(order.connect);
   await expect(connect.getByRole('link', { name: /zrf\.nurhan@gmail\.com/ })).toHaveAttribute('href', 'mailto:zrf.nurhan@gmail.com');
   await expect(connect.getByRole('link', { name: /\+60 11-5878 5830/ })).toHaveAttribute('href', 'tel:+601158785830');
-  await expect(connect.getByRole('link', { name: /linkedin/i })).toHaveAttribute('href', 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/');
+  await expect(connect.getByRole('link', { name: /linkedin/i })).toHaveAttribute('href', 'https://www.linkedin.com/in/nurhan-arifin-885782390/');
 });
 
 test("Let's Connect cards stack on mobile and keep visible focus", async ({ page }, info) => {

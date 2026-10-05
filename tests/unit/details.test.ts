@@ -221,8 +221,8 @@ describe('siteLinkedinLink', () => {
     expect(siteLinkedinLink(null)).toBeNull();
   });
   it('links Zarif\'s profile in a new tab safely when a URL is set', () => {
-    expect(siteLinkedinLink('https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/')).toEqual({
-      href: 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/',
+    expect(siteLinkedinLink('https://www.linkedin.com/in/nurhan-arifin-885782390/')).toEqual({
+      href: 'https://www.linkedin.com/in/nurhan-arifin-885782390/',
       target: '_blank',
       rel: 'noopener noreferrer',
       'aria-label': 'Muhammad Zarif Nurhan on LinkedIn (opens in a new tab)',

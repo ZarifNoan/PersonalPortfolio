@@ -17,7 +17,7 @@ export const site = {
   phoneDisplay: '+60 11-5878 5830',
   phoneTel: '+601158785830',
   /** null renders no LinkedIn link anywhere on the site (never a dead link), until this is set. */
-  linkedin: 'https://www.linkedin.com/in/muhammad-zarif-nurhan-mohd-arifin-885782390/' as string | null,
+  linkedin: 'https://www.linkedin.com/in/nurhan-arifin-885782390/' as string | null,
   /** The lanyard card's photo, full-bleed between its header and footer bands (null shows the MZN monogram instead).
    *  Pre-cropped to the photo area's 168:201 shape, head with some headroom down to the folded arms; index.astro
    *  serves it as a WebP sized for the card. The role is printed over a white fade at the photo's bottom. */
